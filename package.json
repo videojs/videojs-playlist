@@ -4,6 +4,9 @@
   "description": "Playlist plugin for videojs",
   "main": "index.js",
   "scripts": {
+    "build": "mkdir -p dist/ && browserify . -s videojs-playlist -v -o dist/bundle.js",
+    "watch": "mkdir -p dist/ && watchify . -s videojs-playlist -v -o dist/bundle.js",
+    "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -14,6 +17,17 @@
   "author": "Gary Katsevman <me@gkatsev.com>",
   "license": "Apache 2.0",
   "devDependencies": {
-    "video.js": "^4.12.1"
+    "browserify": "^9.0.3",
+    "browserify-shim": "^3.8.3",
+    "video.js": "^4.12.1",
+    "watchify": "^2.4.0"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "video.js": "global:videojs"
   }
 }
