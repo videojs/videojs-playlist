@@ -1,10 +1,19 @@
 <link rel='stylesheet' href='node_modules/video.js/dist/video-js/video-js.css'></script>
 <script src='node_modules/video.js/dist/video-js/video.dev.js'></script>
 
+<style>
+  button {
+    margin: 1em;
+    width: 10em;
+  }
+</style>
+
 <!-- include the playlist plugin -->
 <script src='index.js'></script>
 
 <video class="video-js vjs-default-skin" controls width='640px' height='360px'></video>
+<button class="previous">« Previous</button>
+<button class="next">Next »</button>
 
 <script>
 var videoList = [{
@@ -42,5 +51,14 @@ var videoList = [{
 var video = document.querySelector('video');
 var player = videojs(video);
 player.playlist(videoList);
+
+var previous = document.querySelector('.previous');
+previous.addEventListener('click', function() {
+  player.playlist.previous();
+});
+var next = document.querySelector('.next');
+next.addEventListener('click', function() {
+  player.playlist.next();
+});
 </script>
 
