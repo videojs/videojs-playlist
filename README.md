@@ -1,0 +1,1 @@
+# Playlist plugin for videojs

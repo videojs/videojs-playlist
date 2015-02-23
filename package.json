@@ -1,0 +1,16 @@
+{
+  "name": "videojs-playlist",
+  "version": "1.0.0",
+  "description": "Playlist plugin for videojs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "videojs-plugin",
+    "playlist",
+    "videojs"
+  ],
+  "author": "Gary Katsevman <me@gkatsev.com>",
+  "license": "Apache 2.0"
+}
