@@ -8,7 +8,6 @@ var clearTracks = function(player) {
 };
 
 var playItem = function(player, obj) {
-  console.log(obj);
   var i, replay;
 
   replay = !player.paused();
@@ -41,9 +40,9 @@ var playlistMaker = function(player, plist) {
   };
 
   playlist.item = function item(index) {
-    if (index) {
-      currentIndex = 0;
-      return playItem(player, plist[i]);
+    if (typeof index === 'number' && index >= 0 && index < plist.length) {
+      currentIndex = index;
+      return playItem(player, plist[currentIndex]);
     }
 
     return currentIndex;
@@ -66,6 +65,8 @@ var playlistMaker = function(player, plist) {
     }
     return playItem(player, plist[currentIndex]);
   };
+
+  playlist.item(0);
 
   return playlist;
 };
