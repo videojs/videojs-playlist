@@ -6,6 +6,12 @@
     margin: 1em;
     width: 10em;
   }
+  .autoadvance-group {
+    margin: 1em;
+  }
+  .autoadvance-group label {
+    margin: 10px;
+  }
 </style>
 
 <!-- include the playlist plugin -->
@@ -14,6 +20,33 @@
 <video class="video-js vjs-default-skin" controls width='640px' height='360px'></video>
 <button class="previous">« Previous</button>
 <button class="next">Next »</button>
+<div class="autoadvance-group">
+  <h4>Auto-advance</h4>
+  <label>
+    <input type="radio" name="autoadvance" class="autoadvance" value="null" checked>
+    No auto-advance
+  </label>
+  <label>
+    <input type="radio" name="autoadvance" class="autoadvance" value="0">
+    0
+  </label>
+  <label>
+    <input type="radio" name="autoadvance" class="autoadvance" value="500">
+    500
+  </label>
+  <label>
+    <input type="radio" name="autoadvance" class="autoadvance" value="1000">
+    1000
+  </label>
+  <label>
+    <input type="radio" name="autoadvance" class="autoadvance" value="2000">
+    2000
+  </label>
+  <label>
+    <input type="radio" name="autoadvance" class="autoadvance" value="5000">
+    5000
+  </label>
+</div>
 
 <script>
 var videoList = [{
@@ -49,7 +82,16 @@ var videoList = [{
 }];
 
 var video = document.querySelector('video');
-var player = videojs(video);
+
+var player = videojs(video, {
+  inactivityTimeout: 0
+});
+
+try {
+  // try on ios
+  player.volume(0);
+} catch (e) {}
+
 player.playlist(videoList);
 
 var previous = document.querySelector('.previous');
@@ -59,6 +101,13 @@ previous.addEventListener('click', function() {
 var next = document.querySelector('.next');
 next.addEventListener('click', function() {
   player.playlist.next();
+});
+
+Array.prototype.forEach.call(document.querySelectorAll('.autoadvance'), function(el) {
+  el.addEventListener('click', function() {
+    var value = document.querySelector('.autoadvance:checked').value;
+    player.playlist.autoadvance(JSON.parse(value));
+  });
 });
 </script>
 
