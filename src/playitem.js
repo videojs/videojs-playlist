@@ -1,3 +1,5 @@
+var setupAutoadvance = require('./autoadvance.js');
+
 var clearTracks = function(player) {
   var remoteTT = player.remoteTextTracks();
   var i = (remoteTT && remoteTT.length) || 0;
@@ -7,10 +9,10 @@ var clearTracks = function(player) {
   }
 };
 
-var playItem = function(player, obj) {
+var playItem = function(player, autoadvanceTimeout, obj) {
   var i, replay;
 
-  replay = !player.paused();
+  replay = !player.paused() || player.ended();
 
   player.poster(obj.poster);
   player.src(obj.sources);
@@ -25,6 +27,8 @@ var playItem = function(player, obj) {
   if (replay) {
     player.play();
   }
+
+  setupAutoadvance(player, autoadvanceTimeout);
 
   return player;
 };

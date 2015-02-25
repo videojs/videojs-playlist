@@ -1,7 +1,10 @@
 var playItem = require('./src/playitem.js');
+var setupAutoadvance = require('./src/autoadvance.js');
 
 var playlistMaker = function(player, plist) {
   var currentIndex = 0;
+  var autoadvanceTimeout = null;
+
   var playlist = function playlist(list) {
     this.playlist = playlistMaker(this, list);
   };
@@ -13,7 +16,7 @@ var playlistMaker = function(player, plist) {
   playlist.item = function item(index) {
     if (typeof index === 'number' && index >= 0 && index < plist.length) {
       currentIndex = index;
-      return playItem(player, plist[currentIndex]);
+      return playItem(player, autoadvanceTimeout, plist[currentIndex]);
     }
 
     return currentIndex;
@@ -25,7 +28,7 @@ var playlistMaker = function(player, plist) {
     if (prevIndex === currentIndex) {
       return;
     }
-    return playItem(player, plist[currentIndex]);
+    return playItem(player, autoadvanceTimeout, plist[currentIndex]);
   };
 
   playlist.previous = function previous() {
@@ -34,7 +37,17 @@ var playlistMaker = function(player, plist) {
     if (prevIndex === currentIndex) {
       return;
     }
-    return playItem(player, plist[currentIndex]);
+    return playItem(player, autoadvanceTimeout, plist[currentIndex]);
+  };
+
+  playlist.autoadvance = function autoadvance(timeout) {
+    if (typeof timeout !== 'number') {
+      autoadvance = null;
+    }
+
+    autoadvanceTimeout = timeout;
+
+    setupAutoadvance(player, autoadvanceTimeout);
   };
 
   playlist.item(0);
