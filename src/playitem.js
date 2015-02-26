@@ -34,4 +34,4 @@ var playItem = function(player, autoadvanceTimeout, obj) {
 };
 
 module.exports = playItem;
-module.exports.clearTrack = clearTracks;
+module.exports.clearTracks = clearTracks;
