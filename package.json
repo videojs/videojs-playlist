@@ -11,7 +11,9 @@
     "watch-dist": "mkdir -p dist/ && watchify . -s videojs-playlist -v -d -o dist/bundle.js",
     "build-tests": "mkdir -p dist/ && browserify test/karma-qunit-shim.js test/*-test.js -u test/karma.conf.js -s videojs-playlist -d -o dist/tests.js",
     "watch-tests": "mkdir -p dist/ && watchify test/karma-qunit-shim.js test/*-test.js -u test/karma.conf.js -s videojs-playlist -v -d -o dist/tests.js",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "test": "npm run build-tests && karma start test/karma.conf.js --single-run",
+    "test-watch": "npm run watch-tests & karma start test/karma.conf.js --auto-watch & wait"
   },
   "keywords": [
     "videojs-plugin",
@@ -25,6 +27,7 @@
     "browserify-shim": "^3.8.3",
     "karma": "^0.12.31",
     "karma-chrome-launcher": "^0.1.7",
+    "karma-cli": "0.0.4",
     "karma-firefox-launcher": "^0.1.4",
     "karma-ie-launcher": "^0.1.5",
     "karma-phantomjs-launcher": "^0.1.4",

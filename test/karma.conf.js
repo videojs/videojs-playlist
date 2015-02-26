@@ -6,9 +6,10 @@ module.exports = function(config) {
 
     frameworks: ['qunit'],
 
+    browsers: ['Chrome', 'Firefox', 'Safari', 'PhantomJS'],
+
     files: [
       '../node_modules/video.js/dist/video-js/video.dev.js',
-      '../dist/bundle.js',
       '../dist/tests.js'
     ],
 
