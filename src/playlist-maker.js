@@ -20,7 +20,8 @@ var playlistMaker = function(player, plist) {
   playlist.item = function item(index) {
     if (typeof index === 'number' && index >= 0 && index < plist.length) {
       currentIndex = index;
-      return playItem(player, autoadvanceTimeout, plist[currentIndex]);
+      playItem(player, autoadvanceTimeout, plist[currentIndex]);
+      return plist[currentIndex];
     }
 
     return currentIndex;
@@ -32,7 +33,8 @@ var playlistMaker = function(player, plist) {
     if (prevIndex === currentIndex) {
       return;
     }
-    return playItem(player, autoadvanceTimeout, plist[currentIndex]);
+    playItem(player, autoadvanceTimeout, plist[currentIndex]);
+    return plist[currentIndex];
   };
 
   playlist.previous = function previous() {
@@ -41,7 +43,8 @@ var playlistMaker = function(player, plist) {
     if (prevIndex === currentIndex) {
       return;
     }
-    return playItem(player, autoadvanceTimeout, plist[currentIndex]);
+    playItem(player, autoadvanceTimeout, plist[currentIndex]);
+    return plist[currentIndex];
   };
 
   playlist.autoadvance = function autoadvance(timeout) {
