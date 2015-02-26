@@ -4,10 +4,14 @@
   "description": "Playlist plugin for videojs",
   "main": "index.js",
   "scripts": {
-    "build": "mkdir -p dist/ && browserify . -s videojs-playlist -v -o dist/bundle.js",
-    "watch": "mkdir -p dist/ && watchify . -s videojs-playlist -v -o dist/bundle.js",
-    "prepublish": "npm run build",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm run build-dist",
+    "watch": "npm run watch-dist & npm run watch-tests & wait",
+    "buildall": "npm run build-dist && npm run build-tests",
+    "build-dist": "mkdir -p dist/ && browserify . -s videojs-playlist -o dist/bundle.js",
+    "watch-dist": "mkdir -p dist/ && watchify . -s videojs-playlist -v -d -o dist/bundle.js",
+    "build-tests": "mkdir -p dist/ && browserify test/karma-qunit-shim.js test/*-test.js -u test/karma.conf.js -s videojs-playlist -d -o dist/tests.js",
+    "watch-tests": "mkdir -p dist/ && watchify test/karma-qunit-shim.js test/*-test.js -u test/karma.conf.js -s videojs-playlist -v -d -o dist/tests.js",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "videojs-plugin",
@@ -19,6 +23,15 @@
   "devDependencies": {
     "browserify": "^9.0.3",
     "browserify-shim": "^3.8.3",
+    "karma": "^0.12.31",
+    "karma-chrome-launcher": "^0.1.7",
+    "karma-firefox-launcher": "^0.1.4",
+    "karma-ie-launcher": "^0.1.5",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-qunit": "^0.1.4",
+    "karma-safari-launcher": "^0.1.1",
+    "qunit": "^0.7.5",
+    "qunitjs": "^1.17.1",
     "video.js": "^4.12.1",
     "watchify": "^2.4.0"
   },

@@ -59,8 +59,4 @@ var playlistMaker = function(player, plist) {
   return playlist;
 };
 
-var playlist = function playlist(list) {
-  this.playlist = playlistMaker(this, list);
-};
-
-module.exports = playlist;
+module.exports = playlistMaker;
