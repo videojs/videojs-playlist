@@ -3,7 +3,7 @@ var q = QUnit,
     playerProxy = require('./player-proxy.js'),
     extend = require('util')._extend;
 
-q.module('playitem')
+q.module('playitem');
 
 q.test('clearTracks will try and remove all tracks', function() {
   var player = extend({}, playerProxy),

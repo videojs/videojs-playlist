@@ -48,10 +48,6 @@ var playlistMaker = function(player, plist) {
   };
 
   playlist.autoadvance = function autoadvance(timeout) {
-    if (typeof timeout !== 'number') {
-      autoadvance = null;
-    }
-
     autoadvanceTimeout = timeout;
 
     setupAutoadvance(player, autoadvanceTimeout);
