@@ -1,4 +1,9 @@
 // Karma configuration
+var browsers = ['PhantomJS'];
+
+if (!process.env.TRAVIS_PULL_REQUEST) {
+  browsers.push('Chrome', 'Firefox', 'Safari');
+}
 
 module.exports = function(config) {
   config.set({
@@ -6,7 +11,7 @@ module.exports = function(config) {
 
     frameworks: ['qunit'],
 
-    browsers: ['Chrome', 'Firefox', 'Safari', 'PhantomJS'],
+    browsers: browsers,
 
     files: [
       '../node_modules/video.js/dist/video-js/video.dev.js',
