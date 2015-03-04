@@ -12,7 +12,7 @@ module.exports = function autoadvance(player, timeout) {
     player.playlist._ontimeout = null;
   };
 
-  // we are want to cancel the auto advance or accidentally called it with a bogus value
+  // we want to cancel the auto advance or accidentally called it with a bogus value
   if (typeof timeout !== 'number' || timeout !== timeout || timeout < 0 || timeout === Infinity) {
     return resetadvance();
   }
