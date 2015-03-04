@@ -13,7 +13,7 @@ module.exports = function autoadvance(player, timeout) {
   };
 
   // we are want to cancel the auto advance or accidentally called it with a bogus value
-  if (typeof timeout !== 'number' || timeout < 0) {
+  if (typeof timeout !== 'number' || timeout !== timeout || timeout < 0 || timeout === Infinity) {
     return resetadvance();
   }
 

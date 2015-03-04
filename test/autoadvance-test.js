@@ -90,9 +90,15 @@ q.test('reset if timeout is weird after we advance', function() {
   autoadvance(player, {});
   autoadvance(player, 0);
   autoadvance(player, []);
+  autoadvance(player, 0);
+  autoadvance(player, NaN);
+  autoadvance(player, 0);
+  autoadvance(player, Infinity);
+  autoadvance(player, 0);
+  autoadvance(player, -Infinity);
 
-  q.equal(offs.length, 5, 'we reset the advance 5 times');
-  q.equal(ones.length, 5, 'we autoadvanced 5 times');
+  q.equal(offs.length, 8, 'we reset the advance 8 times');
+  q.equal(ones.length, 8, 'we autoadvanced 8 times');
 });
 
 q.test('reset if we have already started advancing', function() {
