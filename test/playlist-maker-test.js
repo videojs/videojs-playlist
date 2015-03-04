@@ -41,6 +41,9 @@ q.test('playlist.currentItem() works as expected', function() {
   q.equal(playlist.currentItem(5), 2, 'cannot change to an out-of-bounds item');
   q.equal(playlist.currentItem(-1), 2, 'cannot change to an out-of-bounds item');
   q.equal(playlist.currentItem(null), 2, 'cannot change to an invalid item');
+  q.equal(playlist.currentItem(NaN), 2, 'cannot change to an invalid item');
+  q.equal(playlist.currentItem(Infinity), 2, 'cannot change to an invalid item');
+  q.equal(playlist.currentItem(-Infinity), 2, 'cannot change to an invalid item');
 });
 
 q.test('playlist.next() works as expected', function() {
