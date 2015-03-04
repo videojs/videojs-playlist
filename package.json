@@ -13,7 +13,8 @@
     "watch-tests": "mkdir -p dist/ && watchify test/karma-qunit-shim.js test/*-test.js -u test/karma.conf.js -s videojs-playlist -v -d -o dist/tests.js",
     "prepublish": "npm run build",
     "test": "jshint src/**.js test/**.js index.js && npm run build-tests && karma start test/karma.conf.js --single-run",
-    "test-watch": "npm run watch-tests & karma start test/karma.conf.js --auto-watch & wait"
+    "test-watch": "npm run watch-tests & karma start test/karma.conf.js --auto-watch & wait",
+    "jshint": "jshint src/**.js test/**.js"
   },
   "keywords": [
     "videojs-plugin",
