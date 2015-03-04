@@ -13,11 +13,11 @@ var playlistMaker = function(player, plist) {
     return plist.slice();
   };
 
-  playlist.item = function item(index) {
+  playlist.currentItem = function item(index) {
     if (typeof index === 'number' && index >= 0 && index < plist.length) {
       currentIndex = index;
       playItem(player, autoadvanceTimeout, plist[currentIndex]);
-      return plist[currentIndex];
+      return currentIndex;
     }
 
     return currentIndex;
@@ -49,7 +49,7 @@ var playlistMaker = function(player, plist) {
     setupAutoadvance(player, autoadvanceTimeout);
   };
 
-  playlist.item(0);
+  playlist.currentItem(0);
 
   return playlist;
 };
