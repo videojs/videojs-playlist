@@ -6,14 +6,10 @@ var playlistMaker = function(player, plist) {
   var autoadvanceTimeout = null;
 
   var playlist = function playlist(list) {
-    if (typeof list === 'number') {
-      return player.playlist.item(list);
+    if (list) {
+      plist = list.slice();
     }
 
-    this.playlist = playlistMaker(this, list);
-  };
-
-  playlist.list = function list() {
     return plist.slice();
   };
 

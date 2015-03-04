@@ -9,20 +9,20 @@ q.test('playlistMaker takes a player and a list and returns a playlist', functio
 
   q.ok(playlist, 'we got a playlist');
   q.equal(typeof playlist, 'function', 'playlist is a function');
-  q.equal(typeof playlist.list, 'function', 'we have a list function');
   q.equal(typeof playlist.item, 'function', 'we have a item function');
   q.equal(typeof playlist.next, 'function', 'we have a next function');
   q.equal(typeof playlist.previous, 'function', 'we have a previous function');
   q.equal(typeof playlist.autoadvance, 'function', 'we have a autoadvance function');
 });
 
-q.test('playlist.list() works as expected', function() {
+q.test('playlist() is a getter and setter for the list', function() {
   var playlist = playlistMaker(playerProxy, [1,2,3]);
 
-  q.deepEqual(playlist.list(), [1,2,3], 'equal to input list');
-  q.deepEqual(playlist.list([1,2,3,4,5]), [1,2,3], 'equal to input list, arguments ignored');
+  q.deepEqual(playlist(), [1,2,3], 'equal to input list');
+  q.deepEqual(playlist([1,2,3,4,5]), [1,2,3,4,5], 'equal to input list, arguments ignored');
+  q.deepEqual(playlist(), [1,2,3,4,5], 'equal to input list');
 
-  var list = playlist.list();
+  var list = playlist();
   list.unshift(10);
 
   q.equal(playlist.item(0), 1, 'changing the list did not affect the playlist');
