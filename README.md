@@ -43,6 +43,12 @@ player.playlist.next();
 
 ## API
 
+* [`player.playlist([Array newPlaylist])`](#playerplaylistarray-newplaylist---array)
+* [`player.playlist.currentItem([Number newIndex])`](#playerplaylistcurrentitemnumber-newindex---number)
+* [`player.playlist.next()`](#playerplaylistnext---object)
+* [`player.playlist.previous()`](#playerplaylistprevous---object)
+* [`player.playlist.autoadvance()`](#playerplaylistautoadvancenumber-timeout---undefined)
+
 ### player.playlist([Array newPlaylist]) -> Array
 This function allows you to either set or get the current playlist.
 If called without arguments, it is a getter, with an argument, it is a setter.
