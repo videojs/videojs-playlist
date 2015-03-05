@@ -1,1 +1,146 @@
 # Playlist plugin for videojs
+
+## Usage
+
+```js
+require('videojs-playlist');
+
+var player = videojs('video');
+player.playlist([{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}, {
+  sources: [{
+    src: 'http://vjs.zencdn.net/v/oceans.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://www.videojs.com/img/poster.jpg'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/video/poster.png'
+}]);
+
+player.playlist.next();
+```
+
+## API
+
+### player.playlist([Array newPlaylist]) -> Array
+This function allows you to either set or get the current playlist.
+If called without arguments, it is a getter, with an argument, it is a setter.
+
+```js
+player.playlist();
+// [{
+//   sources: [{
+//     src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+//     type: 'video/mp4'
+//   }],
+//   poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+// }, {
+//   sources: [{
+//     src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+//     type: 'video/mp4'
+//   }],
+// ...
+
+player.playlist([{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/video/poster.png'
+}]);
+// [{
+//   sources: [{
+//     src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+//     type: 'video/mp4'
+//   }],
+//   poster: 'http://media.w3.org/2010/05/video/poster.png'
+// }]
+```
+
+### player.playlist.currentItem([Number newIndex]) -> Number
+This functions allows you to either set or get the current item index.
+If called without arguments, it is a getter, with an argument, it is a setter.
+
+```js
+player.currentItem();
+// 0
+
+player.currentItem(2);
+// 2
+```
+
+### player.playlist.next() -> Object
+This functions allows you to advance to the next item in the playlist. You will receive the new playlist item back from this call. `player.playlist.currentItem` will be updated to return the new index.
+If you are at the end of the playlist, you will not be able to proceed past the end and instead will not receive anything back;
+
+```js
+player.playlist.next();
+// {
+//   sources: [{
+//     src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+//     type: 'video/mp4'
+//   }],
+//   poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+// }
+
+
+player.playlist.currenItem(player.playlist().length - 1); // set to last item
+// 4
+player.playlist.next();
+// undefined
+```
+
+### player.playlist.previous() -> Object
+This functions allows you to return to the previous item in the playlist. You will receive the new playlist item back from this call. `player.playlist.currentItem` will be updated to return the new index.
+If you are at the start of the playlist, you will not be able to proceed past the start and instead will not receive anything back;
+
+```js
+player.playlist.currenItem(1); // set to second item in the playlist
+// 1
+player.playlist.previous();
+// {
+//   sources: [{
+//     src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+//     type: 'video/mp4'
+//   }],
+//   poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+// }
+
+
+player.playlist.currenItem();
+// 0
+player.playlist.previous();
+// undefined
+```
+
+### player.playlist.autoadvance([Number timeout]) -> undefined
+This function allows you to set up playlist auto advancement. Once enabled it will wait a `timeout` amount of milliseconds at the end of a video before proceeding automatically to the next video.
+Any value which is not a positive, finite, integer, will be treated as a request to cancel and reset the auto advancing.
+If you change autoadvance during a timeout period, the auto advance will be canceled and it will not advance the next video but it will use the new timeout value for the following videos.
+
+```js
+player.playlist.autoadvance(0); // will not wait before loading in the next item
+player.playlist.autoadvance(5000); // will wait for 5 seconds before loading in the next item
+player.playlist.autoadvance(null); // reset and cancel the auto advance
+```
