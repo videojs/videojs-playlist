@@ -15,6 +15,17 @@ q.test('playlistMaker takes a player and a list and returns a playlist', functio
   q.equal(typeof playlist.autoadvance, 'function', 'we have a autoadvance function');
 });
 
+q.test('playlistMaker can either take nothing or only an Array', function() {
+  var playlist1 = playlistMaker(playerProxy);
+  var playlist2 = playlistMaker(playerProxy, 'foo');
+  var playlist3 = playlistMaker(playerProxy, {foo: [1,2,3]});
+
+  q.deepEqual(playlist1(), [], 'if given no initial array, default to an empty array');
+  q.deepEqual(playlist2(), [], 'if given no initial array, default to an empty array');
+  q.deepEqual(playlist3(), [], 'if given no initial array, default to an empty array');
+});
+
+
 q.test('playlist() is a getter and setter for the list', function() {
   var playlist = playlistMaker(playerProxy, [1,2,3]);
 
@@ -28,6 +39,13 @@ q.test('playlist() is a getter and setter for the list', function() {
   q.deepEqual(playlist(), [1,2,3,4,5], 'changing the list did not affect the playlist');
   q.notDeepEqual(playlist(), [10,1,2,3,4,5], 'changing the list did not affect the playlist');
 
+});
+
+q.test('playlist() should only accept an Array as a new playlist', function() {
+  var playlist = playlistMaker(playerProxy, [1,2,3]);
+
+  q.deepEqual(playlist("foo"), [1,2,3], 'when given "foo", it should be treated as a getter');
+  q.deepEqual(playlist({foo: [1,2,3]}), [1,2,3], 'when given {foo: [1,2,3]}, it should be treated as a getter');
 });
 
 q.test('playlist.currentItem() works as expected', function() {

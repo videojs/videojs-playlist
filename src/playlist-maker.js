@@ -1,5 +1,8 @@
 var playItem = require('./playitem.js');
 var setupAutoadvance = require('./autoadvance.js');
+var isArray = Array.isArray || function(array) {
+  return Object.prototype.toString.call(array) === '[object Array]';
+};
 
 // factory method to return a new playlist with the following API
 // playlist(["a", "b", "c"]) // setter, ["a", "b", "c"]
@@ -11,19 +14,24 @@ var setupAutoadvance = require('./autoadvance.js');
 var playlistMaker = function(player, plist) {
   var currentIndex = 0;
   var autoadvanceTimeout = null;
+  var list = [];
 
-  var playlist = function playlist(list) {
-    if (list) {
-      plist = list.slice();
+  if (plist && isArray(plist)) {
+    list = plist.slice();
+  }
+
+  var playlist = function playlist(plist) {
+    if (plist && isArray(plist)) {
+      list = plist.slice();
     }
 
-    return plist.slice();
+    return list.slice();
   };
 
   playlist.currentItem = function item(index) {
-    if (typeof index === 'number' && index >= 0 && index < plist.length) {
+    if (typeof index === 'number' && index >= 0 && index < list.length) {
       currentIndex = index;
-      playItem(player, autoadvanceTimeout, plist[currentIndex]);
+      playItem(player, autoadvanceTimeout, list[currentIndex]);
       return currentIndex;
     }
 
@@ -33,12 +41,12 @@ var playlistMaker = function(player, plist) {
   playlist.next = function next() {
     var prevIndex = currentIndex;
     // make sure we don't go past the end of the playlist
-    currentIndex = Math.min(currentIndex + 1, plist.length - 1);
+    currentIndex = Math.min(currentIndex + 1, list.length - 1);
     if (prevIndex === currentIndex) {
       return;
     }
-    playItem(player, autoadvanceTimeout, plist[currentIndex]);
-    return plist[currentIndex];
+    playItem(player, autoadvanceTimeout, list[currentIndex]);
+    return list[currentIndex];
   };
 
   playlist.previous = function previous() {
@@ -48,8 +56,8 @@ var playlistMaker = function(player, plist) {
     if (prevIndex === currentIndex) {
       return;
     }
-    playItem(player, autoadvanceTimeout, plist[currentIndex]);
-    return plist[currentIndex];
+    playItem(player, autoadvanceTimeout, list[currentIndex]);
+    return list[currentIndex];
   };
 
   playlist.autoadvance = function autoadvance(timeout) {
@@ -58,7 +66,9 @@ var playlistMaker = function(player, plist) {
     setupAutoadvance(player, autoadvanceTimeout);
   };
 
-  playlist.currentItem(0);
+  if (list.length) {
+    playlist.currentItem(0);
+  }
 
   return playlist;
 };
