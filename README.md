@@ -49,7 +49,7 @@ player.playlist.next();
 * [`player.playlist.previous()`](#playerplaylistprevious---object)
 * [`player.playlist.autoadvance()`](#playerplaylistautoadvancenumber-timeout---undefined)
 
-### player.playlist([Array newPlaylist]) -> Array
+### `player.playlist([Array newPlaylist]) -> Array`
 This function allows you to either set or get the current playlist.
 If called without arguments, it is a getter, with an argument, it is a setter.
 
@@ -84,7 +84,7 @@ player.playlist([{
 // }]
 ```
 
-### player.playlist.currentItem([Number newIndex]) -> Number
+### `player.playlist.currentItem([Number newIndex]) -> Number`
 This functions allows you to either set or get the current item index.
 If called without arguments, it is a getter, with an argument, it is a setter.
 
@@ -96,7 +96,7 @@ player.currentItem(2);
 // 2
 ```
 
-### player.playlist.next() -> Object
+### `player.playlist.next() -> Object`
 This functions allows you to advance to the next item in the playlist. You will receive the new playlist item back from this call. `player.playlist.currentItem` will be updated to return the new index.
 If you are at the end of the playlist, you will not be able to proceed past the end and instead will not receive anything back;
 
@@ -117,7 +117,7 @@ player.playlist.next();
 // undefined
 ```
 
-### player.playlist.previous() -> Object
+### `player.playlist.previous() -> Object`
 This functions allows you to return to the previous item in the playlist. You will receive the new playlist item back from this call. `player.playlist.currentItem` will be updated to return the new index.
 If you are at the start of the playlist, you will not be able to proceed past the start and instead will not receive anything back;
 
@@ -140,7 +140,7 @@ player.playlist.previous();
 // undefined
 ```
 
-### player.playlist.autoadvance([Number timeout]) -> undefined
+### `player.playlist.autoadvance([Number timeout]) -> undefined`
 This function allows you to set up playlist auto advancement. Once enabled it will wait a `timeout` amount of milliseconds at the end of a video before proceeding automatically to the next video.
 Any value which is not a positive, finite, integer, will be treated as a request to cancel and reset the auto advancing.
 If you change autoadvance during a timeout period, the auto advance will be canceled and it will not advance the next video but it will use the new timeout value for the following videos.
@@ -150,3 +150,34 @@ player.playlist.autoadvance(0); // will not wait before loading in the next item
 player.playlist.autoadvance(5000); // will wait for 5 seconds before loading in the next item
 player.playlist.autoadvance(null); // reset and cancel the auto advance
 ```
+
+## Development
+
+### npm scripts
+* `npm run build` - Build `dist/bundle.js` file only. Alias for `build-dist`
+* `npm run watch` - Watch and rebuild `dist/bundle.js` and `dist/tests.js` files as necessary
+* `npm run buildall` - Build both `dist/bundle.js` and `dist/tests.js`
+* `npm run build-dist` - Build only `dist/bundle.js`
+* `npm run watch-dist` - watch and rebuild `dist/bundle.js` file as necessary
+* `npm run build-tests` - Build only `dist/tests.js`
+* `npm run watch-tests` - watch and rebuild `dist/tests.js` file as necessary
+* `npm test` - Run jshint on all javascript files, build `dist/tests.js` file, and do a single run of karma
+* `npm run test-watch` - Watch and rebuild `dist/tests.js` file as necessary and run karma watch to re-run tests as necessary
+* `npm run jshint` - Just run jshint on all files
+
+### Building
+You should either include this project directly in your browserify or you can build it by running
+`npm run build`
+
+### Running tests
+You can run a single test run, which includes running jshint as well as karma by running
+```sh
+npm test
+```
+For development, consider running
+```sh
+npm run test-watch
+```
+Which will re-run the karma tests as you save your files to let you know your test results automatically.
+
+## [LICENSE](https://github.com/brightcove/videojs-playlist/blob/master/LICENSE.md)
