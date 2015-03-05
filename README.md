@@ -46,7 +46,7 @@ player.playlist.next();
 * [`player.playlist([Array newPlaylist])`](#playerplaylistarray-newplaylist---array)
 * [`player.playlist.currentItem([Number newIndex])`](#playerplaylistcurrentitemnumber-newindex---number)
 * [`player.playlist.next()`](#playerplaylistnext---object)
-* [`player.playlist.previous()`](#playerplaylistprevous---object)
+* [`player.playlist.previous()`](#playerplaylistprevious---object)
 * [`player.playlist.autoadvance()`](#playerplaylistautoadvancenumber-timeout---undefined)
 
 ### player.playlist([Array newPlaylist]) -> Array
