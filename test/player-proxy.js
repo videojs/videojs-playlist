@@ -9,5 +9,10 @@ module.exports = {
   remoteTextTracks: Function.prototype,
   one: Function.prototype,
   off: Function.prototype,
-  playlist: {}
+  playlist: {
+    currentItem: Function.prototype,
+    next: Function.prototype,
+    previous: Function.prototype,
+    autoadvance: Function.prototype
+  }
 };
