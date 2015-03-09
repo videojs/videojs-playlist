@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/brightcove/videojs-playlist.svg?branch=master)](https://travis-ci.org/brightcove/videojs-playlist)
+
 # Playlist plugin for videojs
 
 ## Usage
