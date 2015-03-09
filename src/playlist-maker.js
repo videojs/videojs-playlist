@@ -23,6 +23,7 @@ var playlistMaker = function(player, plist) {
   var playlist = function playlist(plist) {
     if (plist && isArray(plist)) {
       list = plist.slice();
+      player.playlist.currentItem(0);
     }
 
     return list.slice();
