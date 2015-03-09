@@ -7,7 +7,7 @@
     "build": "npm run build-dist",
     "watch": "npm run watch-dist & npm run watch-tests & wait",
     "buildall": "npm run build-dist && npm run build-tests",
-    "build-dist": "mkdir -p dist/ && browserify . -s videojs-playlist -o dist/bundle.js",
+    "build-dist": "mkdir -p dist/ && browserify . -s videojs-playlist -o dist/bundle.js && browserify . -s videojs-playlist -p deumdify > dist/global.js",
     "watch-dist": "mkdir -p dist/ && watchify . -s videojs-playlist -v -d -o dist/bundle.js",
     "build-tests": "mkdir -p dist/ && browserify test/karma-qunit-shim.js test/*-test.js -u test/karma.conf.js -s videojs-playlist -d -o dist/tests.js",
     "watch-tests": "mkdir -p dist/ && watchify test/karma-qunit-shim.js test/*-test.js -u test/karma.conf.js -s videojs-playlist -v -d -o dist/tests.js",
@@ -28,6 +28,7 @@
   },
   "devDependencies": {
     "browserify": "^9.0.3",
+    "deumdify": "^1.1.0",
     "jshint": "^2.6.0",
     "karma": "^0.12.31",
     "karma-chrome-launcher": "^0.1.7",
