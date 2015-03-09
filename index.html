@@ -1,113 +1,196 @@
-<link rel='stylesheet' href='node_modules/video.js/dist/video-js/video-js.css'></script>
-<script src='node_modules/video.js/dist/video-js/video.dev.js'></script>
+<!doctype html>
+<html>
+  <head>
+    <script>
+      document.createElement('video');
+      (function() {
+        if (!Event.prototype.preventDefault) {
+          Event.prototype.preventDefault=function() {
+            this.returnValue=false;
+          };
+        }
+        if (!Event.prototype.stopPropagation) {
+          Event.prototype.stopPropagation=function() {
+            this.cancelBubble=true;
+          };
+        }
+        if (!Element.prototype.addEventListener) {
+          var eventListeners=[];
 
-<style>
-  button {
-    margin: 1em;
-    width: 10em;
-  }
-  .autoadvance-group {
-    margin: 1em;
-  }
-  .autoadvance-group label {
-    margin: 10px;
-  }
-</style>
+          var addEventListener=function(type,listener /*, useCapture (will be ignored) */) {
+            var self=this;
+            var wrapper=function(e) {
+              e.target=e.srcElement;
+              e.currentTarget=self;
+              if (listener.handleEvent) {
+                listener.handleEvent(e);
+              } else {
+                listener.call(self,e);
+              }
+            };
+            if (type=="DOMContentLoaded") {
+              var wrapper2=function(e) {
+                if (document.readyState=="complete") {
+                  wrapper(e);
+                }
+              };
+              document.attachEvent("onreadystatechange",wrapper2);
+              eventListeners.push({object:this,type:type,listener:listener,wrapper:wrapper2});
 
-<!-- include the playlist plugin -->
-<script src='dist/bundle.js'></script>
+              if (document.readyState=="complete") {
+                var e=new Event();
+                e.srcElement=window;
+                wrapper2(e);
+              }
+            } else {
+              this.attachEvent("on"+type,wrapper);
+              eventListeners.push({object:this,type:type,listener:listener,wrapper:wrapper});
+            }
+          };
+          var removeEventListener=function(type,listener /*, useCapture (will be ignored) */) {
+            var counter=0;
+            while (counter<eventListeners.length) {
+              var eventListener=eventListeners[counter];
+              if (eventListener.object==this && eventListener.type==type && eventListener.listener==listener) {
+                if (type=="DOMContentLoaded") {
+                  this.detachEvent("onreadystatechange",eventListener.wrapper);
+                } else {
+                  this.detachEvent("on"+type,eventListener.wrapper);
+                }
+                eventListeners.splice(counter, 1);
+                break;
+              }
+              ++counter;
+            }
+          };
+          Element.prototype.addEventListener=addEventListener;
+          Element.prototype.removeEventListener=removeEventListener;
+          if (HTMLDocument) {
+            HTMLDocument.prototype.addEventListener=addEventListener;
+            HTMLDocument.prototype.removeEventListener=removeEventListener;
+          }
+          if (Window) {
+            Window.prototype.addEventListener=addEventListener;
+            Window.prototype.removeEventListener=removeEventListener;
+          }
+        }
+      })();
+    </script>
+    <link rel='stylesheet' href='node_modules/video.js/dist/video-js/video-js.css'></script>
+    <script src='node_modules/video.js/dist/video-js/video.js'></script>
+    <script src="node_modules/es5-shim/es5-shim.js"></script>
 
-<video class="video-js vjs-default-skin" controls width='640px' height='360px'></video>
-<button class="previous">« Previous</button>
-<button class="next">Next »</button>
-<div class="autoadvance-group">
-  <h4>Auto-advance</h4>
-  <label>
-    <input type="radio" name="autoadvance" class="autoadvance" value="null" checked>
-    No auto-advance
-  </label>
-  <label>
-    <input type="radio" name="autoadvance" class="autoadvance" value="0">
-    0
-  </label>
-  <label>
-    <input type="radio" name="autoadvance" class="autoadvance" value="500">
-    500
-  </label>
-  <label>
-    <input type="radio" name="autoadvance" class="autoadvance" value="1000">
-    1000
-  </label>
-  <label>
-    <input type="radio" name="autoadvance" class="autoadvance" value="2000">
-    2000
-  </label>
-  <label>
-    <input type="radio" name="autoadvance" class="autoadvance" value="5000">
-    5000
-  </label>
-</div>
+    <!-- include the playlist plugin -->
+    <script src='dist/bundle.js'></script>
 
-<script>
-var videoList = [{
-  sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
-}, {
-  sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
-}, {
-  sources: [{
-    src: 'http://vjs.zencdn.net/v/oceans.mp4',
-    type: 'video/mp4'
-  }],
-  poster: 'http://www.videojs.com/img/poster.jpg'
-}, {
-  sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
-    type: 'video/mp4'
-  }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
-}, {
-  sources: [{
-    src: 'http://media.w3.org/2010/05/video/movie_300.webm',
-    type: 'video/mp4'
-  }],
-  poster: 'http://media.w3.org/2010/05/video/poster.png'
-}];
+    <style>
+      button {
+        margin: 1em;
+        width: 10em;
+      }
+      .autoadvance-group {
+        margin: 1em;
+      }
+      .autoadvance-group label {
+        margin: 10px;
+      }
+    </style>
+  </head>
 
-var video = document.querySelector('video');
+  <body>
 
-var player = videojs(video, {
-  inactivityTimeout: 0
-});
+    <video class="video-js vjs-default-skin" controls width='640px' height='360px'></video>
+    <button class="previous">« Previous</button>
+    <button class="next">Next »</button>
+    <div class="autoadvance-group">
+      <h4>Auto-advance</h4>
+      <label>
+        <input type="radio" name="autoadvance" class="autoadvance" value="null" checked>
+        No auto-advance
+      </label>
+      <label>
+        <input type="radio" name="autoadvance" class="autoadvance" value="0">
+        0
+      </label>
+      <label>
+        <input type="radio" name="autoadvance" class="autoadvance" value="500">
+        500
+      </label>
+      <label>
+        <input type="radio" name="autoadvance" class="autoadvance" value="1000">
+        1000
+      </label>
+      <label>
+        <input type="radio" name="autoadvance" class="autoadvance" value="2000">
+        2000
+      </label>
+      <label>
+        <input type="radio" name="autoadvance" class="autoadvance" value="5000">
+        5000
+      </label>
+    </div>
 
-try {
-  // try on ios
-  player.volume(0);
-} catch (e) {}
+    <script>
+    var videoList = [{
+      sources: [{
+        src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+        type: 'video/mp4'
+      }],
+      poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+    }, {
+      sources: [{
+        src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+        type: 'video/mp4'
+      }],
+      poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+    }, {
+      sources: [{
+        src: 'http://vjs.zencdn.net/v/oceans.mp4',
+        type: 'video/mp4'
+      }],
+      poster: 'http://www.videojs.com/img/poster.jpg'
+    }, {
+      sources: [{
+        src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
+        type: 'video/mp4'
+      }],
+      poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+    }, {
+      sources: [{
+        src: 'http://media.w3.org/2010/05/video/movie_300.webm',
+        type: 'video/mp4'
+      }],
+      poster: 'http://media.w3.org/2010/05/video/poster.png'
+    }];
 
-player.playlist(videoList);
+    var video = document.querySelector('video');
 
-var previous = document.querySelector('.previous');
-previous.addEventListener('click', function() {
-  player.playlist.previous();
-});
-var next = document.querySelector('.next');
-next.addEventListener('click', function() {
-  player.playlist.next();
-});
+    var player = videojs(video, {
+      inactivityTimeout: 0
+    });
 
-Array.prototype.forEach.call(document.querySelectorAll('.autoadvance'), function(el) {
-  el.addEventListener('click', function() {
-    var value = document.querySelector('.autoadvance:checked').value;
-    player.playlist.autoadvance(JSON.parse(value));
-  });
-});
-</script>
+    try {
+      // try on ios
+      player.volume(0);
+    } catch (e) {}
 
+    player.playlist(videoList);
+
+    var previous = document.querySelector('.previous');
+    previous.addEventListener('click', function() {
+      player.playlist.previous();
+    });
+    var next = document.querySelector('.next');
+    next.addEventListener('click', function() {
+      player.playlist.next();
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll('.autoadvance'), function(el) {
+      el.addEventListener('click', function() {
+        var value = document.querySelector('.autoadvance:checked').value;
+        player.playlist.autoadvance(JSON.parse(value));
+      });
+    });
+    </script>
+  </body>
+</html>
