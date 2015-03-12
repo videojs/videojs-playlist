@@ -1,0 +1,26 @@
+{
+  "name": "videojs-playlist-ui",
+  "version": "0.0.0",
+  "author": "Brightcove",
+  "description": "A playlist video picker for video.js",
+  "license": "Apache-2.0",
+  "keywords": [
+    "videojs-plugin",
+    "playlist",
+    "videojs"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "browserify": "^9.0.3",
+    "grunt-browserify": "^3.5.0",
+    "grunt-contrib-clean": "^0.4",
+    "grunt-contrib-connect": "^0.9.0",
+    "grunt-contrib-jshint": "^0.6",
+    "grunt-contrib-qunit": "^0.2",
+    "grunt-contrib-uglify": "^0.2",
+    "grunt-contrib-watch": "^0.4",
+    "qunitjs": "^1.12",
+    "video.js": "^4.5",
+    "videojs-playlist": "git+https://github.com/brightcove/videojs-playlist.git"
+  }
+}
