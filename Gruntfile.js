@@ -1,4 +1,7 @@
 'use strict';
+// compile all .js files except the ones coming from node_modules
+var es6ify = require('es6ify');
+es6ify.configure(/^(?!.*node_modules)+.+\.js$/);
 
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -12,10 +15,11 @@ module.exports = function(grunt) {
     },
     uglify: {
       options: {
-        banner: '<%= banner %>'
+        banner: '<%= banner %>',
+        report: 'gzip'
       },
       dist: {
-        src: '<%= browserify.dev.dest %>',
+        src: '<%= browserify.src.dest %>',
         dest: 'dist/<%= pkg.name %>.min.js'
       }
     },
@@ -37,7 +41,7 @@ module.exports = function(grunt) {
       },
       test: {
         options: {
-          jshintrc: '.jshintrc'
+          jshintrc: 'test/.jshintrc'
         },
         src: ['test/**/*.js']
       }
@@ -49,11 +53,11 @@ module.exports = function(grunt) {
       },
       src: {
         files: '<%= jshint.src.src %>',
-        tasks: ['jshint:src', 'qunit']
+        tasks: ['jshint:src', 'browserify:src', 'qunit']
       },
       test: {
         files: '<%= jshint.test.src %>',
-        tasks: ['jshint:test', 'qunit']
+        tasks: ['jshint:test', 'browserify:test', 'qunit']
       }
     },
     connect: {
@@ -68,11 +72,22 @@ module.exports = function(grunt) {
 
     browserify: {
       options: {
-        banner: '<%= banner %>'
+        banner: '<%= banner %>',
+        transform: [
+          es6ify
+        ],
+        configure: function(browserify) {
+          console.log(es6ify.runtime);
+          browserify.add(es6ify.runtime);
+        }
       },
-      dev: {
+      src: {
         src: ['lib/videojs-playlist-ui.js'],
         dest: 'dist/videojs-playlist-ui.js'
+      },
+      test: {
+        src: ['test/**/*.js'],
+        dest: 'dist/videojs-playlist-ui.test.js'
       }
     }
   });
@@ -89,8 +104,8 @@ module.exports = function(grunt) {
 
   grunt.registerTask('default',
                      ['clean',
-                      'jshint',
                       'browserify',
+                      'jshint',
                       'qunit',
                       'uglify']);
 };

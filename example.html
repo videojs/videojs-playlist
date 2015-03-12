@@ -47,10 +47,18 @@
       -->
   </ul>
   <script src="node_modules/video.js/dist/video-js/video.js"></script>
-  <script src="lib/videojs-playlist-ui.js"></script>
+  <script src="node_modules/videojs-playlist/dist/global.js"></script>
+  <script src="dist/videojs-playlist-ui.js"></script>
   <script>
     // fire up the plugin
-    videojs('video').playlistUi();
+    var player = videojs('video');
+    player.playlist([{
+      sources: [
+        { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
+        { src: 'http://vjs.zencdn.net/v/oceans.webm', type: 'video/webm' },
+      ]
+    }]);
+    player.playlistUi();
   </script>
 </body>
 </html>
