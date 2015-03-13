@@ -40,12 +40,12 @@
     <source src="http://vjs.zencdn.net/v/oceans.mp4" type="video/mp4">
     <source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm">
   </video>
-  <ul class="vjs-playlist">
+  <ol class="vjs-playlist">
     <!-- 
          The contents of this element will be filled based on the
          currently loaded playlist 
       -->
-  </ul>
+  </ol>
   <script src="node_modules/video.js/dist/video-js/video.js"></script>
   <script src="node_modules/videojs-playlist/dist/global.js"></script>
   <script src="dist/videojs-playlist-ui.js"></script>
@@ -53,9 +53,20 @@
     // fire up the plugin
     var player = videojs('video');
     player.playlist([{
+      name: 'Disney\'s Oceans',
+      description: 'Explore the depths of our planet\'s oceans. ' + 
+        'Experience the stories that connect their world to ours',
       sources: [
         { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
         { src: 'http://vjs.zencdn.net/v/oceans.webm', type: 'video/webm' },
+      ]
+    }, {
+      name: 'Sintel',
+      description: 'The film follows a girl named Sintel who is searching for a baby dragon she calls Scales.',
+      sources: [
+        { src: 'http://media.w3.org/2010/05/sintel/trailer.mp4', type: 'video/mp4' },
+        { src: 'http://media.w3.org/2010/05/sintel/trailer.webm', type: 'video/webm' },
+        { src: 'http://media.w3.org/2010/05/sintel/trailer.ogv', type: 'video/ogg' }
       ]
     }]);
     player.playlistUi();

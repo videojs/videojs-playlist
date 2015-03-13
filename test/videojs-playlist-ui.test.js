@@ -5,6 +5,8 @@ var realIsHtmlSupported,
     player,
 
     playlist = [{
+      name: 'Movie 1',
+      description: 'Movie 1 description',
       sources: [{
         src: '//example.com/movie1.mp4',
         type: 'video/mp4'
@@ -54,6 +56,11 @@ QUnit.module('videojs-playlist-ui', {
 
     // create a video.js player
     player = videojs(video);
+
+    // create a default playlist element
+    let elem = document.createElement('ol');
+    elem.className = 'vjs-playlist';
+    document.querySelector('#qunit-fixture').appendChild(elem);
   },
   teardown: function() {
     videojs.Html5.isSupported = realIsHtmlSupported;
@@ -72,7 +79,7 @@ test('errors if used without the playlist plugin', function() {
 });
 
 test('can be initialized with a pre-existing element', function() {
-  var elem = document.createElement('ul');
+  var elem = document.createElement('ol');
   player.playlist(playlist);
   player.playlistUi(elem);
 
@@ -82,7 +89,7 @@ test('can be initialized with a pre-existing element', function() {
 });
 
 test('can auto-setup elements with the class vjs-playlist', function() {
-  var elem = document.createElement('ul');
+  var elem = document.createElement('ol');
   elem.className = 'vjs-playlist';
   document.querySelector('#qunit-fixture').appendChild(elem);
 
@@ -94,7 +101,7 @@ test('can auto-setup elements with the class vjs-playlist', function() {
 });
 
 test('can auto-setup elements with a custom class', function() {
-  var elem = document.createElement('ul');
+  var elem = document.createElement('ol');
   elem.className = 'super-playlist';
   document.querySelector('#qunit-fixture').appendChild(elem);
 
@@ -105,4 +112,30 @@ test('can auto-setup elements with a custom class', function() {
   equal(elem.querySelectorAll('li.vjs-playlist-item').length,
         playlist.length,
         'created an element for each playlist item');
+});
+
+test('includes the video name if provided', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items[0].querySelector('.vjs-playlist-name').textContent,
+        playlist[0].name,
+        'wrote the name');
+  equal(items[1].querySelector('.vjs-playlist-name'),
+        null,
+        'skipped the video with the missing name');
+});
+
+test('includes the video description if provided', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items[0].querySelector('.vjs-playlist-description').textContent,
+        playlist[0].description,
+        'wrote the name');
+  equal(items[1].querySelector('.vjs-playlist-description'),
+        null,
+        'skipped the video with the missing name');
 });
