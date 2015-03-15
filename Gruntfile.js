@@ -1,7 +1,4 @@
 'use strict';
-// compile all .js files except the ones coming from node_modules
-var es6ify = require('es6ify');
-es6ify.configure(/^(?!.*node_modules)+.+\.js$/);
 
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -74,12 +71,8 @@ module.exports = function(grunt) {
       options: {
         banner: '<%= banner %>',
         transform: [
-          es6ify
-        ],
-        configure: function(browserify) {
-          console.log(es6ify.runtime);
-          browserify.add(es6ify.runtime);
-        }
+          'babelify'
+        ]
       },
       src: {
         src: ['lib/videojs-playlist-ui.js'],
@@ -93,7 +86,6 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-qunit');
