@@ -56,9 +56,22 @@
       name: 'Disney\'s Oceans',
       description: 'Explore the depths of our planet\'s oceans. ' + 
         'Experience the stories that connect their world to ours',
+      duration: 45,
       sources: [
         { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },
         { src: 'http://vjs.zencdn.net/v/oceans.webm', type: 'video/webm' },
+      ],
+
+      // you can use <picture> syntax to display responsive images
+      thumbnail: [
+        {
+          srcset: 'test/example/oceans.jpg',
+          type: 'image/jpeg',
+          media: '(min-width: 400px;)'
+        },
+        {
+          src: 'test/example/oceans-low.jpg'
+        }
       ]
     }, {
       name: 'Sintel',
@@ -67,7 +80,8 @@
         { src: 'http://media.w3.org/2010/05/sintel/trailer.mp4', type: 'video/mp4' },
         { src: 'http://media.w3.org/2010/05/sintel/trailer.webm', type: 'video/webm' },
         { src: 'http://media.w3.org/2010/05/sintel/trailer.ogv', type: 'video/ogg' }
-      ]
+      ],
+      thumbnail: false
     }]);
     player.playlistUi();
   </script>

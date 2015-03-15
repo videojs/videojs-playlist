@@ -7,6 +7,7 @@ var realIsHtmlSupported,
     playlist = [{
       name: 'Movie 1',
       description: 'Movie 1 description',
+      duration: 100,
       sources: [{
         src: '//example.com/movie1.mp4',
         type: 'video/mp4'
@@ -15,7 +16,8 @@ var realIsHtmlSupported,
       sources: [{
         src: '//example.com/movie2.mp4',
         type: 'video/mp4'
-      }]
+      }],
+      thumbnail: '//example.com/movie2.jpg'
     }],
 
     // local QUnit aliases
@@ -36,12 +38,18 @@ var realIsHtmlSupported,
     // throws(block, [expected], [message])
     throws = QUnit.throws;
 
+const resolveUrl = url => {
+  let a = document.createElement('a');
+  a.href = url;
+  return a.href;
+};
+
 
 test('the environment is sane', function() {
   ok(true, 'everything is swell');
 });
 
-QUnit.module('videojs-playlist-ui', {
+QUnit.module('Playlist UI', {
   setup: function() {
     // force HTML support so the tests run in a reasonable
     // environment under phantomjs
@@ -138,4 +146,63 @@ test('includes the video description if provided', function() {
   equal(items[1].querySelector('.vjs-playlist-description'),
         null,
         'skipped the video with the missing name');
+});
+
+test('outputs a <picture> for simple thumbnails', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  let pictures = document.querySelectorAll('.vjs-playlist-item picture');
+  equal(pictures.length, 1, 'output one picture');
+  let imgs = pictures[0].querySelectorAll('img');
+  equal(imgs.length, 1, 'output one img');
+  equal(imgs[0].src, window.location.protocol + playlist[1].thumbnail, 'set the src attribute');
+});
+
+test('outputs a <picture> for responsive thumbnails', function() {
+  const playlist = [{
+    sources: [{
+      src: '//example.com/movie.mp4',
+      type: 'video/mp4'
+    }],
+    thumbnail: [{
+      srcset: 'test/example/oceans.jpg',
+      type: 'image/jpeg',
+      media: '(min-width: 400px;)'
+    }, {
+      src: 'test/example/oceans-low.jpg'
+    }]
+  }];
+  player.playlist(playlist);
+  player.playlistUi();
+
+  let sources = document.querySelectorAll('.vjs-playlist-item picture source');
+  let imgs = document.querySelectorAll('.vjs-playlist-item picture img');
+  equal(sources.length, 1, 'output one source');
+  equal(sources[0].srcset,
+        playlist[0].thumbnail[0].srcset,
+        'wrote the srcset attribute');
+  equal(sources[0].type,
+        playlist[0].thumbnail[0].type,
+        'wrote the type attribute');
+  equal(sources[0].media,
+        playlist[0].thumbnail[0].media,
+        'wrote the type attribute');
+  equal(imgs.length, 1, 'output one img');
+  equal(imgs[0].src,
+        resolveUrl(playlist[0].thumbnail[1].src),
+        'output the img src attribute');
+});
+
+test('includes the duration if one is provided', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items[0].querySelector('.vjs-playlist-duration').textContent,
+        100,
+        'wrote the duration');
+  equal(items[1].querySelector('.vjs-playlist-duration'),
+        null,
+        'skipped the item without a duration');
 });
