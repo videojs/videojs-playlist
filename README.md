@@ -149,7 +149,7 @@ If you change autoadvance during a timeout period, the auto advance will be canc
 
 ```js
 player.playlist.autoadvance(0); // will not wait before loading in the next item
-player.playlist.autoadvance(5000); // will wait for 5 seconds before loading in the next item
+player.playlist.autoadvance(5); // will wait for 5 seconds before loading in the next item
 player.playlist.autoadvance(null); // reset and cancel the auto advance
 ```
 

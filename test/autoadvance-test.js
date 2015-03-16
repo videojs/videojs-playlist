@@ -118,3 +118,20 @@ q.test('reset if we have already started advancing', function() {
 
   window.clearTimeout = oldClearTimeout;
 });
+
+q.test('timeout is given in seconds', function() {
+  var player = new videojs.EventEmitter(),
+      oldSetTimeout = window.setTimeout;
+
+  player.addEventListener = null;
+  player.playlist = {};
+
+  window.setTimeout = function(fn, timeout) {
+    q.equal(timeout, 10*1000, 'timeout was given in seconds');
+  };
+
+  autoadvance(player, 10);
+  player.trigger('ended');
+
+  window.setTimeout = oldSetTimeout;
+});

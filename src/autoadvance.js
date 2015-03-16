@@ -21,7 +21,7 @@ module.exports = function autoadvance(player, timeout) {
     player.playlist._timeoutId = window.setTimeout(function() {
       resetadvance();
       player.playlist.next();
-    }, timeout);
+    }, timeout * 1000);
   };
 
   // we called auto advance while an auto-advance was in progress
