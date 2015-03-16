@@ -49,30 +49,34 @@ test('the environment is sane', function() {
   ok(true, 'everything is swell');
 });
 
-QUnit.module('Playlist UI', {
-  setup: function() {
-    // force HTML support so the tests run in a reasonable
-    // environment under phantomjs
-    realIsHtmlSupported = videojs.Html5.isSupported;
-    videojs.Html5.isSupported = function() {
-      return true;
-    };
+const setup = function() {
+  // force HTML support so the tests run in a reasonable
+  // environment under phantomjs
+  realIsHtmlSupported = videojs.Html5.isSupported;
+  videojs.Html5.isSupported = function() {
+    return true;
+  };
 
-    // create a video element
-    var video = document.createElement('video');
-    document.querySelector('#qunit-fixture').appendChild(video);
+  // create a video element
+  var video = document.createElement('video');
+  document.querySelector('#qunit-fixture').appendChild(video);
 
-    // create a video.js player
-    player = videojs(video);
+  // create a video.js player
+  player = videojs(video);
 
-    // create a default playlist element
-    let elem = document.createElement('ol');
-    elem.className = 'vjs-playlist';
-    document.querySelector('#qunit-fixture').appendChild(elem);
-  },
-  teardown: function() {
-    videojs.Html5.isSupported = realIsHtmlSupported;
-  }
+  // create a default playlist element
+  let elem = document.createElement('ol');
+  elem.className = 'vjs-playlist';
+  document.querySelector('#qunit-fixture').appendChild(elem);
+};
+
+const teardown = function() {
+  videojs.Html5.isSupported = realIsHtmlSupported;
+};
+
+QUnit.module('Playlist Plugin', {
+  setup: setup,
+  teardown: teardown
 });
 
 test('registers itself', function() {
@@ -86,23 +90,27 @@ test('errors if used without the playlist plugin', function() {
   }, 'threw on init');
 });
 
-test('can be initialized with a pre-existing element', function() {
-  var elem = document.createElement('ol');
+test('can be initialized to replace a pre-existing element', function() {
+  let parent = document.createElement('div');
+  let elem = document.createElement('ol');
+  parent.appendChild(elem);
   player.playlist(playlist);
   player.playlistUi(elem);
 
-  equal(elem.querySelectorAll('li.vjs-playlist-item').length,
+  equal(parent.querySelectorAll('li.vjs-playlist-item').length,
         playlist.length,
         'created an element for each playlist item');
 });
 
 test('can auto-setup elements with the class vjs-playlist', function() {
-  var elem = document.createElement('ol');
-  elem.className = 'vjs-playlist';
-  document.querySelector('#qunit-fixture').appendChild(elem);
+  let parent = document.querySelector('#qunit-fixture');
+  let elem = parent.querySelector('.vjs-playlist');
 
   player.playlist(playlist);
   player.playlistUi();
+  let menus = parent.querySelectorAll('.vjs-playlist');
+  equal(menus.length, 1, 'created one child node');
+  strictEqual(menus[0], elem, 're-used the existing element');
   equal(elem.querySelectorAll('li.vjs-playlist-item').length,
         playlist.length,
         'created an element for each playlist item');
@@ -115,12 +123,21 @@ test('can auto-setup elements with a custom class', function() {
 
   player.playlist(playlist);
   player.playlistUi({
-    playlistClass: 'super-playlist'
+    className: 'super-playlist'
   });
   equal(elem.querySelectorAll('li.vjs-playlist-item').length,
         playlist.length,
         'created an element for each playlist item');
 });
+
+QUnit.module('Playlist Component', {
+  setup: setup,
+  teardown: teardown
+});
+
+// --------------------
+// Creation and Updates
+// --------------------
 
 test('includes the video name if provided', function() {
   player.playlist(playlist);
@@ -198,11 +215,71 @@ test('includes the duration if one is provided', function() {
   player.playlist(playlist);
   player.playlistUi();
 
-  let items = document.querySelectorAll('.vjs-playlist-item');
-  equal(items[0].querySelector('.vjs-playlist-duration').textContent,
-        100,
+  let durations = document.querySelectorAll('.vjs-playlist-item .vjs-playlist-duration');
+  equal(durations.length, 1, 'skipped the item without a duration');
+  equal(durations[0].textContent,
+        '1:40',
         'wrote the duration');
-  equal(items[1].querySelector('.vjs-playlist-duration'),
-        null,
-        'skipped the item without a duration');
+  equal(durations[0].getAttribute('datetime'),
+        'PT0H0M' + playlist[0].duration + 'S',
+        'wrote a machine-readable datetime');
+});
+
+test('marks the selected playlist item on startup', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  let selectedItems = document.querySelectorAll('.vjs-playlist-item.vjs-selected');
+  equal(selectedItems.length, 1, 'marked one playlist item');
+  equal(selectedItems[0].querySelector('.vjs-playlist-name').textContent,
+        playlist[0].name,
+        'marked the first playlist item');
+});
+
+test('updates the selected playlist item on loadstart', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  player.playlist.currentItem = () => 1;
+  player.trigger('loadstart');
+
+  let selectedItems = document.querySelectorAll('.vjs-playlist-item.vjs-selected');
+  equal(selectedItems.length, 1, 'marked one playlist item');
+  equal(selectedItems[0].querySelector('img').src,
+        resolveUrl(playlist[1].thumbnail),
+        'marked the second playlist item');
+});
+
+test('selects no item if the playlist is not in use', function() {
+  player.playlist(playlist);
+  player.playlist.currentItem = () => -1;
+  player.playlistUi();
+
+  player.trigger('loadstart');
+
+  equal(document.querySelectorAll('.vjs-playlist-item.vjs-selected').length,
+        0,
+        'no items selected');
+});
+
+// missing cases:
+// - adding a playlist item at runtime
+// - remove a playlist item at runtime
+
+// -----------
+// Interaction
+// -----------
+
+test('changes the selection when tapped', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  player.playlistMenu.items[1].trigger('tap');
+  // trigger a loadstart synchronously to simplify the test
+  player.trigger('loadstart');
+
+  ok(player.playlistMenu.items[1].hasClass('vjs-selected'),
+     'selected the new item');
+  ok(!player.playlistMenu.items[0].hasClass('vjs-selected'),
+     'deselected the old item');
 });
