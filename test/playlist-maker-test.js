@@ -1,11 +1,12 @@
 var q = QUnit,
     playlistMaker = require('../src/playlist-maker.js'),
-    playerProxy = require('./player-proxy.js');
+    playerProxy = require('./player-proxy.js'),
+    extend = require('node.extend');
 
 q.module('playlist');
 
 q.test('playlistMaker takes a player and a list and returns a playlist', function() {
-  var playlist = playlistMaker({}, []);
+  var playlist = playlistMaker(playerProxy, []);
 
   q.ok(playlist, 'we got a playlist');
   q.equal(typeof playlist, 'function', 'playlist is a function');
@@ -90,4 +91,43 @@ q.test('playlist.previous() works as expected', function() {
   q.equal(playlist.previous(), 1, 'we get back value of currentItem 0');
   q.equal(playlist.currentItem(), 0, 'we are on item 0');
   q.equal(playlist.previous(), undefined, 'we get nothing back if we try to go out of bounds');
+});
+
+q.test('loading a non-playlist video will cancel autoadvanec and set index of -1', function() {
+  var Player = function(proxy) {
+    extend(true, this, proxy);
+  };
+  Player.prototype = Object.create(playerProxy);
+  Player.prototype.constructor = Player;
+  var playlist;
+  var autoadvance = require('../src/autoadvance.js');
+  var oldReset = autoadvance.resetadvance;
+
+  player = new Player(videojs.EventEmitter.prototype);
+
+  playlist = playlistMaker(player, [{
+    sources: [{
+      src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+      type: 'video/mp4'
+    }],
+    poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  }, {
+    sources: [{
+      src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+      type: 'video/mp4'
+    }],
+    poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  }]);
+
+  player.currentSrc = function() {
+    return 'http://vjs.zencdn.net/v/oceans.mp4';
+  };
+
+  autoadvance.resetadvance = function() {
+    q.ok(true, 'resetadvance was called');
+  };
+
+  player.trigger('loadstart');
+
+  autoadvance.resetadvance = oldReset;
 });

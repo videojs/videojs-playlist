@@ -90,12 +90,20 @@ player.playlist([{
 This functions allows you to either set or get the current item index.
 If called without arguments, it is a getter, with an argument, it is a setter.
 
+If the player is currently playing a non-playlist video, `currentItem` will return `-1`.
+
 ```js
 player.currentItem();
 // 0
 
 player.currentItem(2);
 // 2
+```
+
+```js
+player.playlist(samplePlaylist);
+player.src('http://example.com/video.mp4');
+player.playlist.currentItem(); // -1
 ```
 
 ### `player.playlist.next() -> Object`

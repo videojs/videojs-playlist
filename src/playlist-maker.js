@@ -3,6 +3,16 @@ var setupAutoadvance = require('./autoadvance.js');
 var isArray = Array.isArray || function(array) {
   return Object.prototype.toString.call(array) === '[object Array]';
 };
+var isInSources = function(arr, src) {
+  var i = 0;
+  for (; i < arr.length; i++) {
+    if (arr[i] === src || arr.src === src) {
+      return true;
+    }
+  }
+
+  return false;
+};
 
 // factory method to return a new playlist with the following API
 // playlist(["a", "b", "c"]) // setter, ["a", "b", "c"]
@@ -70,6 +80,14 @@ var playlistMaker = function(player, plist) {
   if (list.length) {
     playlist.currentItem(0);
   }
+
+  player.on('loadstart', function() {
+    var currentSrc = player.currentSrc();
+    if (!isInSources(list, currentSrc)) {
+      currentIndex = -1;
+      setupAutoadvance.resetadvance(player);
+    }
+  });
 
   return playlist;
 };

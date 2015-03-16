@@ -7,6 +7,7 @@ module.exports = {
   addRemoteTextTrack: Function.prototype,
   removeRemoteTextTrack: Function.prototype,
   remoteTextTracks: Function.prototype,
+  on: Function.prototype,
   one: Function.prototype,
   off: Function.prototype,
   playlist: {
