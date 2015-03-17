@@ -65,6 +65,29 @@ q.test('playlist.currentItem() works as expected', function() {
   q.equal(playlist.currentItem(-Infinity), 2, 'cannot change to an invalid item');
 });
 
+q.test('playlist.currentItem() does not change items if same index is given', function() {
+  var player = extend(true, {}, playerProxy);
+  var sources = 0;
+  var playlist;
+
+  player.src = function() {
+    sources++;
+  };
+
+  playlist = playlistMaker(player, [{sources: 'sources'}, {sources: 'sources2'}]);
+
+  q.equal(playlist.currentItem(), 0, 'we start at index 0');
+
+  playlist.currentItem(0);
+  q.equal(sources, 0, 'we did not try to set sources');
+
+  playlist.currentItem(1);
+  q.equal(sources, 1, 'we did try to set sources');
+
+  playlist.currentItem(1);
+  q.equal(sources, 1, 'we did not try to set sources');
+});
+
 q.test('playlist.next() works as expected', function() {
   var playlist = playlistMaker(playerProxy, [1,2,3]);
 

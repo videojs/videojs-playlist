@@ -40,7 +40,10 @@ var playlistMaker = function(player, plist) {
   };
 
   playlist.currentItem = function item(index) {
-    if (typeof index === 'number' && index >= 0 && index < list.length) {
+    if (typeof index === 'number' &&
+        currentIndex !== index &&
+        index >= 0 &&
+        index < list.length) {
       currentIndex = index;
       playItem(player, autoadvanceTimeout, list[currentIndex]);
       return currentIndex;
