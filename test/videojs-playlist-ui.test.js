@@ -117,7 +117,7 @@ test('can auto-setup elements with the class vjs-playlist', function() {
 });
 
 test('can auto-setup elements with a custom class', function() {
-  var elem = document.createElement('ol');
+  let elem = document.createElement('ol');
   elem.className = 'super-playlist';
   document.querySelector('#qunit-fixture').appendChild(elem);
 
@@ -128,6 +128,18 @@ test('can auto-setup elements with a custom class', function() {
   equal(elem.querySelectorAll('li.vjs-playlist-item').length,
         playlist.length,
         'created an element for each playlist item');
+});
+
+test('specializes the class name if touch input is absent', function() {
+  const touchEnabled = videojs.TOUCH_ENABLED;
+  videojs.TOUCH_ENABLED = false;
+
+  player.playlist(playlist);
+  player.playlistUi();
+
+  ok(player.playlistMenu.hasClass('vjs-mouse'), 'marked the playlist menu');
+
+  videojs.TOUCH_ENABLED = touchEnabled;
 });
 
 QUnit.module('Playlist Component', {
