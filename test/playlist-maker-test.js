@@ -152,5 +152,7 @@ q.test('loading a non-playlist video will cancel autoadvanec and set index of -1
 
   player.trigger('loadstart');
 
+  q.equal(playlist.currentItem(), -1, 'new currentItem is -1');
+
   autoadvance.resetadvance = oldReset;
 });
