@@ -45,13 +45,17 @@ player.playlist.next();
 
 ## API
 
-* [`player.playlist([Array newPlaylist])`](#playerplaylistarray-newplaylist---array)
-* [`player.playlist.currentItem([Number newIndex])`](#playerplaylistcurrentitemnumber-newindex---number)
-* [`player.playlist.next()`](#playerplaylistnext---object)
-* [`player.playlist.previous()`](#playerplaylistprevious---object)
-* [`player.playlist.autoadvance()`](#playerplaylistautoadvancenumber-timeout---undefined)
+* [Methods](#methods)
+  * [`player.playlist([Array newPlaylist])`](#playerplaylistarray-newplaylist---array)
+  * [`player.playlist.currentItem([Number newIndex])`](#playerplaylistcurrentitemnumber-newindex---number)
+  * [`player.playlist.next()`](#playerplaylistnext---object)
+  * [`player.playlist.previous()`](#playerplaylistprevious---object)
+  * [`player.playlist.autoadvance()`](#playerplaylistautoadvancenumber-timeout---undefined)
+* [Events](#events)
+  * [`playlistchange`](#playlistchange)
 
-### `player.playlist([Array newPlaylist]) -> Array`
+### Methods
+#### `player.playlist([Array newPlaylist]) -> Array`
 This function allows you to either set or get the current playlist.
 If called without arguments, it is a getter, with an argument, it is a setter.
 
@@ -86,7 +90,7 @@ player.playlist([{
 // }]
 ```
 
-### `player.playlist.currentItem([Number newIndex]) -> Number`
+#### `player.playlist.currentItem([Number newIndex]) -> Number`
 This functions allows you to either set or get the current item index.
 If called without arguments, it is a getter, with an argument, it is a setter.
 
@@ -106,7 +110,7 @@ player.src('http://example.com/video.mp4');
 player.playlist.currentItem(); // -1
 ```
 
-### `player.playlist.next() -> Object`
+#### `player.playlist.next() -> Object`
 This functions allows you to advance to the next item in the playlist. You will receive the new playlist item back from this call. `player.playlist.currentItem` will be updated to return the new index.
 If you are at the end of the playlist, you will not be able to proceed past the end and instead will not receive anything back;
 
@@ -127,7 +131,7 @@ player.playlist.next();
 // undefined
 ```
 
-### `player.playlist.previous() -> Object`
+#### `player.playlist.previous() -> Object`
 This functions allows you to return to the previous item in the playlist. You will receive the new playlist item back from this call. `player.playlist.currentItem` will be updated to return the new index.
 If you are at the start of the playlist, you will not be able to proceed past the start and instead will not receive anything back;
 
@@ -150,7 +154,7 @@ player.playlist.previous();
 // undefined
 ```
 
-### `player.playlist.autoadvance([Number timeout]) -> undefined`
+#### `player.playlist.autoadvance([Number timeout]) -> undefined`
 This function allows you to set up playlist auto advancement. Once enabled it will wait a `timeout` amount of milliseconds at the end of a video before proceeding automatically to the next video.
 Any value which is not a positive, finite, integer, will be treated as a request to cancel and reset the auto advancing.
 If you change autoadvance during a timeout period, the auto advance will be canceled and it will not advance the next video but it will use the new timeout value for the following videos.
@@ -159,6 +163,24 @@ If you change autoadvance during a timeout period, the auto advance will be canc
 player.playlist.autoadvance(0); // will not wait before loading in the next item
 player.playlist.autoadvance(5); // will wait for 5 seconds before loading in the next item
 player.playlist.autoadvance(null); // reset and cancel the auto advance
+```
+
+### Events
+
+#### `playlistchange`
+This event is fired asynchronously whenever the playlist is changed.
+It is fired asynchronously to let the browser start loading the first video in the new playlist.
+
+```js
+player.on('playlistchange', function() {
+  console.log(player.playlist());
+});
+
+player.playlist([1,2,3]);
+// [1,2,3]
+
+player.playlist([4,5,6]);
+// [4,5,6]
 ```
 
 ## Development
