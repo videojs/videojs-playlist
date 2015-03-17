@@ -20,6 +20,13 @@ module.exports = function(grunt) {
         dest: 'dist/<%= pkg.name %>.min.js'
       }
     },
+    less: {
+      dist: {
+        files: {
+          'dist/videojs-playlist-ui.vertical.css': 'lib/videojs-playlist-ui.vertical.less'
+        }
+      }
+    },
     qunit: {
       files: 'test/**/*.html'
     },
@@ -49,8 +56,8 @@ module.exports = function(grunt) {
         tasks: ['jshint:gruntfile']
       },
       src: {
-        files: '<%= jshint.src.src %>',
-        tasks: ['jshint:src', 'browserify:src', 'qunit']
+        files: ['<%= jshint.src.src %>', 'lib/*.less'],
+        tasks: ['less', 'jshint:src', 'browserify:src', 'qunit']
       },
       test: {
         files: '<%= jshint.test.src %>',
@@ -87,9 +94,10 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-less');
+  grunt.loadNpmTasks('grunt-contrib-qunit');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.loadNpmTasks('grunt-browserify');
@@ -99,5 +107,6 @@ module.exports = function(grunt) {
                       'browserify',
                       'jshint',
                       'qunit',
-                      'uglify']);
+                      'uglify',
+                      'less']);
 };

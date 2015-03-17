@@ -5,6 +5,7 @@
   <title>Video.js Playlist Ui</title>
 
   <link href="node_modules/video.js/dist/video-js/video-js.css" rel="stylesheet">
+  <link href="dist/videojs-playlist-ui.vertical.css" rel="stylesheet">
 
   <style>
     body {
@@ -54,8 +55,16 @@
     var player = videojs('video');
     player.playlist([{
       name: 'Disney\'s Oceans',
-      description: 'Explore the depths of our planet\'s oceans. ' + 
-        'Experience the stories that connect their world to ours',
+      description: 'Explore the depths of our planet\'s oceans. ' +
+        'Experience the stories that connect their world to ours. ' +
+        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, ' +
+        'sed do eiusmod tempor incididunt ut labore et dolore magna ' +
+        'aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco ' +
+        'laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure ' +
+        'dolor in reprehenderit in voluptate velit esse cillum dolore eu ' +
+        'fugiat nulla pariatur. Excepteur sint occaecat cupidatat non ' +
+        'proident, sunt in culpa qui officia deserunt mollit anim id est ' +
+        'laborum.',
       duration: 45,
       sources: [
         { src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' },

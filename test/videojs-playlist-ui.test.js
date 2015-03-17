@@ -211,6 +211,15 @@ test('outputs a <picture> for responsive thumbnails', function() {
         'output the img src attribute');
 });
 
+test('outputs a placeholder for items without thumbnails', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  let thumbnails = document.querySelectorAll('.vjs-playlist-item .vjs-playlist-thumbnail');
+  equal(thumbnails.length, playlist.length, 'output two thumbnails');
+  equal(thumbnails[0].nodeName.toLowerCase(), 'div', 'the second is a placeholder');
+});
+
 test('includes the duration if one is provided', function() {
   player.playlist(playlist);
   player.playlistUi();
