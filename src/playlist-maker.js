@@ -5,9 +5,17 @@ var isArray = Array.isArray || function(array) {
 };
 var isInSources = function(arr, src) {
   var i = 0;
+  var j = 0;
+  var item;
+  var source;
+
   for (; i < arr.length; i++) {
-    if (arr[i] === src || arr.src === src) {
-      return true;
+    var item = arr[i];
+    for (; j < item.sources.length; j++) {
+      source = item.sources[j];
+      if (source && (source === src || source.src === src)) {
+        return true;
+      }
     }
   }
 
