@@ -1,9 +1,18 @@
 var q = QUnit,
+    oldTimeout,
     playlistMaker = require('../src/playlist-maker.js'),
     playerProxy = require('./player-proxy.js'),
     extend = require('node.extend');
 
-q.module('playlist');
+q.module('playlist', {
+  setup: function() {
+    oldTimeout = window.setTimeout;
+    window.setTimeout = Function.prototype;
+  },
+  teardown: function() {
+    window.setTimeout = oldTimeout;
+  }
+});
 
 q.test('playlistMaker takes a player and a list and returns a playlist', function() {
   var playlist = playlistMaker(playerProxy, []);
@@ -155,4 +164,24 @@ q.test('loading a non-playlist video will cancel autoadvanec and set index of -1
   q.equal(playlist.currentItem(), -1, 'new currentItem is -1');
 
   autoadvance.resetadvance = oldReset;
+});
+
+q.test('when loading a new playlist, trigger "playlistchange" on the player', function() {
+  var oldTimeout = window.setTimeout;
+  var player = extend(true, {}, playerProxy);
+  var playlist;
+
+  window.setTimeout = function(fn, timeout) {
+    fn();
+  };
+
+  player.trigger = function(type) {
+    q.equal(type, 'playlistchange', 'trigger playlistchange on playlistchange');
+  };
+
+  playlist = playlistMaker(player, [1,2,3]);
+
+  playlist([4,5,6]);
+
+  window.setTimeout = oldTimeout;
 });

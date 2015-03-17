@@ -34,6 +34,10 @@ var playlistMaker = function(player, plist) {
     if (plist && isArray(plist)) {
       list = plist.slice();
       player.playlist.currentItem(0);
+
+      window.setTimeout(function() {
+        player.trigger('playlistchange');
+      }, 0);
     }
 
     return list.slice();
