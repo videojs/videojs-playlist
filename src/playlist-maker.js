@@ -10,7 +10,7 @@ var isInSources = function(arr, src) {
   var source;
 
   for (; i < arr.length; i++) {
-    var item = arr[i];
+    item = arr[i];
     for (; j < item.sources.length; j++) {
       source = item.sources[j];
       if (source && (source === src || source.src === src)) {
