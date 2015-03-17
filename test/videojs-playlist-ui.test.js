@@ -147,9 +147,9 @@ test('includes the video name if provided', function() {
   equal(items[0].querySelector('.vjs-playlist-name').textContent,
         playlist[0].name,
         'wrote the name');
-  equal(items[1].querySelector('.vjs-playlist-name'),
-        null,
-        'skipped the video with the missing name');
+  equal(items[1].querySelector('.vjs-playlist-name').textContent,
+        'Untitled Video',
+        'wrote a placeholder for the name');
 });
 
 test('includes the video description if provided', function() {
