@@ -163,6 +163,16 @@ q.test('loading a non-playlist video will cancel autoadvanec and set index of -1
 
   q.equal(playlist.currentItem(), -1, 'new currentItem is -1');
 
+  player.currentSrc = function() {
+    return 'http://media.w3.org/2010/05/sintel/trailer.mp4';
+  };
+
+  autoadvance.resetadvance = function() {
+    q.ok(false, 'resetadvance should not be called');
+  };
+
+  player.trigger('loadstart');
+
   autoadvance.resetadvance = oldReset;
 });
 
