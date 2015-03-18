@@ -85,6 +85,9 @@ q.test('playlist.currentItem() does not change items if same index is given', fu
 
   playlist = playlistMaker(player, [{sources: 'sources'}, {sources: 'sources2'}]);
 
+  q.equal(sources, 1, 'we switched to the first playlist item');
+  sources = 0;
+
   q.equal(playlist.currentItem(), 0, 'we start at index 0');
 
   playlist.currentItem(0);
