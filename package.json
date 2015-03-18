@@ -23,11 +23,9 @@
   ],
   "author": "Gary Katsevman <me@gkatsev.com>",
   "license": "Apache 2.0",
-  "dependencies": {
-    "browserify-shim": "^3.8.3"
-  },
   "devDependencies": {
     "browserify": "^9.0.3",
+    "browserify-shim": "^3.8.3",
     "deumdify": "^1.1.0",
     "es5-shim": "^4.1.0",
     "jshint": "^2.6.0",
