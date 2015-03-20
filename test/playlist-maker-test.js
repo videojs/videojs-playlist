@@ -198,3 +198,33 @@ q.test('when loading a new playlist, trigger "playlistchange" on the player', fu
 
   window.setTimeout = oldTimeout;
 });
+
+q.test('cleartimeout on dispose', function() {
+  var oldTimeout = window.setTimeout;
+  var oldClear = window.clearTimeout;
+  var Player = function(proxy) {
+    extend(true, this, proxy);
+  };
+  Player.prototype = Object.create(playerProxy);
+  Player.prototype.constructor = Player;
+  var playlist;
+  var timeout = 1;
+
+  window.setTimeout = function() {
+    return timeout;
+  };
+  window.clearTimeout = function(to) {
+    q.equal(to, timeout, 'we cleared the timeout');
+  };
+
+  player = new Player(videojs.EventEmitter.prototype);
+
+  playlist = playlistMaker(player, [1,2,3]);
+
+  playlist([1,2,3]);
+
+  player.trigger('dispose');
+
+  window.setTimeout = oldTimeout;
+  window.clearTimeout = oldClear;
+});
