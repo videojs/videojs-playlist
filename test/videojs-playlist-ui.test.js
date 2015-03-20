@@ -72,11 +72,13 @@ const setup = function() {
 
 const teardown = function() {
   videojs.Html5.isSupported = realIsHtmlSupported;
+  player.dispose();
+  player = null;
 };
 
 QUnit.module('Playlist Plugin', {
-  setup: setup,
-  teardown: teardown
+  setup,
+  teardown
 });
 
 test('registers itself', function() {
@@ -88,6 +90,14 @@ test('errors if used without the playlist plugin', function() {
     player.playlist = null;
     player.playlistUi();
   }, 'threw on init');
+});
+
+test('is empty if the playlist plugin isn\'t initialized', function() {
+  player.playlistUi();
+
+  const items = document.querySelectorAll('.vjs-playlist-item');
+  ok(document.querySelector('.vjs-playlist'), 'created the menu');
+  equal(items.length, 0, 'displayed no items');
 });
 
 test('can be initialized to replace a pre-existing element', function() {
@@ -261,10 +271,16 @@ test('updates the selected playlist item on loadstart', function() {
   player.playlist(playlist);
   player.playlistUi();
 
-  player.playlist.currentItem = () => 1;
+  player.playlist.currentItem(1);
+  if (/phantom/i.test(window.navigator.userAgent)) {
+    player.currentSrc = () => playlist[1].sources[0];
+  }
   player.trigger('loadstart');
 
   let selectedItems = document.querySelectorAll('.vjs-playlist-item.vjs-selected');
+  equal(document.querySelectorAll('.vjs-playlist-item').length,
+        playlist.length,
+        'displayed the correct number of items');
   equal(selectedItems.length, 1, 'marked one playlist item');
   equal(selectedItems[0].querySelector('img').src,
         resolveUrl(playlist[1].thumbnail),
@@ -283,18 +299,37 @@ test('selects no item if the playlist is not in use', function() {
         'no items selected');
 });
 
-// missing cases:
-// - adding a playlist item at runtime
-// - remove a playlist item at runtime
+test('updates on "playlistchange"', function() {
+  player.playlist([]);
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items.length, 0, 'no items initially');
+
+  player.playlist(playlist);
+  player.trigger('playlistchange');
+  items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items.length, playlist.length, 'updated with the new items');
+});
 
 // -----------
 // Interaction
 // -----------
 
-test('changes the selection when tapped', function() {
+test('changes the selection when tapped', function(test) {
   player.playlist(playlist);
   player.playlistUi();
 
+  if (/phantom/i.test(window.navigator.userAgent)) {
+    let sources;
+    player.src = (src) => {
+      if (src) {
+        sources = src;
+      }
+      return sources[0];
+    };
+    player.currentSrc = () => sources[0];
+  }
   player.playlistMenu.items[1].trigger('tap');
   // trigger a loadstart synchronously to simplify the test
   player.trigger('loadstart');
