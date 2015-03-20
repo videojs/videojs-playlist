@@ -74,6 +74,12 @@ q.test('playlist.currentItem() works as expected', function() {
   q.equal(playlist.currentItem(-Infinity), 2, 'cannot change to an invalid item');
 });
 
+q.test('playlist.currentItem() returns -1 with an empty playlist', function() {
+  var playlist = playlistMaker(playerProxy, []);
+
+  q.equal(playlist.currentItem(), -1, 'we should get a -1 with an empty playlist');
+});
+
 q.test('playlist.currentItem() does not change items if same index is given', function() {
   var player = extend(true, {}, playerProxy);
   var sources = 0;
