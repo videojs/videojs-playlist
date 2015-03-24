@@ -49,6 +49,7 @@ player.playlist.next();
   * [`player.playlist([Array newPlaylist])`](#playerplaylistarray-newplaylist---array)
   * [`player.playlist.currentItem([Number newIndex])`](#playerplaylistcurrentitemnumber-newindex---number)
   * [`player.playlist.contains(Any item)`](#playerplaylistcontainsany-item---boolean)
+  * [`player.playlist.indexOf(Any item)`](#playerplaylistindexofany-item---number)
   * [`player.playlist.next()`](#playerplaylistnext---object)
   * [`player.playlist.previous()`](#playerplaylistprevious---object)
   * [`player.playlist.autoadvance()`](#playerplaylistautoadvancenumber-timeout---undefined)
@@ -132,6 +133,29 @@ playlist.contains({
   }]
 });
 // true
+```
+
+#### `player.playlist.indexOf(Any item) -> Number`
+This function allows you to ask the playlist whether a string, source object, or playlist item is contained within it and at what index. It returns `-1` for non-existent items, otherwise, the corresponding index.
+Assuming the above playlist, consider the following example:
+
+```js
+playlist.indexOf('http://media.w3.org/2010/05/bunny/trailer.mp4')
+// 1
+
+playlist.contains([{
+  src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
+  type: 'video/mp4'
+}])
+// 3
+
+playlist.contains({
+  sources: [{
+    src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+    type: 'video/mp4'
+  }]
+});
+// 4
 ```
 
 #### `player.playlist.next() -> Object`
