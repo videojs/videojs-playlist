@@ -78,6 +78,38 @@ var playlistMaker = function(player, plist) {
     return currentIndex;
   };
 
+  // item can be either
+  //  * a string
+  //  * an array of sources, which are either strings or {src, type} objects
+  //  * a playlist item
+  playlist.contains = function contains(item) {
+    var ret = false;
+    var sources;
+    var source;
+    var i;
+
+    if (typeof item === 'string') {
+      ret = isInSources(list, item);
+    } else {
+      if (isArray(item)) {
+        sources = item;
+      } else {
+        sources = item.sources;
+      }
+
+      for (i = 0; i < sources.length; i++) {
+        source = sources[i];
+        if (typeof source === 'string') {
+          ret = ret || isInSources(list, source);
+        } else {
+          ret = ret || isInSources(list, source.src);
+        }
+      }
+    }
+
+    return ret;
+  };
+
   playlist.next = function next() {
     var prevIndex = currentIndex;
     // make sure we don't go past the end of the playlist
