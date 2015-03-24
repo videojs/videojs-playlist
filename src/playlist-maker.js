@@ -3,7 +3,7 @@ var setupAutoadvance = require('./autoadvance.js');
 var isArray = Array.isArray || function(array) {
   return Object.prototype.toString.call(array) === '[object Array]';
 };
-var isInSources = function(arr, src) {
+var indexInSources = function(arr, src) {
   var i = 0;
   var j = 0;
   var item;
@@ -93,7 +93,7 @@ var playlistMaker = function(player, plist) {
     var i;
 
     if (typeof item === 'string') {
-      ret = isInSources(list, item);
+      ret = indexInSources(list, item);
     } else {
       if (isArray(item)) {
         sources = item;
@@ -104,9 +104,9 @@ var playlistMaker = function(player, plist) {
       for (i = 0; i < sources.length; i++) {
         source = sources[i];
         if (typeof source === 'string') {
-          ret = isInSources(list, source);
+          ret = indexInSources(list, source);
         } else {
-          ret = isInSources(list, source.src);
+          ret = indexInSources(list, source.src);
         }
 
         if (ret !== -1) {
