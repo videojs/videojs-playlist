@@ -29,7 +29,7 @@ var videoList = [{
     poster: 'http://media.w3.org/2010/05/bunny/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/video/movie_300.webm',
+    src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
     type: 'video/mp4'
   }],
   poster: 'http://media.w3.org/2010/05/video/poster.png'
@@ -138,7 +138,9 @@ q.test('playlist.currentItem() does not change items if same index is given', fu
 });
 
 q.test('playlist.contains() works as expected', function() {
-  var playlist = playlistMaker(playerProxy, videoList);
+  var player = extend(true, {}, playerProxy);
+  var playlist = playlistMaker(player, videoList);
+  player.playlist = playlist;
 
   q.ok(playlist.contains('http://media.w3.org/2010/05/sintel/trailer.mp4'),
        'we can ask whether it contains a source string');
@@ -185,6 +187,56 @@ q.test('playlist.contains() works as expected', function() {
   }), 'we get false for a non-existent playlist item');
 });
 
+q.test('playlist.indexOf() works as expected', function() {
+  var player = extend(true, {}, playerProxy);
+  var playlist = playlistMaker(player, videoList);
+  player.playlist = playlist;
+
+  q.equal(playlist.indexOf('http://media.w3.org/2010/05/sintel/trailer.mp4'),
+          0, 'sintel trailer is first item');
+
+  q.equal(playlist.indexOf(['http://media.w3.org/2010/05/bunny/trailer.mp4']),
+          1, 'bunny trailer is second item');
+
+  q.equal(playlist.indexOf([{
+    src: 'http://vjs.zencdn.net/v/oceans.mp4',
+    type: 'video/mp4'
+  }]), 2, 'oceans is third item');
+
+  q.equal(playlist.indexOf({
+    sources: ['http://media.w3.org/2010/05/bunny/movie.mp4']
+  }), 3, 'bunny movie is fourth item');
+
+  q.equal(playlist.indexOf({
+    sources: [{
+      src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+      type: 'video/mp4'
+    }]
+  }), 4, 'timer video is fifth item');
+
+  q.equal(playlist.indexOf('http://media.w3.org/2010/05/sintel/poster.png'),
+          -1, 'poster.png does not exist');
+
+  q.equal(playlist.indexOf(['http://media.w3.org/2010/05/sintel/poster.png']),
+          -1, 'poster.png does not exist');
+
+  q.equal(playlist.indexOf([{
+    src: 'http://media.w3.org/2010/05/sintel/poster.png',
+    type: 'video/mp4'
+  }]), -1, 'poster.png does not exist');
+
+  q.equal(playlist.indexOf({
+    sources: ['http://media.w3.org/2010/05/sintel/poster.png']
+  }), -1, 'poster.png does not exist');
+
+  q.equal(playlist.indexOf({
+    sources: [{
+      src: 'http://media.w3.org/2010/05/sintel/poster.png',
+      type: 'video/mp4'
+    }]
+  }), -1, 'poster.png does not exist');
+});
+
 q.test('playlist.next() works as expected', function() {
   var playlist = playlistMaker(playerProxy, [1,2,3]);
 
@@ -213,7 +265,7 @@ q.test('playlist.previous() works as expected', function() {
   q.equal(playlist.previous(), undefined, 'we get nothing back if we try to go out of bounds');
 });
 
-q.test('loading a non-playlist video will cancel autoadvanec and set index of -1', function() {
+q.test('loading a non-playlist video will cancel autoadvance and set index of -1', function() {
   var Player = function(proxy) {
     extend(true, this, proxy);
   };
@@ -238,6 +290,8 @@ q.test('loading a non-playlist video will cancel autoadvanec and set index of -1
     }],
     poster: 'http://media.w3.org/2010/05/bunny/poster.png'
   }]);
+
+  player.playlist = playlist;
 
   player.currentSrc = function() {
     return 'http://vjs.zencdn.net/v/oceans.mp4';

@@ -14,12 +14,12 @@ var isInSources = function(arr, src) {
     for (j = 0; j < item.sources.length; j++) {
       source = item.sources[j];
       if (source && (source === src || source.src === src)) {
-        return true;
+        return i;
       }
     }
   }
 
-  return false;
+  return -1;
 };
 
 // factory method to return a new playlist with the following API
@@ -83,7 +83,11 @@ var playlistMaker = function(player, plist) {
   //  * an array of sources, which are either strings or {src, type} objects
   //  * a playlist item
   playlist.contains = function contains(item) {
-    var ret = false;
+    return player.playlist.indexOf(item) !== -1;
+  };
+
+  playlist.indexOf = function indexOf(item) {
+    var ret = -1;
     var sources;
     var source;
     var i;
@@ -100,9 +104,13 @@ var playlistMaker = function(player, plist) {
       for (i = 0; i < sources.length; i++) {
         source = sources[i];
         if (typeof source === 'string') {
-          ret = ret || isInSources(list, source);
+          ret = isInSources(list, source);
         } else {
-          ret = ret || isInSources(list, source.src);
+          ret = isInSources(list, source.src);
+        }
+
+        if (ret !== -1) {
+          break;
         }
       }
     }
@@ -142,7 +150,7 @@ var playlistMaker = function(player, plist) {
 
   player.on('loadstart', function() {
     var currentSrc = player.currentSrc();
-    if (!isInSources(list, currentSrc)) {
+    if (!player.playlist.contains(currentSrc)) {
       currentIndex = -1;
       setupAutoadvance.resetadvance(player);
     }
