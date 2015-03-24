@@ -143,10 +143,17 @@ q.test('playlist.contains() works as expected', function() {
   q.ok(playlist.contains('http://media.w3.org/2010/05/sintel/trailer.mp4'),
        'we can ask whether it contains a source string');
 
+  q.ok(playlist.contains(['http://media.w3.org/2010/05/sintel/trailer.mp4']),
+       'we can ask whether it contains a sources list of strings');
+
   q.ok(playlist.contains([{
     src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
-  }]), 'we can ask whether it contains a sources list');
+  }]), 'we can ask whether it contains a sources list of objects');
+
+  q.ok(playlist.contains({
+    sources: ['http://media.w3.org/2010/05/sintel/trailer.mp4']
+  }), 'we can ask whether it contains a playlist item');
 
   q.ok(playlist.contains({
     sources: [{
@@ -158,10 +165,17 @@ q.test('playlist.contains() works as expected', function() {
   q.ok(!playlist.contains('http://media.w3.org/2010/05/sintel/poster.png'),
        'we get false for a non-existent source string');
 
+  q.ok(!playlist.contains(['http://media.w3.org/2010/05/sintel/poster.png']),
+       'we get false for a non-existent source list of strings');
+
   q.ok(!playlist.contains([{
     src: 'http://media.w3.org/2010/05/sintel/poster.png',
     type: 'video/mp4'
-  }]), 'we get false for a non-existent source list');
+  }]), 'we get false for a non-existent source list of objects');
+
+  q.ok(!playlist.contains({
+    sources: ['http://media.w3.org/2010/05/sintel/poster.png']
+  }), 'we can ask whether it contains a playlist item');
 
   q.ok(!playlist.contains({
     sources: [{
