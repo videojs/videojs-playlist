@@ -1,8 +1,39 @@
-var q = QUnit,
-    oldTimeout,
-    playlistMaker = require('../src/playlist-maker.js'),
-    playerProxy = require('./player-proxy.js'),
-    extend = require('node.extend');
+var extend = require('node.extend');
+var q = QUnit;
+var oldTimeout;
+var playlistMaker = require('../src/playlist-maker.js');
+var playerProxy = require('./player-proxy.js');
+var videoList = [{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+    poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+    poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}, {
+  sources: [{
+    src: 'http://vjs.zencdn.net/v/oceans.mp4',
+    type: 'video/mp4'
+  }],
+    poster: 'http://www.videojs.com/img/poster.jpg'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
+    type: 'video/mp4'
+  }],
+    poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/video/movie_300.webm',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/video/poster.png'
+}];
 
 q.module('playlist', {
   setup: function() {
@@ -104,6 +135,40 @@ q.test('playlist.currentItem() does not change items if same index is given', fu
 
   playlist.currentItem(1);
   q.equal(sources, 1, 'we did not try to set sources');
+});
+
+q.test('playlist.contains() works as expected', function() {
+  var playlist = playlistMaker(playerProxy, videoList);
+
+  q.ok(playlist.contains('http://media.w3.org/2010/05/sintel/trailer.mp4'),
+       'we can ask whether it contains a source string');
+
+  q.ok(playlist.contains([{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }]), 'we can ask whether it contains a sources list');
+
+  q.ok(playlist.contains({
+    sources: [{
+      src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+      type: 'video/mp4'
+    }]
+  }), 'we can ask whether it contains a playlist item');
+
+  q.ok(!playlist.contains('http://media.w3.org/2010/05/sintel/poster.png'),
+       'we get false for a non-existent source string');
+
+  q.ok(!playlist.contains([{
+    src: 'http://media.w3.org/2010/05/sintel/poster.png',
+    type: 'video/mp4'
+  }]), 'we get false for a non-existent source list');
+
+  q.ok(!playlist.contains({
+    sources: [{
+      src: 'http://media.w3.org/2010/05/sintel/poster.png',
+      type: 'video/mp4'
+    }]
+  }), 'we get false for a non-existent playlist item');
 });
 
 q.test('playlist.next() works as expected', function() {
