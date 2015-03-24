@@ -48,6 +48,7 @@ player.playlist.next();
 * [Methods](#methods)
   * [`player.playlist([Array newPlaylist])`](#playerplaylistarray-newplaylist---array)
   * [`player.playlist.currentItem([Number newIndex])`](#playerplaylistcurrentitemnumber-newindex---number)
+  * [`player.playlist.contains(Any item)`](#playerplaylistcontainsany-item---boolean)
   * [`player.playlist.next()`](#playerplaylistnext---object)
   * [`player.playlist.previous()`](#playerplaylistprevious---object)
   * [`player.playlist.autoadvance()`](#playerplaylistautoadvancenumber-timeout---undefined)
@@ -108,6 +109,29 @@ player.currentItem(2);
 player.playlist(samplePlaylist);
 player.src('http://example.com/video.mp4');
 player.playlist.currentItem(); // -1
+```
+
+#### `player.playlist.contains(Any item) -> Boolean`
+This function allows you to ask the playlist whether a string, source object, or playlist item is contained within it.
+Assuming the above playlist, consider the following example:
+
+```js
+playlist.contains('http://media.w3.org/2010/05/sintel/trailer.mp4')
+// true
+
+playlist.contains([{
+  src: 'http://media.w3.org/2010/05/sintel/poster.png',
+  type: 'image/png'
+}])
+// false
+
+playlist.contains({
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }]
+});
+// true
 ```
 
 #### `player.playlist.next() -> Object`
