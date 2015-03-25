@@ -1,22 +1,53 @@
-# Video.js Playlist Ui
+# Video.js Playlist UI
 
 A playlist video picker for video.js
 
 ## Getting Started
 
-Once you've added the plugin script to your page, you can use it with any video:
+Include the plugin script in your page, and a placeholder list element
+with the class `vjs-playlist` to house the playlist menu:
 
 ```html
+<!-- Include the playlist menu styles somewhere in your page: -->
+<link href="videojs-playlist-ui.vertical.css" rel="stylesheet">
+
+<!-- The playlist menu will be built automatically in here: -->
+<ol class="vjs-playlist"></ol>
+
+<!-- Include video.js, the videojs-playlist plugin and this plugin: -->
 <script src="video.js"></script>
+<script src="videojs-playlist.js"></script>
 <script src="videojs-playlist-ui.js"></script>
+
 <script>
+  // Now you can initialize the plugin and build the playlist whenever
+  // you're ready!
   videojs(document.querySelector('video')).playlistUi();
 </script>
 ```
 
-There's also a [working example](example.html) of the plugin you can check out if you're having trouble.
+There's also a [working example](example.html) of the plugin you can
+check out if you're having trouble.
 
 ## Documentation
+
+### Plugin Options
+
+You may pass in an options object to the plugin upon initialization.
+The PlaylistMenu is a regular [video.js
+Component](https://github.com/videojs/video.js/blob/master/docs/guides/components.md)
+so you may pass in [any
+option](https://github.com/videojs/video.js/blob/master/docs/guides/options.md#component-options)
+that is accepted by Components. In addition, this object may contain
+this specialized property:
+
+#### className
+Type: `string`
+Default: "vjs-playlist"
+
+The name of the class to search for to populate the playlist menu.
+
+## Playlists and Advertisements
 
 The Playlist Menu automatically adapts to ad integrations based on
 [videojs-contrib-ads](https://github.com/videojs/videojs-contrib-ads). When
@@ -26,17 +57,6 @@ change videos during ad playback, you can override this behavior
 through CSS. You will also need to make sure that your ad integration
 is properly cancelled and cleaned up before switching-- consult the
 documentation for your ad library for details on how to do that.
-
-### Plugin Options
-
-You may pass in an options object to the plugin upon initialization. This
-object may contain any of the following properties:
-
-#### option
-Type: `boolean`
-Default: true
-
-An example boolean option that has no effect.
 
 ## Release History
 
