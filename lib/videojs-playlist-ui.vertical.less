@@ -66,6 +66,20 @@ hover effects */
     white-space: nowrap;
   }
 }
+/* Prevent interaction with the playlist menu while ads are playing */
+.vjs-playlist.vjs-ad-playing {
+  pointer-events: none;
+}
+.vjs-playlist.vjs-ad-playing::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: transparent; /* IE8 fallback */
+  background-color: rgba(0, 0, 0, 0.5);
+}
 
 /* Parametric rules. These are specialized for touch and mouse-based devices */
 .playlist-base(@base-font-size: 14px) {

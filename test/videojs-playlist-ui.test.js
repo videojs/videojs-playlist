@@ -312,6 +312,22 @@ test('updates on "playlistchange"', function() {
   equal(items.length, playlist.length, 'updated with the new items');
 });
 
+test('tracks when an ad is playing', function() {
+  player.playlist([]);
+  player.playlistUi();
+
+  let playlistMenu = player.playlistMenu;
+  ok(!playlistMenu.hasClass('vjs-ad-playing'),
+     'does not have class vjs-ad-playing');
+  player.trigger('adstart');
+  ok(playlistMenu.hasClass('vjs-ad-playing'),
+     'has class vjs-ad-playing');
+
+  player.trigger('adend');
+  ok(!playlistMenu.hasClass('vjs-ad-playing'),
+     'does not have class vjs-ad-playing');
+});
+
 // -----------
 // Interaction
 // -----------
