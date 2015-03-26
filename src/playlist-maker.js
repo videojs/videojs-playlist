@@ -66,6 +66,8 @@ var playlistMaker = function(player, plist) {
   };
 
   playlist.currentItem = function item(index) {
+    var src;
+
     if (typeof index === 'number' &&
         currentIndex !== index &&
         index >= 0 &&
@@ -74,6 +76,9 @@ var playlistMaker = function(player, plist) {
       playItem(player, autoadvanceTimeout, list[currentIndex]);
       return currentIndex;
     }
+
+    src = player.currentSrc() || '';
+    currentIndex = playlist.indexOf(src);
 
     return currentIndex;
   };

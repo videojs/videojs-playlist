@@ -3,6 +3,9 @@ var q = QUnit;
 var oldTimeout;
 var playlistMaker = require('../src/playlist-maker.js');
 var playerProxy = require('./player-proxy.js');
+var isArray = Array.isArray || function(array) {
+  return Object.prototype.toString.call(array) === '[object Array]';
+};
 var videoList = [{
   sources: [{
     src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
@@ -90,7 +93,27 @@ q.test('playlist() should only accept an Array as a new playlist', function() {
 });
 
 q.test('playlist.currentItem() works as expected', function() {
-  var playlist = playlistMaker(playerProxy, [1,2,3]);
+  var player = extend(true, {}, playerProxy);
+  var playlist = playlistMaker(player, videoList);
+  var src;
+
+  player.src = function(s) {
+    if (s) {
+      if (typeof s === 'string') {
+        src = s;
+      } else if (isArray(s)) {
+        return player.src(s[0]);
+      } else {
+        return player.src(s.src);
+      }
+    }
+  };
+
+  player.currentSrc = function() {
+    return src;
+  };
+
+  src = videoList[0].sources[0].src;
 
   q.equal(playlist.currentItem(), 0, 'begin at the first item, item 0');
 
@@ -115,15 +138,31 @@ q.test('playlist.currentItem() does not change items if same index is given', fu
   var player = extend(true, {}, playerProxy);
   var sources = 0;
   var playlist;
+  var src;
 
-  player.src = function() {
+  player.src = function(s) {
+    if (s) {
+      if (typeof s === 'string') {
+        src = s;
+      } else if (isArray(s)) {
+        return player.src(s[0]);
+      } else {
+        return player.src(s.src);
+      }
+    }
+
     sources++;
   };
 
-  playlist = playlistMaker(player, [{sources: 'sources'}, {sources: 'sources2'}]);
+  player.currentSrc = function() {
+    return src;
+  };
+
+  playlist = playlistMaker(player, videoList);
 
   q.equal(sources, 1, 'we switched to the first playlist item');
   sources = 0;
+
 
   q.equal(playlist.currentItem(), 0, 'we start at index 0');
 
@@ -238,29 +277,48 @@ q.test('playlist.indexOf() works as expected', function() {
 });
 
 q.test('playlist.next() works as expected', function() {
-  var playlist = playlistMaker(playerProxy, [1,2,3]);
+  var player = extend(true, {}, playerProxy);
+  var playlist = playlistMaker(player, videoList);
+  var src;
 
+  player.currentSrc = function() {
+    return src;
+  };
+
+  src = videoList[0].sources[0].src;
   q.equal(playlist.currentItem(), 0, 'we start on item 0');
-  q.equal(playlist.next(), 2, 'we get back the value of currentItem 2');
+  q.deepEqual(playlist.next(), videoList[1], 'we get back the value of currentItem 2');
+  src = videoList[1].sources[0].src;
   q.equal(playlist.currentItem(), 1, 'we are now on item 1');
-  q.equal(playlist.next(), 3, 'we get back the value of currentItem 3');
+  q.deepEqual(playlist.next(), videoList[2], 'we get back the value of currentItem 3');
+  src = videoList[2].sources[0].src;
   q.equal(playlist.currentItem(), 2, 'we are now on item 2');
+  src = videoList[4].sources[0].src;
+  q.equal(playlist.currentItem(4), 4, 'we are now on item 4');
   q.equal(playlist.next(), undefined, 'we get nothing back if we try to go out of bounds');
 });
 
 q.test('playlist.previous() works as expected', function() {
-  var playlist = playlistMaker(playerProxy, [1,2,3]);
+  var player = extend(true, {}, playerProxy);
+  var playlist = playlistMaker(player, videoList);
+  var src;
 
+  player.currentSrc = function() {
+    return src;
+  };
+
+  src = videoList[0].sources[0].src;
   q.equal(playlist.currentItem(), 0, 'we start on item 0');
   q.equal(playlist.previous(), undefined, 'we get nothing back if we try to go out of bounds');
 
-  playlist.next();
-  playlist.next();
-
+  src = videoList[2].sources[0].src;
   q.equal(playlist.currentItem(), 2, 'we are on item 2');
-  q.equal(playlist.previous(), 2, 'we get back value of currentItem 1');
+  q.deepEqual(playlist.previous(), videoList[1], 'we get back value of currentItem 1');
+
+  src = videoList[1].sources[0].src;
   q.equal(playlist.currentItem(), 1, 'we are on item 1');
-  q.equal(playlist.previous(), 1, 'we get back value of currentItem 0');
+  q.deepEqual(playlist.previous(), videoList[0], 'we get back value of currentItem 0');
+  src = videoList[0].sources[0].src;
   q.equal(playlist.currentItem(), 0, 'we are on item 0');
   q.equal(playlist.previous(), undefined, 'we get nothing back if we try to go out of bounds');
 });
