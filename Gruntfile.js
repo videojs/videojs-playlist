@@ -23,8 +23,22 @@ module.exports = function(grunt) {
     less: {
       dist: {
         files: {
-          'dist/videojs-playlist-ui.vertical.css': 'lib/videojs-playlist-ui.vertical.less'
+          'dist/videojs-playlist-ui.vertical.no-prefix.css': 'lib/videojs-playlist-ui.vertical.less'
         }
+      }
+    },
+    postcss: {
+      options: {
+        processors: [
+          require('autoprefixer-core')({
+            browsers: ['last 2 versions', 'ie 8', 'ie 9']
+          }),
+          require('postcss-pseudoelements')()
+        ]
+      },
+      dist: {
+        src: 'dist/videojs-playlist-ui.vertical.no-prefix.css',
+        dest: 'dist/videojs-playlist-ui.vertical.css'
       }
     },
     qunit: {
@@ -57,7 +71,7 @@ module.exports = function(grunt) {
       },
       src: {
         files: ['<%= jshint.src.src %>', 'lib/*.less'],
-        tasks: ['less', 'jshint:src', 'browserify:src', 'qunit']
+        tasks: ['less', 'postcss', 'jshint:src', 'browserify:src', 'qunit']
       },
       test: {
         files: '<%= jshint.test.src %>',
@@ -101,6 +115,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
 
   grunt.loadNpmTasks('grunt-browserify');
+  grunt.loadNpmTasks('grunt-postcss');
 
   grunt.registerTask('default',
                      ['clean',
@@ -108,5 +123,6 @@ module.exports = function(grunt) {
                       'jshint',
                       'qunit',
                       'uglify',
-                      'less']);
+                      'less',
+                      'postcss']);
 };
