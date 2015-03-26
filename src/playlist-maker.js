@@ -154,9 +154,7 @@ var playlistMaker = function(player, plist) {
   loadFirstItem();
 
   player.on('loadstart', function() {
-    var currentSrc = player.currentSrc();
-    if (!player.playlist.contains(currentSrc)) {
-      currentIndex = -1;
+    if (player.playlist.currentItem() === -1) {
       setupAutoadvance.resetadvance(player);
     }
   });
