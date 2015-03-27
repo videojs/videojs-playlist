@@ -70,18 +70,36 @@ hover effects */
     white-space: nowrap;
   }
 }
+
 /* Prevent interaction with the playlist menu while ads are playing */
+/* on browsers that don't support pointer-events (IE<11), prevent
+scrolling past the ad overlay */
 .vjs-playlist.vjs-ad-playing {
-  pointer-events: none;
+  overflow: hidden;
 }
-.vjs-playlist.vjs-ad-playing::after {
-  content: '';
+/* prevent clicks and scrolling from affecting the playlist during ads */
+.vjs-playlist.vjs-ad-playing.vjs-csspointerevents {
+  pointer-events: none;
+  overflow: auto;
+}
+/* darken the playlist menu display to indicate it's not interactive
+during ads and capture click events on IE<11 */
+.vjs-playlist.vjs-ad-playing .vjs-playlist-ad-overlay {
+  display: none;
+}
+.vjs-playlist.vjs-ad-playing .vjs-playlist-ad-overlay {
+  display: block;
   position: absolute;
   top: 0;
-  right: 0;
   left: 0;
-  bottom: 0;
-  background-color: transparent; /* IE8 fallback */
+  width: 100%;
+  height: 100%;
+
+  /* IE8 fallback */
+  background-color: #1a1a1a;
+  -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+
+  /* modern browsers */
   background-color: rgba(0, 0, 0, 0.5);
 }
 
