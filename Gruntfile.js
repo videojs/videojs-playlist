@@ -1,5 +1,7 @@
 'use strict';
 
+var loadGruntTasks = require('load-grunt-tasks');
+
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -106,23 +108,13 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-less');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-watch');
+  loadGruntTasks(grunt);
 
-  grunt.loadNpmTasks('grunt-browserify');
-  grunt.loadNpmTasks('grunt-postcss');
+  grunt.registerTask('build-js', ['browserify', 'uglify']);
+  grunt.registerTask('build-css', ['less', 'postcss']);
 
-  grunt.registerTask('default',
-                     ['clean',
-                      'browserify',
-                      'jshint',
-                      'qunit',
-                      'uglify',
-                      'less',
-                      'postcss']);
+  grunt.registerTask('build', ['clean', 'build-js', 'build-css']);
+  grunt.registerTask('test', ['build', 'jshint', 'qunit']);
+
+  grunt.registerTask('default', ['build', 'test']);
 };
