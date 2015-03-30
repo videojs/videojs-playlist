@@ -23,6 +23,10 @@
   ],
   "author": "Gary Katsevman <me@gkatsev.com>",
   "license": "Apache 2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brightcove/videojs-playlist"
+  },
   "devDependencies": {
     "browserify": "^9.0.3",
     "browserify-shim": "^3.8.3",
