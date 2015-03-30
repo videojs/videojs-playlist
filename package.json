@@ -32,6 +32,6 @@
     "postcss-pseudoelements": "^2.1.1",
     "qunitjs": "^1.12",
     "video.js": "^4.5",
-    "videojs-playlist": "git+https://github.com/brightcove/videojs-playlist.git#build"
+    "videojs-playlist": "^1.0.0"
   }
 }
