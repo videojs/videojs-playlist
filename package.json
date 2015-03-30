@@ -1,6 +1,6 @@
 {
   "name": "videojs-playlist",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Playlist plugin for videojs",
   "main": "index.js",
   "scripts": {
