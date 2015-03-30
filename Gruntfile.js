@@ -111,8 +111,10 @@ module.exports = function(grunt) {
   loadGruntTasks(grunt);
 
   grunt.registerTask('build-js', ['browserify', 'uglify']);
+  grunt.registerTask('build-js:dist', ['browserify:src', 'uglify']);
   grunt.registerTask('build-css', ['less', 'postcss']);
 
+  grunt.registerTask('build:dist', ['clean', 'build-js:dist', 'build-css']);
   grunt.registerTask('build', ['clean', 'build-js', 'build-css']);
   grunt.registerTask('test', ['build', 'jshint', 'qunit']);
 
