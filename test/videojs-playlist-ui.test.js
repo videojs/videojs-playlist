@@ -258,6 +258,7 @@ test('includes the duration if one is provided', function() {
 
 test('marks the selected playlist item on startup', function() {
   player.playlist(playlist);
+  player.currentSrc = () => playlist[0].sources[0].src;
   player.playlistUi();
 
   let selectedItems = document.querySelectorAll('.vjs-playlist-item.vjs-selected');
@@ -273,7 +274,7 @@ test('updates the selected playlist item on loadstart', function() {
 
   player.playlist.currentItem(1);
   if (/phantom/i.test(window.navigator.userAgent)) {
-    player.currentSrc = () => playlist[1].sources[0];
+    player.currentSrc = () => playlist[1].sources[0].src;
   }
   player.trigger('loadstart');
 
@@ -344,7 +345,7 @@ test('changes the selection when tapped', function(test) {
       }
       return sources[0];
     };
-    player.currentSrc = () => sources[0];
+    player.currentSrc = () => sources[0].src;
   }
   player.playlistMenu.items[1].trigger('tap');
   // trigger a loadstart synchronously to simplify the test
