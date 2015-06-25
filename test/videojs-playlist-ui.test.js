@@ -330,6 +330,9 @@ test('updates on "playliastchange", equal lengths', function() {
 
 test('updates on "playliastchange", update selection', function() {
   player.playlist(playlist);
+  player.currentSrc = function() {
+    return playlist[0].sources[0].src;
+  };
   player.playlistUi();
 
   let items = document.querySelectorAll('.vjs-playlist-item');
@@ -337,6 +340,9 @@ test('updates on "playliastchange", update selection', function() {
 
   ok(/vjs-selected/.test(items[0].getAttribute('class')), 'first item is selected by default');
   player.playlist.currentItem(1);
+  player.currentSrc = function() {
+    return playlist[1].sources[0].src;
+  };
 
   player.trigger('playlistchange');
   items = document.querySelectorAll('.vjs-playlist-item');
