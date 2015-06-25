@@ -300,7 +300,7 @@ test('selects no item if the playlist is not in use', function() {
         'no items selected');
 });
 
-test('updates on "playlistchange"', function() {
+test('updates on "playlistchange", different lengths', function() {
   player.playlist([]);
   player.playlistUi();
 
@@ -311,6 +311,38 @@ test('updates on "playlistchange"', function() {
   player.trigger('playlistchange');
   items = document.querySelectorAll('.vjs-playlist-item');
   equal(items.length, playlist.length, 'updated with the new items');
+});
+
+test('updates on "playliastchange", equal lengths', function() {
+  player.playlist([{sources:[]},{sources:[]}]);
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items.length, 2, 'two items initially');
+
+  player.playlist(playlist);
+  player.trigger('playlistchange');
+  items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items.length, playlist.length, 'updated with the new items');
+  equal(player.playlistMenu.items[0].item, playlist[0], 'we have updated items');
+  equal(player.playlistMenu.items[1].item, playlist[1], 'we have updated items');
+});
+
+test('updates on "playliastchange", update selection', function() {
+  player.playlist(playlist);
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items.length, 2, 'two items initially');
+
+  ok(/vjs-selected/.test(items[0].getAttribute('class')), 'first item is selected by default');
+  player.playlist.currentItem(1);
+
+  player.trigger('playlistchange');
+  items = document.querySelectorAll('.vjs-playlist-item');
+  equal(items.length, playlist.length, 'updated with the new items');
+  ok(/vjs-selected/.test(items[1].getAttribute('class')), 'second item is selected after update');
+  ok(!/vjs-selected/.test(items[0].getAttribute('class')), 'first item is not selected after update');
 });
 
 test('tracks when an ad is playing', function() {
