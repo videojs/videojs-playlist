@@ -372,9 +372,12 @@ test('tracks when an ad is playing', function() {
 // -----------
 
 test('changes the selection when tapped', function(test) {
+  var playCalled = false;
   player.playlist(playlist);
   player.playlistUi();
-  player.play = function(){};
+  player.play = function(){
+    playCalled = true;
+  };
 
   if (/phantom/i.test(window.navigator.userAgent)) {
     let sources;
@@ -394,4 +397,5 @@ test('changes the selection when tapped', function(test) {
      'selected the new item');
   ok(!player.playlistMenu.items[0].hasClass('vjs-selected'),
      'deselected the old item');
+  equal(playCalled, true, 'play gets called');
 });
