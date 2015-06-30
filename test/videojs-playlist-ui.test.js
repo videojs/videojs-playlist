@@ -374,6 +374,7 @@ test('tracks when an ad is playing', function() {
 test('changes the selection when tapped', function(test) {
   player.playlist(playlist);
   player.playlistUi();
+  player.play = function(){};
 
   if (/phantom/i.test(window.navigator.userAgent)) {
     let sources;
