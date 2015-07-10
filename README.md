@@ -49,6 +49,12 @@ Default: "vjs-playlist"
 
 The name of the class to search for to populate the playlist menu.
 
+#### playOnClick
+Type: `Boolean`
+Default: false
+
+The default behavior is that the play state is expected to stay the same between videos, if playing continue playing and if paused stay paused when playlist menu items are clicked. When this boolean is set to true, clicking on the playlist menu items will always play the video.
+
 ## Playlists and Advertisements
 
 The Playlist Menu automatically adapts to ad integrations based on
