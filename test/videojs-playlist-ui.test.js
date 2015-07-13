@@ -374,7 +374,7 @@ test('tracks when an ad is playing', function() {
 test('changes the selection when tapped', function(test) {
   var playCalled = false;
   player.playlist(playlist);
-  player.playlistUi({'playOnClick': true});
+  player.playlistUi({'playOnSelect': true});
   player.play = function(){
     playCalled = true;
   };
@@ -398,4 +398,28 @@ test('changes the selection when tapped', function(test) {
   ok(!player.playlistMenu.items[0].hasClass('vjs-selected'),
      'deselected the old item');
   equal(playCalled, true, 'play gets called if option is set');
+});
+
+test('play should not get called by default upon selection of menu items ', function(test) {
+  var playCalled = false;
+  player.playlist(playlist);
+  player.playlistUi();
+  player.play = function(){
+    playCalled = true;
+  };
+
+  if (/phantom/i.test(window.navigator.userAgent)) {
+    let sources;
+    player.src = (src) => {
+      if (src) {
+        sources = src;
+      }
+      return sources[0];
+    };
+    player.currentSrc = () => sources[0].src;
+  }
+  player.playlistMenu.items[1].trigger('tap');
+  // trigger a loadstart synchronously to simplify the test
+  player.trigger('loadstart');
+  equal(playCalled, false, 'play should not get called by default');
 });

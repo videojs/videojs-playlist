@@ -49,7 +49,7 @@ Default: "vjs-playlist"
 
 The name of the class to search for to populate the playlist menu.
 
-#### playOnClick
+#### playOnSelect
 Type: `Boolean`
 Default: false
 
