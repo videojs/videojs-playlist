@@ -120,7 +120,7 @@ q.test('reset if we have already started advancing', function() {
 });
 
 q.test('timeout is given in seconds', function() {
-  var player = new videojs.EventEmitter(),
+  var player = new videojs.EventTarget(),
       oldSetTimeout = window.setTimeout;
 
   player.addEventListener = null;
