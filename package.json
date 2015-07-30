@@ -49,7 +49,7 @@
     "node.extend": "^1.1.3",
     "qunit": "^0.7.5",
     "qunitjs": "^1.17.1",
-    "video.js": "^4.12.1",
+    "video.js": "5.0.0-rc.34",
     "watchify": "^2.4.0"
   },
   "browserify": {

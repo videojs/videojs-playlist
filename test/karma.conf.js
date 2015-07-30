@@ -14,7 +14,7 @@ module.exports = function(config) {
     browsers: browsers,
 
     files: [
-      '../node_modules/video.js/dist/video-js/video.dev.js',
+      '../node_modules/video.js/dist/video.js',
       '../dist/tests.js'
     ],
 
