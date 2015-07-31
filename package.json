@@ -35,7 +35,7 @@
     "load-grunt-tasks": "^3.1.0",
     "postcss-pseudoelements": "^2.1.1",
     "qunitjs": "^1.12",
-    "video.js": "^4.5",
+    "video.js": "5.0.0-rc.34",
     "videojs-playlist": "^1.0.0"
   }
 }

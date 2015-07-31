@@ -44,22 +44,25 @@ const resolveUrl = url => {
   return a.href;
 };
 
+const Html5 = videojs.getComponent('Html5');
 
 test('the environment is sane', function() {
   ok(true, 'everything is swell');
 });
 
 const setup = function() {
+  let fixture = document.querySelector('#qunit-fixture');
+
   // force HTML support so the tests run in a reasonable
   // environment under phantomjs
-  realIsHtmlSupported = videojs.Html5.isSupported;
-  videojs.Html5.isSupported = function() {
+  realIsHtmlSupported = Html5.isSupported;
+  Html5.isSupported = function() {
     return true;
   };
 
   // create a video element
   var video = document.createElement('video');
-  document.querySelector('#qunit-fixture').appendChild(video);
+  fixture.appendChild(video);
 
   // create a video.js player
   player = videojs(video);
@@ -67,11 +70,11 @@ const setup = function() {
   // create a default playlist element
   let elem = document.createElement('ol');
   elem.className = 'vjs-playlist';
-  document.querySelector('#qunit-fixture').appendChild(elem);
+  fixture.appendChild(elem);
 };
 
 const teardown = function() {
-  videojs.Html5.isSupported = realIsHtmlSupported;
+  Html5.isSupported = realIsHtmlSupported;
   player.dispose();
   player = null;
 };
@@ -141,15 +144,15 @@ test('can auto-setup elements with a custom class', function() {
 });
 
 test('specializes the class name if touch input is absent', function() {
-  const touchEnabled = videojs.TOUCH_ENABLED;
-  videojs.TOUCH_ENABLED = false;
+  const touchEnabled = videojs.browser.TOUCH_ENABLED;
+  videojs.browser.TOUCH_ENABLED = videojs.TOUCH_ENABLED = false;
 
   player.playlist(playlist);
   player.playlistUi();
 
   ok(player.playlistMenu.hasClass('vjs-mouse'), 'marked the playlist menu');
 
-  videojs.TOUCH_ENABLED = touchEnabled;
+  videojs.browser.TOUCH_ENABLED = videojs.TOUCH_ENABLED = touchEnabled;
 });
 
 QUnit.module('Playlist Component', {
@@ -166,6 +169,7 @@ test('includes the video name if provided', function() {
   player.playlistUi();
 
   let items = document.querySelectorAll('.vjs-playlist-item');
+
   equal(items[0].querySelector('.vjs-playlist-name').textContent,
         playlist[0].name,
         'wrote the name');
@@ -313,7 +317,7 @@ test('updates on "playlistchange", different lengths', function() {
   equal(items.length, playlist.length, 'updated with the new items');
 });
 
-test('updates on "playliastchange", equal lengths', function() {
+test('updates on "playlistchange", equal lengths', function() {
   player.playlist([{sources:[]},{sources:[]}]);
   player.playlistUi();
 
@@ -328,7 +332,7 @@ test('updates on "playliastchange", equal lengths', function() {
   equal(player.playlistMenu.items[1].item, playlist[1], 'we have updated items');
 });
 
-test('updates on "playliastchange", update selection', function() {
+test('updates on "playlistchange", update selection', function() {
   player.playlist(playlist);
   player.currentSrc = function() {
     return playlist[0].sources[0].src;
