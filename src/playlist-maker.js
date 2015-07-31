@@ -8,10 +8,6 @@ var indexInSources = function(arr, src) {
   var j = 0;
   var item;
   var source;
-  //If there is an rtmp source in the playlist, src comes out as undefined and indexOf incorrectly gives out the value as 0
-  //hence we make sure to hit the condition that if src is undefined just return -1 in the beginning itself
-  if(src === undefined)
-  return -1;
 
   for (; i < arr.length; i++) {
     item = arr[i];
