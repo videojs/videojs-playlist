@@ -231,6 +231,11 @@ q.test('playlist.indexOf() works as expected', function() {
   var playlist = playlistMaker(player, videoList);
   player.playlist = playlist;
 
+  q.deepEqual(undefined,videoList[0].src,'videolist src 1 is undefined');
+  q.deepEqual(undefined,videoList[1].src,'videolist src 2 is undefined');
+  q.deepEqual(undefined,videoList[2].src,'videolist src 3 is undefined');
+  q.deepEqual(undefined,videoList[3].src,'videolist src 4 is undefined');
+
   q.equal(playlist.indexOf('http://media.w3.org/2010/05/sintel/trailer.mp4'),
           0, 'sintel trailer is first item');
 
