@@ -203,7 +203,7 @@ player.playlist.previous();
 ```
 
 #### `player.playlist.autoadvance([Number timeout]) -> undefined`
-This function allows you to set up playlist auto advancement. Once enabled it will wait a `timeout` amount of milliseconds at the end of a video before proceeding automatically to the next video.
+This function allows you to set up playlist auto advancement. Once enabled it will wait a `timeout` amount of seconds at the end of a video before proceeding automatically to the next video.
 Any value which is not a positive, finite, integer, will be treated as a request to cancel and reset the auto advancing.
 If you change autoadvance during a timeout period, the auto advance will be canceled and it will not advance the next video but it will use the new timeout value for the following videos.
 
