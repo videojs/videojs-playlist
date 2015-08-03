@@ -229,6 +229,18 @@ q.test('playlist.contains() works as expected', function() {
 q.test('playlist.indexOf() works as expected', function() {
   var player = extend(true, {}, playerProxy);
   var playlist = playlistMaker(player, videoList);
+  var mixedSourcesPlaylist = playlistMaker(player, [{
+    sources: [{
+      src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+      type: 'video/mp4'
+    }, {
+      app_name: 'rtmp://example.com/sintel/trailer',
+      avg_bitrate: 4255000,
+      codec: 'H264',
+      container: 'MP4'
+    }],
+      poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+    }]);
   player.playlist = playlist;
 
   q.equal(playlist.indexOf('http://media.w3.org/2010/05/sintel/trailer.mp4'),
@@ -274,6 +286,32 @@ q.test('playlist.indexOf() works as expected', function() {
       type: 'video/mp4'
     }]
   }), -1, 'poster.png does not exist');
+
+  q.equal(mixedSourcesPlaylist.indexOf({
+    sources: [{
+      src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
+      type: 'video/mp4'
+    }, {
+      app_name: 'rtmp://example.com/bunny/movie',
+      avg_bitrate: 4255000,
+      codec: 'H264',
+      container: 'MP4'
+    }],
+      poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+    }), -1, 'bunny movie does not exist');
+
+   q.equal(mixedSourcesPlaylist.indexOf({
+    sources: [{
+      src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+      type: 'video/mp4'
+    }, {
+      app_name: 'rtmp://example.com/sintel/trailer',
+      avg_bitrate: 4255000,
+      codec: 'H264',
+      container: 'MP4'
+    }],
+      poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+    }), 0, 'sinel trailer does exist');
 });
 
 q.test('playlist.next() works as expected', function() {
