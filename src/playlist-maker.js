@@ -110,7 +110,7 @@ var playlistMaker = function(player, plist) {
         source = sources[i];
         if (typeof source === 'string') {
           ret = indexInSources(list, source);
-        } else {
+        } else if (source.src) {
           ret = indexInSources(list, source.src);
         }
 
