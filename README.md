@@ -173,7 +173,7 @@ player.playlist.next();
 // }
 
 
-player.playlist.currenItem(player.playlist().length - 1); // set to last item
+player.playlist.currentItem(player.playlist().length - 1); // set to last item
 // 4
 player.playlist.next();
 // undefined
@@ -184,7 +184,7 @@ This functions allows you to return to the previous item in the playlist. You wi
 If you are at the start of the playlist, you will not be able to proceed past the start and instead will not receive anything back;
 
 ```js
-player.playlist.currenItem(1); // set to second item in the playlist
+player.playlist.currentItem(1); // set to second item in the playlist
 // 1
 player.playlist.previous();
 // {
@@ -196,7 +196,7 @@ player.playlist.previous();
 // }
 
 
-player.playlist.currenItem();
+player.playlist.currentItem();
 // 0
 player.playlist.previous();
 // undefined
