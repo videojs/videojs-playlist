@@ -128,6 +128,7 @@ var playlistMaker = function(player, plist) {
     // make sure we don't go past the end of the playlist
     currentIndex = Math.min(currentIndex + 1, list.length - 1);
     if (prevIndex === currentIndex) {
+      player.trigger('playlistended');
       return;
     }
     playItem(player, autoadvanceTimeout, list[currentIndex]);

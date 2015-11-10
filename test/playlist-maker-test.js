@@ -323,6 +323,10 @@ q.test('playlist.next() works as expected', function() {
     return src;
   };
 
+  player.trigger = function() {
+    return;
+  };
+
   src = videoList[0].sources[0].src;
   q.equal(playlist.currentItem(), 0, 'we start on item 0');
   q.deepEqual(playlist.next(), videoList[1], 'we get back the value of currentItem 2');
@@ -432,6 +436,18 @@ q.test('when loading a new playlist, trigger "playlistchange" on the player', fu
   playlist([4,5,6]);
 
   window.setTimeout = oldTimeout;
+});
+
+q.test('when reaching the end of a playlist, trigger "playlistended" on the player', function() {
+  var player = extend(true, {}, playerProxy);
+  var playlist = playlistMaker(player, videoList);
+
+  player.trigger = function(type) {
+    q.equal(type, 'playlistended', 'trigger playlistended on playlistended');
+  };
+
+  playlist.currentItem(4);
+  playlist.next();
 });
 
 q.test('cleartimeout on dispose', function() {
