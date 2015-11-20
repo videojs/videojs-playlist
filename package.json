@@ -22,6 +22,7 @@
     "autoprefixer-core": "^5.1.8",
     "babelify": "^5.0.4",
     "browserify": "^9.0.3",
+    "grunt": "^0.4.0",
     "grunt-browserify": "^3.5.0",
     "grunt-cli": "^0.1.13",
     "grunt-contrib-clean": "^0.4",
@@ -35,7 +36,7 @@
     "load-grunt-tasks": "^3.1.0",
     "postcss-pseudoelements": "^2.1.1",
     "qunitjs": "^1.12",
-    "video.js": "5.0.0-rc.52",
+    "video.js": "^5.2.0",
     "videojs-playlist": "^1.0.0"
   }
 }
