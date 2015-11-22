@@ -371,7 +371,7 @@ q.test('loading a non-playlist video will cancel autoadvance and set index of -1
   var autoadvance = require('../src/autoadvance.js');
   var oldReset = autoadvance.resetadvance;
 
-  player = new Player(videojs.EventEmitter.prototype);
+  player = new Player(videojs.EventTarget.prototype);
 
   playlist = playlistMaker(player, [{
     sources: [{
@@ -452,7 +452,7 @@ q.test('cleartimeout on dispose', function() {
     q.equal(to, timeout, 'we cleared the timeout');
   };
 
-  player = new Player(videojs.EventEmitter.prototype);
+  player = new Player(videojs.EventTarget.prototype);
 
   playlist = playlistMaker(player, [1,2,3]);
 
