@@ -11,7 +11,7 @@ QUnit.test('clearTracks will try and remove all tracks', function(assert) {
   let removedTracks = [];
 
   player.remoteTextTracks = function() {
-    return {tracks_: remoteTracks};
+    return remoteTracks;
   };
 
   player.removeRemoteTextTrack = function(tt) {

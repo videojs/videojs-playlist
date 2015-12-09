@@ -6,12 +6,9 @@ import {setup} from './auto-advance.js';
  * @param  {Player} player
  */
 const clearTracks = (player) => {
-  let tracks = player.remoteTextTracks();
+  let tracks = player.remoteTextTracks() || [];
 
-  // `remoteTextTracks` returns a `TextTrackList` object which stores its
-  // tracks on the `tracks_` property.
-  tracks = tracks ? tracks.tracks_ : [];
-  tracks.forEach(player.removeRemoteTextTrack);
+  Array.prototype.forEach.call(tracks, player.removeRemoteTextTrack);
 };
 
 /**
