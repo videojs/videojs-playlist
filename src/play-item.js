@@ -6,9 +6,14 @@ import {setup} from './auto-advance.js';
  * @param  {Player} player
  */
 const clearTracks = (player) => {
-  let tracks = player.remoteTextTracks() || [];
+  let tracks = player.remoteTextTracks();
+  let i = tracks && tracks.length || 0;
 
-  Array.prototype.forEach.call(tracks, player.removeRemoteTextTrack);
+  // This uses a `while` loop rather than `forEach` because the
+  // `TextTrackList` object is not a true array.
+  while (i--) {
+    player.removeRemoteTextTrack(tracks[i]);
+  }
 };
 
 /**
