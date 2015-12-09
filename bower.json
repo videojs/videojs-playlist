@@ -1,0 +1,14 @@
+{
+  "name": "videojs-playlist",
+  "version": "2.0.0",
+  "author": "Brightcove, Inc.",
+  "license": "Apache-2.0",
+  "main": [
+    "dist/videojs-playlist.min.js"
+  ],
+  "keywords": [
+    "videojs",
+    "videojs-plugin"
+  ]
+}
+
