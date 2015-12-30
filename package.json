@@ -41,30 +41,22 @@
   ],
   "author": "Brightcove, Inc.",
   "license": "Apache-2.0",
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/brightcove/videojs-playlist"
   },
-  "browserify-shim": {
-    "qunit": "global:QUnit",
-    "sinon": "global:sinon",
-    "video.js": "global:videojs"
-  },
-  "vjsstandard": {
-    "ignore": [
-      "dist",
-      "dist-test",
-      "docs",
-      "es5",
-      "test/karma",
-      "scripts"
-    ]
-  },
-  "dependencies": {
-    "object.assign": "^4.0.3",
-    "video.js": "^5.0.0"
-  },
+  "files": [
+    "CONTRIBUTING.md",
+    "bower.json",
+    "dist-test/",
+    "dist/",
+    "docs/",
+    "es5/",
+    "index.html",
+    "scripts/",
+    "src/",
+    "test/"
+  ],
   "devDependencies": {
     "babel": "^5.8.0",
     "babelify": "^6.0.0",
@@ -94,5 +86,29 @@
     "uglify-js": "^2.5.0",
     "videojs-standard": "^4.0.0",
     "watchify": "^3.6.0"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "qunit": "global:QUnit",
+    "sinon": "global:sinon",
+    "video.js": "global:videojs"
+  },
+  "vjsstandard": {
+    "ignore": [
+      "dist",
+      "dist-test",
+      "docs",
+      "es5",
+      "test/karma",
+      "scripts"
+    ]
+  },
+  "dependencies": {
+    "object.assign": "^4.0.3",
+    "video.js": "^5.0.0"
   }
 }
