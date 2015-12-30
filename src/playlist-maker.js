@@ -32,7 +32,20 @@ const indexInSources = (arr, src) => {
 };
 
 /**
- * Factory function for creating new playlists on the given player.
+ * Factory function for creating new playlist implementation on the given player.
+ *
+ * API summary:
+ *
+ * playlist(['a', 'b', 'c']) // setter
+ * playlist() // getter
+ * playlist.currentItem() // getter, 0
+ * playlist.currentItem(1) // setter, 1
+ * playlist.next() // 'c'
+ * playlist.previous() // 'b'
+ * playlist.first() // 'a'
+ * playlist.last() // 'c'
+ * playlist.autoadvance(5) // 5 second delay
+ * playlist.autoadvance() // cancel autoadvance
  *
  * @param  {Player} player
  * @param  {Array}  [initialList]
