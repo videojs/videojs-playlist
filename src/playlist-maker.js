@@ -38,24 +38,25 @@ const indexInSources = (arr, src) => {
  * @return {[type]}
  */
 const factory = (player, initialList) => {
+  let list = Array.isArray(initialList) ? initialList.slice() : [];
 
   /**
    * Get/set the playlist for a player.
    *
-   * @param  {Array} [list]
+   * @param  {Array} [newList]
    * @return {Array}
    */
-  const playlist = player.playlist = function(list) {
-    if (Array.isArray(list)) {
-      playlist.list_ = list.slice();
+  const playlist = player.playlist = function(newList) {
+    if (Array.isArray(newList)) {
+      list = newList.slice();
       playlist.first();
       playlist.changeTimeout_ = window.setTimeout(() => {
         player.trigger('playlistchange');
       }, 0);
     }
 
-    // Always return a clone of the playlist list.
-    return playlist.list_.slice();
+    // Always return a shallow clone of the playlist list.
+    return list.slice();
   };
 
   player.on('loadstart', () => {
@@ -70,7 +71,6 @@ const factory = (player, initialList) => {
 
   assign(playlist, {
     currentIndex_: -1,
-    list_: Array.isArray(initialList) ? initialList.slice() : [],
     player_: player,
     autoadvance_: {},
 
@@ -88,13 +88,13 @@ const factory = (player, initialList) => {
         typeof index === 'number' &&
         playlist.currentIndex_ !== index &&
         index >= 0 &&
-        index < playlist.list_.length
+        index < list.length
       ) {
         playlist.currentIndex_ = index;
         playItem(
           playlist.player_,
           playlist.autoadvance_.delay,
-          playlist.list_[playlist.currentIndex_]
+          list[playlist.currentIndex_]
         );
       } else {
         playlist.currentIndex_ = playlist.indexOf(playlist.player_.currentSrc() || '');
@@ -121,7 +121,7 @@ const factory = (player, initialList) => {
      */
     indexOf(value) {
       if (typeof value === 'string') {
-        return indexInSources(playlist.list_, value);
+        return indexInSources(list, value);
       }
 
       let sources = Array.isArray(value) ? value : value.sources;
@@ -130,9 +130,9 @@ const factory = (player, initialList) => {
         let source = sources[i];
 
         if (typeof source === 'string') {
-          return indexInSources(playlist.list_, source);
+          return indexInSources(list, source);
         } else if (source.src) {
-          return indexInSources(playlist.list_, source.src);
+          return indexInSources(list, source.src);
         }
       }
 
@@ -146,8 +146,8 @@ const factory = (player, initialList) => {
      *         Returns undefined and has no side effects if the list is empty.
      */
     first() {
-      if (playlist.list_.length) {
-        return playlist.list_[playlist.currentItem(0)];
+      if (list.length) {
+        return list[playlist.currentItem(0)];
       }
 
       playlist.currentIndex_ = -1;
@@ -162,10 +162,10 @@ const factory = (player, initialList) => {
     next() {
 
       // Make sure we don't go past the end of the playlist.
-      let index = Math.min(playlist.currentIndex_ + 1, playlist.list_.length - 1);
+      let index = Math.min(playlist.currentIndex_ + 1, list.length - 1);
 
       if (index !== playlist.currentIndex_) {
-        return playlist.list_[playlist.currentItem(index)];
+        return list[playlist.currentItem(index)];
       }
     },
 
@@ -181,7 +181,7 @@ const factory = (player, initialList) => {
       let index = Math.max(playlist.currentIndex_ - 1, 0);
 
       if (index !== playlist.currentIndex_) {
-        return playlist.list_[playlist.currentItem(index)];
+        return list[playlist.currentItem(index)];
       }
     },
 

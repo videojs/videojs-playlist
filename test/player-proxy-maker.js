@@ -15,7 +15,6 @@ const proxy = (props) => {
     playlist: {
       autoadvance_: {},
       currentIndex_: -1,
-      list_: [],
       autoadvance: Function.prototype,
       contains: Function.prototype,
       currentItem: Function.prototype,
