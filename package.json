@@ -30,6 +30,7 @@
     ]
   },
   "scripts": {
+    "prebuild": "npm run clean",
     "build": "npm-run-all -p build:*",
     "build:js": "npm-run-all mkdirs build:js:babel build:js:browserify build:js:bannerize build:js:uglify",
     "build:js:babel": "babel src -d es5",
@@ -39,9 +40,11 @@
     "build:test": "npm-run-all mkdirs build:test:browserify",
     "build:test:browserify": "browserify `find test -name '*.test.js'` -t babelify -o dist-test/videojs-playlist.js",
     "clean": "rm -rf dist dist-test es5",
+    "docs": "doctoc README.md docs/api.md",
     "lint": "vjsstandard",
     "mkdirs": "mkdir -p dist dist-test es5",
-    "prestart": "npm-run-all build",
+    "prepublish": "npm run build",
+    "prestart": "npm-run-all -p docs build",
     "start": "npm-run-all -p start:serve watch",
     "start:serve": "babel-node scripts/server.js",
     "pretest": "npm-run-all lint build:test",
@@ -55,8 +58,7 @@
     "postversion": "./scripts/npm-postversion-for-bower.sh",
     "watch": "npm run mkdirs && npm-run-all -p watch:*",
     "watch:js": "watchify src/plugin.js -t babelify -v -o dist/videojs-playlist.js",
-    "watch:test": "watchify `find test -name '*.test.js'` -t babelify -o dist-test/videojs-playlist.js",
-    "prepublish": "npm run build"
+    "watch:test": "watchify `find test -name '*.test.js'` -t babelify -o dist-test/videojs-playlist.js"
   },
   "dependencies": {
     "object.assign": "^4.0.3",
@@ -70,6 +72,7 @@
     "browserify-shim": "^3.0.0",
     "connect": "^3.4.0",
     "cowsay": "^1.1.0",
+    "doctoc": "^0.15.0",
     "global": "^4.3.0",
     "karma": "^0.13.0",
     "karma-browserify": "^4.4.0",

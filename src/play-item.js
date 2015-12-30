@@ -10,7 +10,7 @@ const clearTracks = (player) => {
   let i = tracks && tracks.length || 0;
 
   // This uses a `while` loop rather than `forEach` because the
-  // `TextTrackList` object is not a true array.
+  // `TextTrackList` object is a live DOM list (not an array).
   while (i--) {
     player.removeRemoteTextTrack(tracks[i]);
   }
@@ -21,7 +21,11 @@ const clearTracks = (player) => {
  *
  * @param  {Player} player
  * @param  {Number} delay
+ *         The number of seconds to wait before each auto-advance.
+ *
  * @param  {Object} item
+ *         A source from the playlist.
+ *
  * @return {Player}
  */
 const playItem = (player, delay, item) => {

@@ -8,9 +8,10 @@ import * as autoadvance from './auto-advance';
  * checking both the value of elements and the value of their `src`
  * property.
  *
- * @param  {Array} arr
- * @param  {String} src
- * @return {Number}
+ * @private
+ * @param   {Array} arr
+ * @param   {String} src
+ * @return  {Number}
  */
 const indexInSources = (arr, src) => {
   for (let i = 0; i < arr.length; i++) {
@@ -34,8 +35,12 @@ const indexInSources = (arr, src) => {
  * Factory function for creating new playlists on the given player.
  *
  * @param  {Player} player
- * @param  {Array} initialList
- * @return {[type]}
+ * @param  {Array}  [initialList]
+ *         If given, an initial list of sources with which to populate
+ *         the playlist.
+ *
+ * @return {Function}
+ *         Returns the playlist function specific to the given player.
  */
 const factory = (player, initialList) => {
   let list = Array.isArray(initialList) ? initialList.slice() : [];
@@ -43,7 +48,13 @@ const factory = (player, initialList) => {
   /**
    * Get/set the playlist for a player.
    *
+   * This function is added as an own property of the player and has its
+   * own methods which can be called to manipulate the internal state.
+   *
    * @param  {Array} [newList]
+   *         If given, a new list of sources with which to populate the
+   *         playlist. Without this, the function acts as a getter.
+   *
    * @return {Array}
    */
   const playlist = player.playlist = function(newList) {
@@ -106,7 +117,7 @@ const factory = (player, initialList) => {
     /**
      * Checks if the playlist contains a value.
      *
-     * @param  {String|Array[String|Object]|Object} value
+     * @param  {String|Object|Array} value
      * @return {Boolean}
      */
     contains(value) {
@@ -116,7 +127,7 @@ const factory = (player, initialList) => {
     /**
      * Gets the index of a value in the playlist or -1 if not found.
      *
-     * @param  {String|Array[String|Object]|Object} value
+     * @param  {String|Object|Array} value
      * @return {Number}
      */
     indexOf(value) {
@@ -148,6 +159,20 @@ const factory = (player, initialList) => {
     first() {
       if (list.length) {
         return list[playlist.currentItem(0)];
+      }
+
+      playlist.currentIndex_ = -1;
+    },
+
+    /**
+     * Plays the last item in the playlist.
+     *
+     * @return {Object|undefined}
+     *         Returns undefined and has no side effects if the list is empty.
+     */
+    last() {
+      if (list.length) {
+        return list[playlist.currentItem(list.length - 1)];
       }
 
       playlist.currentIndex_ = -1;
@@ -188,11 +213,12 @@ const factory = (player, initialList) => {
     /**
      * Sets up auto-advance on the playlist.
      *
-     * @param  {Number} seconds
+     * @param {Number} delay
+     *        The number of seconds to wait before each auto-advance.
      */
-    autoadvance(seconds) {
-      playlist.autoadvance_.delay = seconds;
-      autoadvance.setup(playlist.player_, seconds);
+    autoadvance(delay) {
+      playlist.autoadvance_.delay = delay;
+      autoadvance.setup(playlist.player_, delay);
     }
   });
 
