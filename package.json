@@ -1,34 +1,8 @@
 {
   "name": "videojs-playlist",
-  "description": "Playlist plugin for videojs",
-  "author": "Brightcove, Inc.",
-  "license": "Apache-2.0",
   "version": "2.0.0",
+  "description": "Playlist plugin for videojs",
   "main": "es5/plugin.js",
-  "keywords": [
-    "videojs",
-    "videojs-plugin"
-  ],
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
-  },
-  "browserify-shim": {
-    "qunit": "global:QUnit",
-    "sinon": "global:sinon",
-    "video.js": "global:videojs"
-  },
-  "vjsstandard": {
-    "ignore": [
-      "dist",
-      "dist-test",
-      "docs",
-      "es5",
-      "test/karma",
-      "scripts"
-    ]
-  },
   "scripts": {
     "prebuild": "npm run clean",
     "build": "npm-run-all -p build:*",
@@ -59,6 +33,33 @@
     "watch": "npm run mkdirs && npm-run-all -p watch:*",
     "watch:js": "watchify src/plugin.js -t babelify -v -o dist/videojs-playlist.js",
     "watch:test": "watchify `find test -name '*.test.js'` -t babelify -o dist-test/videojs-playlist.js"
+  },
+  "keywords": [
+    "playlist",
+    "videojs",
+    "videojs-plugin"
+  ],
+  "author": "Brightcove, Inc.",
+  "license": "Apache-2.0",
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "qunit": "global:QUnit",
+    "sinon": "global:sinon",
+    "video.js": "global:videojs"
+  },
+  "vjsstandard": {
+    "ignore": [
+      "dist",
+      "dist-test",
+      "docs",
+      "es5",
+      "test/karma",
+      "scripts"
+    ]
   },
   "dependencies": {
     "object.assign": "^4.0.3",
