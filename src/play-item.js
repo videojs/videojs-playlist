@@ -36,7 +36,7 @@ const playItem = (player, delay, item) => {
 
   clearTracks(player);
 
-  (item.textTracks || []).forEach(player.addRemoteTextTrack);
+  (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
 
   if (replay) {
     player.play();
