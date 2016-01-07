@@ -28,12 +28,16 @@ QUnit.test('clearTracks will try and remove all tracks', function(assert) {
 });
 
 QUnit.test(
-  'playItem() works as expected for setting sources, poster, and tracks',
+  'playItem() works as expected for setting sources, poster, tracks and cue points',
   function(assert) {
+    let oldVttCue = window.VTTCue;
     let player = playerProxyMaker();
     let setSrc;
     let setPoster;
     let setTracks = [];
+    let cues = [];
+
+    window.VTTCue = (time, timeEnd, type) => ({ time, type });
 
     player.src = function(src) {
       setSrc = src;
@@ -45,22 +49,42 @@ QUnit.test(
 
     player.addRemoteTextTrack = function(tt) {
       setTracks.push(tt);
+      return {
+        track: {
+          addCue(cue) {
+            cues.push(cue);
+          }
+        }
+      };
     };
 
     playItem(player, null, {
       sources: [1, 2, 3],
       textTracks: [4, 5, 6],
-      poster: 'http://example.com/poster.png'
+      poster: 'http://example.com/poster.png',
+      cuePoints: [{ time: 0, type: 'foo' }, { time: 1, type: 'bar' }]
     });
 
     assert.deepEqual(setSrc, [1, 2, 3], 'sources are what we expected');
-    assert.deepEqual(setTracks.sort(), [4, 5, 6].sort(), 'tracks are what we expected');
+    assert.deepEqual(
+      setTracks.sort(),
+      [4, 5, 6, { kind: 'metadata' }].sort(),
+      'tracks are what we expected'
+    );
 
     assert.equal(
       setPoster,
       'http://example.com/poster.png',
       'poster is what we expected'
     );
+
+    assert.deepEqual(
+      cues,
+      [{ time: 0, type: 'foo' }, { time: 1, type: 'bar' }],
+      'cues are what we expected'
+    );
+
+    window.VTTCue = oldVttCue;
   }
 );
 
