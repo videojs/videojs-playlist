@@ -29,6 +29,7 @@ const clearTracks = (player) => {
  * @return {Player}
  */
 const playItem = (player, delay, item) => {
+  let Cue = window.VTTCue || window.TextTrackCue;
   let replay = !player.paused() || player.ended();
 
   player.poster(item.poster || '');
@@ -37,6 +38,16 @@ const playItem = (player, delay, item) => {
   clearTracks(player);
 
   (item.textTracks || []).forEach(player.addRemoteTextTrack);
+
+  if (item.cuePoints && item.cuePoints.length) {
+    let trackEl = player.addRemoteTextTrack({ kind: 'metadata' });
+
+    item.cuePoints.forEach(cue => {
+      let vttCue = new Cue(cue.time, cue.time, cue.type);
+
+      trackEl.track.addCue(vttCue);
+    });
+  }
 
   if (replay) {
     player.play();
