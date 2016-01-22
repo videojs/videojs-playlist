@@ -1,3 +1,4 @@
+import window from 'global/window';
 import {setup} from './auto-advance.js';
 
 /**
@@ -37,8 +38,6 @@ const playItem = (player, delay, item) => {
 
   clearTracks(player);
 
-  (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
-
   if (item.cuePoints && item.cuePoints.length) {
     let trackEl = player.addRemoteTextTrack({ kind: 'metadata' });
 
@@ -48,6 +47,8 @@ const playItem = (player, delay, item) => {
       trackEl.track.addCue(vttCue);
     });
   }
+
+  (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
 
   if (replay) {
     player.play();
