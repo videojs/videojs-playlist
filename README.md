@@ -18,13 +18,13 @@
 Install videojs-playlist via npm (preferred):
 
 ```sh
-$ npm install videojs-plugin
+$ npm install videojs-playlist
 ```
 
 Or Bower:
 
 ```sh
-$ bower install videojs-plugin
+$ bower install videojs-playlist
 ```
 
 ## Inclusion
