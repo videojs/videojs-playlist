@@ -37,7 +37,7 @@ const playItem = (player, delay, item) => {
 
   clearTracks(player);
 
-  (item.textTracks || []).forEach(player.addRemoteTextTrack);
+  (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
 
   if (item.cuePoints && item.cuePoints.length) {
     let trackEl = player.addRemoteTextTrack({ kind: 'metadata' });
