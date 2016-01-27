@@ -8,7 +8,7 @@ hover effects */
 /* The alternate foreground color */
 @secondary-color: #a6a6a6;
 
-@play-icon: '\e001';
+/*@play-icon: '\f101';*/
 
 /* Rules common to mouse and touch devices */
 .vjs-playlist {
@@ -33,10 +33,8 @@ hover effects */
     background-color: @highlight-color;
     text-align: center;
   }
-  .vjs-selected .vjs-playlist-thumbnail::before {
-    content: 'Now Playing';
-    top: 0;
-    left: 0;
+  .vjs-selected:hover .vjs-playlist-thumbnail::before {
+    content: inherit;
   }
   img {
     width: 100%;
@@ -163,7 +161,7 @@ during ads and capture click events on IE<11 */
     @play-width: 40px;
     @play-height: 34px;
 
-    content: @play-icon;
+    content: inherit;
     border-radius: 5px;
     font-family: 'VideoJS';
     height: @play-height;
@@ -172,4 +170,9 @@ during ads and capture click events on IE<11 */
     top: (@item-height / 2) - (@play-height / 2);
     width: @play-width;
   }
+}
+.vjs-playlist-now-playing::before {
+  content: 'Now Playing';
+  top: 0;
+  left: 0;
 }
