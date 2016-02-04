@@ -1,6 +1,6 @@
 {
   "name": "videojs-playlist-ui",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "author": "Brightcove",
   "description": "A playlist video picker for video.js",
   "license": "Apache-2.0",
