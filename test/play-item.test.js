@@ -37,11 +37,8 @@ QUnit.test(
     let setTracks = [];
     let cues = [];
 
-<<<<<<< HEAD
+
     window.VTTCue = (startTime, endTime, type) => ({startTime, endTime, type });
-=======
-    window.VTTCue = (startTime, endTime, type) => ({ startTime, endTime, type });
->>>>>>> Tests Fixed
 
     player.src = function(src) {
       setSrc = src;
@@ -87,6 +84,7 @@ QUnit.test(
       cues,
       [{startTime: 0, endTime: 0.01667, type: 'foo' },
       {startTime: 1, endTime: 1.01667, type: 'bar' }],
+
       'cues are what we expected'
     );
     window.VTTCue = oldVttCue;
