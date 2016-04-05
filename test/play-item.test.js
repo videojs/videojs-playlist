@@ -128,7 +128,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  'Backwards compatibility test to for setting sources, poster, tracks and cue points',
+  'Backwards compatibility test for setting sources, poster, tracks and cue points',
   function(assert) {
     let oldVttCue = window.VTTCue;
     let player = playerProxyMaker();
