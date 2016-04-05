@@ -64,6 +64,7 @@ QUnit.test(
       poster: 'http://example.com/poster.png',
       cuePoints: [{startTime: 0, endTime: 0.01667, type: 'foo' },
       {startTime: 1, endTime: 1.01667, type: 'bar' }]
+
     });
 
     assert.deepEqual(setSrc, [1, 2, 3], 'sources are what we expected');
@@ -119,6 +120,7 @@ QUnit.test(
       cues,
       [{startTime: 0, endTime: 0, type: 'foo' },
       {startTime: 1, endTime: 1, type: 'bar' }],
+
       'cues are what we expected'
     );
 
