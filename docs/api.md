@@ -6,7 +6,7 @@
 
 - [Playlist Item Object](#playlist-item-object)
 - [Methods](#methods)
-  - [`player.playlist([Array newList]) -> Array`](#playerplaylistarray-newlist---array)
+  - [`player.playlist([Array newList], [Number newIndex]) -> Array`](#playerplaylistarray-newlist-number-newindex---array)
     - [`player.playlist.currentItem([Number index]) -> Number`](#playerplaylistcurrentitemnumber-index---number)
     - [`player.playlist.contains(String|Object|Array value) -> Boolean`](#playerplaylistcontainsstringobjectarray-value---boolean)
     - [`player.playlist.indexOf(String|Object|Array value) -> Number`](#playerplaylistindexofstringobjectarray-value---number)
@@ -31,7 +31,7 @@ Property   | Type   | Optional | Description
 
 ## Methods
 
-### `player.playlist([Array newList]) -> Array`
+### `player.playlist([Array newList], [Number newIndex]) -> Array`
 
 Get or set the current playlist for a player.
 
@@ -78,6 +78,26 @@ player.playlist([{
   }],
   poster: 'http://media.w3.org/2010/05/video/poster.png'
 }]);
+// [{ ... }]
+```
+
+If a setter, a second argument sets the video to be loaded. If omitted, the
+first video is loaded. If `-1`, no video is loaded.
+
+```js
+player.playlist([{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}], 1);
 // [{ ... }]
 ```
 
@@ -233,7 +253,7 @@ If you change auto-advance during a delay, the auto-advance will be canceled and
 player.playlist.autoadvance(0);
 
 // wait 5 seconds before loading in the next item
-player.playlist.autoadvance(5); 
+player.playlist.autoadvance(5);
 
 // reset and cancel the auto-advance
 player.playlist.autoadvance();
