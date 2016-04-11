@@ -90,24 +90,14 @@ QUnit.test(
 );
 
 QUnit.test(
-  'Backwards compatibility test for setting sources, poster, tracks and cue points',
+  'Backwards compatibility test for old cue points property using just time',
   function(assert) {
     let oldVttCue = window.VTTCue;
     let player = playerProxyMaker();
-    let setSrc;
-    let setPoster;
     let setTracks = [];
     let cues = [];
 
-    window.VTTCue = (startTime, endTime, type) => ({startTime, endTime, type});
-
-    player.src = function(src) {
-      setSrc = src;
-    };
-
-    player.poster = function(poster) {
-      setPoster = poster;
-    };
+    window.VTTCue = (startTime, endTime, type) => ({startTime, endTime, type });
 
     player.addRemoteTextTrack = function(tt) {
       setTracks.push(tt);
@@ -121,25 +111,9 @@ QUnit.test(
     };
 
     playItem(player, null, {
-      sources: [1, 2, 3],
-      textTracks: [4, 5, 6],
-      poster: 'http://example.com/poster.png',
       cuePoints: [{time: 0, type: 'foo' },
       {time: 1, type: 'bar' }]
     });
-
-    assert.deepEqual(setSrc, [1, 2, 3], 'sources are what we expected');
-    assert.deepEqual(
-      setTracks.sort(),
-      [4, 5, 6, { kind: 'metadata' }].sort(),
-      'tracks are what we expected'
-    );
-
-    assert.equal(
-      setPoster,
-      'http://example.com/poster.png',
-      'poster is what we expected'
-    );
 
     assert.deepEqual(
       cues,
