@@ -137,7 +137,7 @@ QUnit.test(
     let setTracks = [];
     let cues = [];
 
-    window.VTTCue = (time, timeEnd, type) => ({time, type});
+    window.VTTCue = (startTime, endTime, type) => ({startTime, endTime, type});
 
     player.src = function(src) {
       setSrc = src;
@@ -181,8 +181,8 @@ QUnit.test(
 
     assert.deepEqual(
       cues,
-      [{time: 0, type: 'foo' },
-      {time: 1, type: 'bar' }],
+      [{startTime: 0, endTime: 0, type: 'foo' },
+      {startTime: 1, endTime: 1, type: 'bar' }],
       'cues are what we expected'
     );
 
