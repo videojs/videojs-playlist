@@ -42,7 +42,8 @@ const playItem = (player, delay, item) => {
     let trackEl = player.addRemoteTextTrack({ kind: 'metadata' });
 
     item.cuePoints.forEach(cue => {
-      let vttCue = new Cue(cue.time, cue.time, cue.type);
+      let vttCue = new Cue(cue.time || cue.startTime || 0,
+        cue.time || cue.endTime || 0, cue.type);
 
       trackEl.track.addCue(vttCue);
     });
