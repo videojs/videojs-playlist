@@ -126,6 +126,43 @@ QUnit.test(
   }
 );
 
+QUnit.test(
+  'Check if we are choosing endTime rather than time if time property exists in parallel',
+  function(assert) {
+    let oldVttCue = window.VTTCue;
+    let player = playerProxyMaker();
+    let setTracks = [];
+    let cues = [];
+
+    window.VTTCue = (startTime, endTime, type) => ({startTime, endTime, type });
+
+    player.addRemoteTextTrack = function(tt) {
+      setTracks.push(tt);
+      return {
+        track: {
+          addCue(cue) {
+            cues.push(cue);
+          }
+        }
+      };
+    };
+
+    playItem(player, null, {
+      cuePoints: [{time: 0, endTime: 0.0166, type: 'foo' },
+      {time: 1, endTime: 1.0166, type: 'bar' }]
+    });
+
+    assert.deepEqual(
+      cues,
+      [{endTime: 0.0166, startTime: 0, type: 'foo' },
+      {endTime: 1.0166, startTime: 1, type: 'bar' }],
+      'We are not choosing the property endTime correctly'
+    );
+
+    window.VTTCue = oldVttCue;
+  }
+);
+
 QUnit.test('will not try to play if paused', function(assert) {
   let player = playerProxyMaker();
   let tryPlay = false;
