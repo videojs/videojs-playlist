@@ -9,7 +9,6 @@ if [ -d "./.git" ]; then
 
   if [ "$ORIGIN" != "" ]; then
     git reset --hard origin/master
-    git push origin --tags
   fi
 
   echo "Finished version bump to v$VERSION!"
