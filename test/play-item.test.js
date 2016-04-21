@@ -37,6 +37,7 @@ QUnit.test(
     let setTracks = [];
     let cues = [];
 
+
     window.VTTCue = (startTime, endTime, type) => ({startTime, endTime, type });
 
     player.src = function(src) {
@@ -83,6 +84,43 @@ QUnit.test(
       cues,
       [{startTime: 0, endTime: 0.01667, type: 'foo' },
       {startTime: 1, endTime: 1.01667, type: 'bar' }],
+
+      'cues are what we expected'
+    );
+    window.VTTCue = oldVttCue;
+  }
+);
+
+QUnit.test(
+  'Backwards compatibility test for old cue points property using just time',
+  function(assert) {
+    let oldVttCue = window.VTTCue;
+    let player = playerProxyMaker();
+    let setTracks = [];
+    let cues = [];
+
+    window.VTTCue = (startTime, endTime, type) => ({startTime, endTime, type });
+
+    player.addRemoteTextTrack = function(tt) {
+      setTracks.push(tt);
+      return {
+        track: {
+          addCue(cue) {
+            cues.push(cue);
+          }
+        }
+      };
+    };
+
+    playItem(player, null, {
+      cuePoints: [{time: 0, type: 'foo' },
+      {time: 1, type: 'bar' }]
+    });
+
+    assert.deepEqual(
+      cues,
+      [{startTime: 0, endTime: 0, type: 'foo' },
+      {startTime: 1, endTime: 1, type: 'bar' }],
       'cues are what we expected'
     );
     window.VTTCue = oldVttCue;
