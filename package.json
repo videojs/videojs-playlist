@@ -9,10 +9,10 @@
     "build:js": "npm-run-all mkdirs build:js:babel build:js:browserify build:js:bannerize build:js:uglify",
     "build:js:babel": "babel src -d es5",
     "build:js:bannerize": "bannerize dist/videojs-playlist.js --banner=scripts/banner.ejs",
-    "build:js:browserify": "browserify . -s videojs-playlist -o dist/videojs-playlist.js",
+    "build:js:browserify": "browserify . -s videojs-playlist -t browserify-shim -o dist/videojs-playlist.js",
     "build:js:uglify": "uglifyjs dist/videojs-playlist.js --comments --mangle --compress -o dist/videojs-playlist.min.js",
     "build:test": "npm-run-all mkdirs build:test:browserify",
-    "build:test:browserify": "browserify `find test -name '*.test.js'` -t babelify -o dist-test/videojs-playlist.js",
+    "build:test:browserify": "browserify `find test -name '*.test.js'` -t babelify -t browserify-shim -o dist-test/videojs-playlist.js",
     "clean": "rm -rf dist dist-test es5",
     "docs": "doctoc README.md docs/api.md",
     "lint": "vjsstandard",
@@ -90,11 +90,6 @@
     "uglify-js": "^2.5.0",
     "videojs-standard": "^4.0.0",
     "watchify": "^3.6.0"
-  },
-  "browserify": {
-    "transform": [
-      "browserify-shim"
-    ]
   },
   "browserify-shim": {
     "qunit": "global:QUnit",
