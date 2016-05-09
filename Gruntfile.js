@@ -1,6 +1,8 @@
 'use strict';
 
 var loadGruntTasks = require('load-grunt-tasks');
+var cli = require('shelljs-nodecli');
+var sh = require('shelljs');
 
 module.exports = function(grunt) {
   grunt.initConfig({
@@ -10,7 +12,7 @@ module.exports = function(grunt) {
       '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>;' +
       ' Licensed <%= pkg.license %> */\n',
     clean: {
-      files: ['dist']
+      files: ['dist', 'es5']
     },
     uglify: {
       options: {
@@ -94,7 +96,8 @@ module.exports = function(grunt) {
       options: {
         banner: '<%= banner %>',
         transform: [
-          'babelify'
+          'babelify',
+          'browserify-shim'
         ]
       },
       src: {
@@ -110,8 +113,13 @@ module.exports = function(grunt) {
 
   loadGruntTasks(grunt);
 
-  grunt.registerTask('build-js', ['browserify', 'uglify']);
-  grunt.registerTask('build-js:dist', ['browserify:src', 'uglify']);
+  grunt.registerTask('babel', function() {
+    sh.mkdir('-p', 'es5');
+    cli.exec('babel', 'lib', '-d es5');
+  });
+
+  grunt.registerTask('build-js', ['babel', 'browserify', 'uglify']);
+  grunt.registerTask('build-js:dist', ['babel', 'browserify:src', 'uglify']);
   grunt.registerTask('build-css', ['less', 'postcss']);
 
   grunt.registerTask('build:dist', ['clean', 'build-js:dist', 'build-css']);
