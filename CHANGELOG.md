@@ -2,7 +2,7 @@ CHANGELOG
 =========
 
 ## HEAD (Unreleased)
-_(none)_
+* @gkatsev fixed build scripts to only apply browserify-shim for dist files. Fixes [#36](https://github.com/brightcove/videojs-playlist/issues/36). [#44](https://github.com/brightcove/videojs-playlist/pull/44)
 
 --------------------
 
