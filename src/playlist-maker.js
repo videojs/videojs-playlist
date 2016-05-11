@@ -53,7 +53,6 @@ const indexInSources = (arr, src) => {
         let source = sources[j];
 
         if (source && sourceEquals(source, src)) {
-          // source === src || source.src === src)) {
           return i;
         }
       }
