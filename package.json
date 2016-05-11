@@ -32,7 +32,7 @@
     "postversion": "./scripts/npm-postversion-for-bower.sh",
     "watch": "npm run mkdirs && npm-run-all -p watch:*",
     "watch:js": "watchify src/plugin.js -t babelify -v -o dist/videojs-playlist.js",
-    "watch:test": "watchify `find test -name '*.test.js'` -t babelify -o dist-test/videojs-playlist.js"
+    "watch:test": "watchify `find test -name '*.test.js'` -t babelify -t browserify-shim -o dist-test/videojs-playlist.js"
   },
   "keywords": [
     "playlist",
