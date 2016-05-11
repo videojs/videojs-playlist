@@ -4,6 +4,37 @@ import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
 /**
+ * Given two sources, check to see whether the two sources are equal.
+ * If both source urls have a protocol, the protocols must match, otherwise, protocols
+ * are ignored.
+ *
+ * @private
+ * @param {String|Object} source1
+ * @param {String|Object} source2
+ * @return {Boolean}
+ */
+const sourceEquals = (source1, source2) => {
+  let src1 = source1;
+  let src2 = source2;
+
+  if (typeof source1 === 'object') {
+    src1 = source1.src;
+  }
+  if (typeof source2 === 'object') {
+    src2 = source2.src;
+  }
+
+  if (/^\/\//.test(src1)) {
+    src2 = src2.slice(src2.indexOf('//'));
+  }
+  if (/^\/\//.test(src2)) {
+    src1 = src1.slice(src1.indexOf('//'));
+  }
+
+  return src1 === src2;
+};
+
+/**
  * Look through an array of playlist items for a specific `source`;
  * checking both the value of elements and the value of their `src`
  * property.
@@ -21,7 +52,8 @@ const indexInSources = (arr, src) => {
       for (let j = 0; j < sources.length; j++) {
         let source = sources[j];
 
-        if (source && (source === src || source.src === src)) {
+        if (source && sourceEquals(source, src)) {
+          // source === src || source.src === src)) {
           return i;
         }
       }
