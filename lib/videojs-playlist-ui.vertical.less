@@ -1,67 +1,86 @@
 /* The default color for the playlist menu background, almost black */
 @background-color: #1a1a1a;
-/* The color used to emphasize the currently playing video and for
-hover effects */
-@highlight-color: rgba(26, 26, 26, 0.5);
+/* The color used to emphasize the currently playing video and for effects */
+@highlight-color: #0CC5D7;
 /* The primary foreground color */
 @main-color: #fff;
-/* The alternate foreground color */
-@secondary-color: #a6a6a6;
 
 /* Rules common to mouse and touch devices */
 .vjs-playlist {
   list-style-type: none;
-  overflow: auto;
+
+  overflow: scroll;
   position: relative;
+
+  .vjs-playlist-show-hide {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: .2em .4em;
+    cursor: pointer;
+    text-decoration: underline;
+    text-align: center;
+    background: black;
+  }
 
   .vjs-playlist-item {
     cursor: pointer;
     overflow: hidden;
     position: relative;
+    margin-bottom: 5px;
   }
 
   .vjs-playlist-thumbnail {
-    background-color: @secondary-color;
     display: block;
-    float: left;
   }
-  .vjs-playlist-thumbnail::before {
-    display: block;
-    position: absolute;
-    background-color: @highlight-color;
-    text-align: center;
-  }
+
   img {
+    display: block;
     width: 100%;
-    height: 100%;
   }
 
   .vjs-playlist-duration {
     background-color: rgba(26, 26, 26, 0.8);
-    left: 0;
-    padding: 2px 8px;
+    top: .5rem;
+    left: .5rem;
+    padding: 2px 5px;
     position: absolute;
-    top: 0;
   }
   .vjs-selected .vjs-playlist-duration {
     display: none;
   }
 
-  cite {
+  .vjs-playlist-name {
     display: block;
     font-style: normal;
+    max-height: 2.5em;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+
+    // line-height:normal was causing overflow cutoff issues on Android, since normal
+    // lets different user agents pick a value. Here we set a consistent precise value.
+    line-height: 23px;
+
+    // So drop shadow doesn't get cut off as overflow
+    padding-left: 2px;
   }
 
   .vjs-playlist-description {
-    color: @secondary-color;
     text-overflow: ellipsis;
     overflow: hidden;
     margin: 0;
-    white-space: nowrap;
   }
+}
+
+.vjs-playlist&.vjs-playlist-hidden {
+
+  .vjs-playlist-item {
+    display: none;
+  }
+
+  .vjs-playlist-show-hide {
+    position: static;
+  }
+
 }
 
 /* Prevent interaction with the playlist menu while ads are playing */
@@ -99,42 +118,73 @@ during ads and capture click events on IE<11 */
 /* Parametric rules. These are specialized for touch and mouse-based devices */
 .playlist-base(@base-font-size: 14px) {
   @small-font-size: ceil(@base-font-size * 0.75);
-  @playlist-padding: @base-font-size;
   @item-height: @base-font-size * 4;
-  @thumbnail-width: ceil(@item-height * (16/9));
   @name-height: @base-font-size;
   @description-height: @item-height - @name-height;
+  @thumbnail-font-size: 18px;
 
   font-size: @base-font-size;
   min-width: @base-font-size * 17;
   background-color: @background-color;
   color: @main-color;
-  padding: @playlist-padding @playlist-padding 0 @playlist-padding;
+  padding: 0;
 
   .vjs-playlist-item {
-    height: @item-height;
-    margin-bottom: @playlist-padding;
   }
 
   .vjs-playlist-thumbnail {
-    height: @item-height;
-    font-size: @small-font-size;
-    margin-right: @playlist-padding;
-    width: @thumbnail-width;
+    font-size: @thumbnail-font-size;
+    width: 100%;
   }
-  .vjs-selected .vjs-playlist-thumbnail::before {
-    height: @item-height;
-    line-height: @item-height;
-    width: @thumbnail-width;
+
+  .vjs-selected .vjs-playlist-thumbnail img {
+    opacity: .2;
+  }
+
+  .vjs-playlist-thumbnail .vjs-playlist-now-playing {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    margin: .5rem .8rem;
+    font-size: 1.1em;
+  }
+
+  .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing {
+    display: block;
+  }
+
+  .vjs-selected {
+    background-color: @highlight-color;
+  }
+
+  .vjs-up-next-text {
+    display: none;
+  }
+
+  .vjs-up-next .vjs-up-next-text {
+    text-transform: uppercase;
+    display: block;
+    padding: .2rem 2px;
+    font-size: .8em;
   }
 
   time {
-    font-size: @small-font-size;
+    font-size: 1em;
   }
 
-  cite {
-    height: @name-height;
-    line-height: @name-height;
+  .vjs-playlist-title-container {
+    position: absolute;
+    bottom: 0;
+    padding: .5rem .8rem;
+    text-shadow:  1px  1px 2px black,
+                 -1px  1px 2px black,
+                  1px -1px 2px black,
+                 -1px -1px 2px black;
+  }
+
+  .vjs-selected .vjs-playlist-title-container {
+    text-shadow: none;
   }
 
   .vjs-playlist-description {
@@ -151,23 +201,4 @@ during ads and capture click events on IE<11 */
 /* Mouse-only playlist dimensions */
 .vjs-mouse.vjs-playlist {
   .playlist-base(17px);
-
-  .vjs-playlist-item:hover .vjs-playlist-thumbnail::before,
-  .vjs-playlist-item:focus .vjs-playlist-thumbnail::before {
-    @play-width: 40px;
-    @play-height: 34px;
-
-    border-radius: 5px;
-    font-family: 'VideoJS';
-    height: @play-height;
-    left: (@thumbnail-width / 2) - (@play-width / 2);
-    line-height: @play-height;
-    top: (@item-height / 2) - (@play-height / 2);
-    width: @play-width;
-  }
-}
-.vjs-playlist-now-playing::before {
-  content: 'Now Playing';
-  top: 0;
-  left: 0;
 }
