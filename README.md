@@ -65,7 +65,3 @@ change videos during ad playback, you can override this behavior
 through CSS. You will also need to make sure that your ad integration
 is properly cancelled and cleaned up before switching-- consult the
 documentation for your ad library for details on how to do that.
-
-## Release History
-
- - 0.1.0: Initial release
