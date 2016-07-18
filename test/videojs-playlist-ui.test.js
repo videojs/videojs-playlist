@@ -359,6 +359,8 @@ test('tracks when an ad is playing', function() {
   player.playlist([]);
   player.playlistUi();
 
+  player.duration = () => 5;
+
   let playlistMenu = player.playlistMenu;
   ok(!playlistMenu.hasClass('vjs-ad-playing'),
      'does not have class vjs-ad-playing');
