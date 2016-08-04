@@ -198,3 +198,24 @@ during ads and capture click events on IE<11 */
 .vjs-mouse.vjs-playlist {
   .playlist-base(17px);
 }
+
+
+// Responsive list-style-position:
+
+@media (max-width: 480px) {
+  .vjs-playlist .vjs-playlist-duration {
+    display: none;
+  }
+}
+
+@media (max-width: 550px) {
+            .vjs-playlist .vjs-up-next .vjs-up-next-text,
+  .vjs-mouse.vjs-playlist .vjs-up-next .vjs-up-next-text {
+    display: none;
+  }
+
+            .vjs-playlist .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing,
+  .vjs-mouse.vjs-playlist .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing {
+    display: none;
+  }
+}
