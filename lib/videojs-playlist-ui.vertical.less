@@ -43,7 +43,8 @@
     background-color: rgba(26, 26, 26, 0.8);
     top: .5rem;
     left: .5rem;
-    padding: 2px 5px;
+    padding: 2px 5px 3px;
+    margin-left: 2px;
     position: absolute;
   }
   .vjs-selected .vjs-playlist-duration {
@@ -58,10 +59,10 @@
 
     // line-height:normal was causing overflow cutoff issues on Android, since normal
     // lets different user agents pick a value. Here we set a consistent precise value.
-    line-height: 23px;
+    line-height: 18px;
 
     // So drop shadow doesn't get cut off as overflow
-    padding-left: 2px;
+    padding: 0 0 2px 2px;
   }
 
   .vjs-playlist-description {
@@ -129,7 +130,6 @@ during ads and capture click events on IE<11 */
   }
 
   .vjs-playlist-thumbnail {
-    font-size: @thumbnail-font-size;
     width: 100%;
   }
 
@@ -143,7 +143,7 @@ during ads and capture click events on IE<11 */
     top: 0;
     left: 0;
     margin: .5rem .8rem;
-    font-size: 1.1em;
+    padding-left: 2px;
   }
 
   .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing {
@@ -161,7 +161,7 @@ during ads and capture click events on IE<11 */
   .vjs-up-next .vjs-up-next-text {
     text-transform: uppercase;
     display: block;
-    padding: .2rem 2px;
+    padding: .1rem 2px;
     font-size: .8em;
   }
 
@@ -196,26 +196,24 @@ during ads and capture click events on IE<11 */
 
 /* Mouse-only playlist dimensions */
 .vjs-mouse.vjs-playlist {
-  .playlist-base(17px);
+  .playlist-base(15px);
 }
 
 
-// Responsive list-style-position:
-
+// Don't show duration when there isn't room
 @media (max-width: 480px) {
   .vjs-playlist .vjs-playlist-duration {
     display: none;
   }
 }
 
-@media (max-width: 550px) {
-            .vjs-playlist .vjs-up-next .vjs-up-next-text,
-  .vjs-mouse.vjs-playlist .vjs-up-next .vjs-up-next-text {
-    display: none;
+// Larger font size for larger player
+@media (min-width: 600px) {
+  .vjs-mouse.vjs-playlist {
+    .playlist-base(17px);
   }
 
-            .vjs-playlist .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing,
-  .vjs-mouse.vjs-playlist .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing {
-    display: none;
+  .vjs-playlist .vjs-playlist-name {
+    line-height: 22px;
   }
 }
