@@ -12,17 +12,6 @@
   overflow: scroll;
   position: relative;
 
-  .vjs-playlist-show-hide {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: .2em .4em;
-    cursor: pointer;
-    text-decoration: underline;
-    text-align: center;
-    background: black;
-  }
-
   .vjs-playlist-item {
     cursor: pointer;
     overflow: hidden;
@@ -72,14 +61,6 @@
   }
 }
 
-.vjs-playlist&.vjs-playlist-hidden {
-
-  .vjs-playlist-item {
-    display: none;
-  }
-
-}
-
 /* Prevent interaction with the playlist menu while ads are playing */
 /* on browsers that don't support pointer-events (IE<11), prevent
 scrolling past the ad overlay */
@@ -121,7 +102,6 @@ during ads and capture click events on IE<11 */
   @thumbnail-font-size: 18px;
 
   font-size: @base-font-size;
-  min-width: @base-font-size * 17;
   background-color: @background-color;
   color: @main-color;
   padding: 0;
