@@ -51,7 +51,7 @@
     line-height: 18px;
 
     // So drop shadow doesn't get cut off as overflow
-    padding: 0 0 2px 2px;
+    padding: 0 0 4px 2px;
   }
 
   .vjs-playlist-description {
@@ -179,14 +179,6 @@ during ads and capture click events on IE<11 */
   .playlist-base(15px);
 }
 
-
-// Don't show duration when there isn't room
-@media (max-width: 480px) {
-  .vjs-playlist .vjs-playlist-duration {
-    display: none;
-  }
-}
-
 // Larger font size for larger player
 @media (min-width: 600px) {
   .vjs-mouse.vjs-playlist {
@@ -194,6 +186,6 @@ during ads and capture click events on IE<11 */
   }
 
   .vjs-playlist .vjs-playlist-name {
-    line-height: 22px;
+    line-height: 20px;
   }
 }
