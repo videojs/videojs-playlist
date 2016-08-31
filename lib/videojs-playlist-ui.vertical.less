@@ -10,7 +10,13 @@
   list-style-type: none;
 
   overflow: scroll;
-  position: relative;
+
+  .vjs-playlist-item-list {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 
   .vjs-playlist-item {
     cursor: pointer;
@@ -79,6 +85,11 @@ scrolling past the ad overlay */
 .vjs-playlist.vjs-ad-playing.vjs-csspointerevents {
   pointer-events: none;
   overflow: auto;
+
+  // Fix for IE11 pointer-events bug that allowed clicking playlist during ads
+  .vjs-playlist-ad-overlay {
+    pointer-events: auto;
+  }
 }
 /* darken the playlist menu display to indicate it's not interactive
 during ads and capture click events on IE<11 */
