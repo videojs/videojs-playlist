@@ -16,7 +16,9 @@
     - [`player.playlist.previous() -> Object`](#playerplaylistprevious---object)
     - [`player.playlist.autoadvance([Number delay]) -> undefined`](#playerplaylistautoadvancenumber-delay---undefined)
 - [Events](#events)
-    - [`playlistchange`](#playlistchange)
+  - [`playlistchange`](#playlistchange)
+  - [`beforeplaylistitem`](#beforeplaylistitem)
+  - [`playlistitem`](#playlistitem)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -241,7 +243,7 @@ player.playlist.autoadvance();
 
 ## Events
 
-#### `playlistchange`
+### `playlistchange`
 
 This event is fired asynchronously whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument).
 
@@ -258,3 +260,11 @@ player.playlist([ ... ]);
 player.playlist([ ... ]);
 // [ ... ]
 ```
+
+### `beforeplaylistitem`
+
+This event is fired before switching to a new content source within a playlist (i.e., when any of `currentItem()`, `first()`, or `last()` is called, but before the player's state has been changed).
+
+### `playlistitem`
+
+This event is fired when switching to a new content source within a playlist (i.e., when any of `currentItem()`, `first()`, or `last()` is called; after the player's state has been changed, but before playback has been resumed).

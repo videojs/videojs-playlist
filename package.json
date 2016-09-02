@@ -60,7 +60,7 @@
   "dependencies": {
     "global": "^4.3.0",
     "object.assign": "^4.0.3",
-    "video.js": "^5.0.0"
+    "video.js": "^5.12.1"
   },
   "devDependencies": {
     "babel": "^5.8.0",

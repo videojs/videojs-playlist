@@ -1,7 +1,16 @@
 import window from 'global/window';
-import assign from 'object.assign';
+import videojs from 'video.js';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
+
+// Lightweight Object.assign alternative.
+const assign = (target, source) => {
+  for (let key in source) {
+    if (source.hasOwnProperty(key)) {
+      target[key] = source[key];
+    }
+  }
+};
 
 /**
  * Given two sources, check to see whether the two sources are equal.
@@ -122,6 +131,7 @@ const factory = (player, initialList) => {
 
   player.on('dispose', () => {
     window.clearTimeout(playlist.changeTimeout_);
+    playlist.changeTimeout_ = null;
   });
 
   assign(playlist, {
