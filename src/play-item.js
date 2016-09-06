@@ -1,4 +1,3 @@
-import window from 'global/window';
 import {setup} from './auto-advance.js';
 
 /**

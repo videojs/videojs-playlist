@@ -576,19 +576,21 @@ QUnit.test(
   }
 );
 
-QUnit.test('when loading a new playlist, trigger "playlistchange" on the player', function(assert) {
-  const spy = sinon.spy();
-  const player = playerProxyMaker();
+QUnit.test(
+  'when loading a new playlist, trigger "playlistchange" on the player',
+  function(assert) {
+    const spy = sinon.spy();
+    const player = playerProxyMaker();
 
-  player.on('playlistchange', spy);
-  const playlist = playlistMaker(player, [1, 2, 3]);
+    player.on('playlistchange', spy);
+    const playlist = playlistMaker(player, [1, 2, 3]);
 
-  playlist([4, 5, 6]);
-  this.clock.tick(1);
+    playlist([4, 5, 6]);
+    this.clock.tick(1);
 
-  assert.strictEqual(spy.callCount, 1);
-  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
-});
+    assert.strictEqual(spy.callCount, 1);
+    assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  });
 
 QUnit.test('clearTimeout on dispose', function(assert) {
   const player = playerProxyMaker();
@@ -596,6 +598,7 @@ QUnit.test('clearTimeout on dispose', function(assert) {
 
   playlist([1, 2, 3]);
   const clearSpy = sinon.spy(window, 'clearTimeout');
+
   player.trigger('dispose');
 
   assert.strictEqual(clearSpy.callCount, 1);
