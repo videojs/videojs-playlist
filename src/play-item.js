@@ -1,21 +1,21 @@
 import window from 'global/window';
 import {setup} from './auto-advance.js';
 
- /**
-  * Removes all remote text tracks from a player.
-  *
-  * @param  {Player} player
-  */
- const clearTracks = (player) => {
-   const tracks = player.remoteTextTracks();
-   let i = tracks && tracks.length || 0;
+/**
+ * Removes all remote text tracks from a player.
+ *
+ * @param  {Player} player
+ */
+const clearTracks = (player) => {
+  const tracks = player.remoteTextTracks();
+  let i = tracks && tracks.length || 0;
 
-   // This uses a `while` loop rather than `forEach` because the
-   // `TextTrackList` object is a live DOM list (not an array).
-   while (i--) {
-     player.removeRemoteTextTrack(tracks[i]);
-   }
- };
+  // This uses a `while` loop rather than `forEach` because the
+  // `TextTrackList` object is a live DOM list (not an array).
+  while (i--) {
+    player.removeRemoteTextTrack(tracks[i]);
+  }
+};
 
 /**
  * Plays an item on a player's playlist.
