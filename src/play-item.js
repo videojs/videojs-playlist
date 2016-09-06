@@ -1,6 +1,22 @@
 import window from 'global/window';
 import {setup} from './auto-advance.js';
 
+ /**
+  * Removes all remote text tracks from a player.
+  *
+  * @param  {Player} player
+  */
+ const clearTracks = (player) => {
+   const tracks = player.remoteTextTracks();
+   let i = tracks && tracks.length || 0;
+
+   // This uses a `while` loop rather than `forEach` because the
+   // `TextTrackList` object is a live DOM list (not an array).
+   while (i--) {
+     player.removeRemoteTextTrack(tracks[i]);
+   }
+ };
+
 /**
  * Plays an item on a player's playlist.
  *
@@ -14,12 +30,13 @@ import {setup} from './auto-advance.js';
  * @return {Player}
  */
 const playItem = (player, delay, item) => {
+  const replay = !player.paused() || player.ended();
+
   player.trigger('beforeplaylistitem', item);
-
-  let replay = !player.paused() || player.ended();
-
   player.poster(item.poster || '');
   player.src(item.sources);
+  clearTracks(player);
+  (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
   player.trigger('playlistitem', item);
 
   if (replay) {
@@ -32,3 +49,4 @@ const playItem = (player, delay, item) => {
 };
 
 export default playItem;
+export {clearTracks};

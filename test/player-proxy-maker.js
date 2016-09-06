@@ -9,6 +9,9 @@ const proxy = (props) => {
     poster: Function.prototype,
     src: Function.prototype,
     currentSrc: Function.prototype,
+    addRemoteTextTrack: Function.prototype,
+    removeRemoteTextTrack: Function.prototype,
+    remoteTextTracks: Function.prototype,
     playlist: {
       autoadvance_: {},
       currentIndex_: -1,

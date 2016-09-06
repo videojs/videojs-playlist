@@ -1,9 +1,32 @@
 import QUnit from 'qunit';
 import sinon from 'sinon';
 import playItem from '../src/play-item';
+import {clearTracks} from '../src/play-item';
 import playerProxyMaker from './player-proxy-maker';
 
 QUnit.module('play-item');
+
+QUnit.test('clearTracks will try and remove all tracks', function(assert) {
+  let player = playerProxyMaker();
+  let remoteTracks = [1, 2, 3];
+  let removedTracks = [];
+
+  player.remoteTextTracks = function() {
+    return remoteTracks;
+  };
+
+  player.removeRemoteTextTrack = function(tt) {
+    removedTracks.push(tt);
+  };
+
+  clearTracks(player);
+
+  assert.deepEqual(
+    removedTracks.sort(),
+    remoteTracks.sort(),
+    'the removed tracks are equivalent to our remote tracks'
+  );
+});
 
 QUnit.test('will not try to play if paused', function(assert) {
   let player = playerProxyMaker();
@@ -19,6 +42,7 @@ QUnit.test('will not try to play if paused', function(assert) {
 
   playItem(player, null, {
     sources: [1, 2, 3],
+    textTracks: [4, 5, 6],
     poster: 'http://example.com/poster.png'
   });
 
@@ -39,6 +63,7 @@ QUnit.test('will try to play if not paused', function(assert) {
 
   playItem(player, null, {
     sources: [1, 2, 3],
+    textTracks: [4, 5, 6],
     poster: 'http://example.com/poster.png'
   });
 
@@ -63,6 +88,7 @@ QUnit.test('will not try to play if paused and not ended', function(assert) {
 
   playItem(player, null, {
     sources: [1, 2, 3],
+    textTracks: [4, 5, 6],
     poster: 'http://example.com/poster.png'
   });
 
