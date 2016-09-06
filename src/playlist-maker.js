@@ -131,7 +131,6 @@ const factory = (player, initialList) => {
 
   player.on('dispose', () => {
     window.clearTimeout(playlist.changeTimeout_);
-    playlist.changeTimeout_ = null;
   });
 
   assign(playlist, {
