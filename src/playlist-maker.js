@@ -1,5 +1,4 @@
 import window from 'global/window';
-import videojs from 'video.js';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
