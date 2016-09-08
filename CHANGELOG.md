@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.0.0
+
+Redesigned UI. Bigger thumbnails, more room for video titles, and more.
+
 ## 2.3.0
 
 * Keep vjs-ad-playing class after postroll until ended event
