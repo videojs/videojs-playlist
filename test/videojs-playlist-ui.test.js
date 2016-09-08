@@ -178,19 +178,6 @@ test('includes the video name if provided', function() {
         'wrote a placeholder for the name');
 });
 
-test('includes the video description if provided', function() {
-  player.playlist(playlist);
-  player.playlistUi();
-
-  let items = document.querySelectorAll('.vjs-playlist-item');
-  equal(items[0].querySelector('.vjs-playlist-description').textContent,
-        playlist[0].description,
-        'wrote the name');
-  equal(items[1].querySelector('.vjs-playlist-description'),
-        null,
-        'skipped the video with the missing name');
-});
-
 test('outputs a <picture> for simple thumbnails', function() {
   player.playlist(playlist);
   player.playlistUi();
