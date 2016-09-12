@@ -1,4 +1,3 @@
-import window from 'global/window';
 import {setup} from './auto-advance.js';
 
 /**
@@ -7,7 +6,7 @@ import {setup} from './auto-advance.js';
  * @param  {Player} player
  */
 const clearTracks = (player) => {
-  let tracks = player.remoteTextTracks();
+  const tracks = player.remoteTextTracks();
   let i = tracks && tracks.length || 0;
 
   // This uses a `while` loop rather than `forEach` because the
@@ -30,29 +29,14 @@ const clearTracks = (player) => {
  * @return {Player}
  */
 const playItem = (player, delay, item) => {
-  let Cue = window.VTTCue || window.TextTrackCue;
-  let replay = !player.paused() || player.ended();
+  const replay = !player.paused() || player.ended();
 
+  player.trigger('beforeplaylistitem', item);
   player.poster(item.poster || '');
   player.src(item.sources);
-
   clearTracks(player);
-
-  if (item.cuePoints && item.cuePoints.length) {
-    let trackEl = player.addRemoteTextTrack({ kind: 'metadata' });
-
-    item.cuePoints.forEach(cue => {
-      let vttCue = new Cue(
-        cue.startTime || cue.time || 0,
-        cue.endTime || cue.time || 0,
-        cue.type
-      );
-
-      trackEl.track.addCue(vttCue);
-    });
-  }
-
   (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
+  player.trigger('playlistitem', item);
 
   if (replay) {
     player.play();

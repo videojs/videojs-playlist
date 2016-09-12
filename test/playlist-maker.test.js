@@ -1,5 +1,6 @@
 import window from 'global/window';
 import QUnit from 'qunit';
+import sinon from 'sinon';
 import playlistMaker from '../src/playlist-maker';
 import * as autoadvance from '../src/auto-advance';
 import playerProxyMaker from './player-proxy-maker';
@@ -39,12 +40,11 @@ const videoList = [{
 QUnit.module('playlist', {
 
   beforeEach() {
-    this.oldTimeout = window.setTimeout;
-    window.setTimeout = Function.prototype;
+    this.clock = sinon.useFakeTimers();
   },
 
   afterEach() {
-    window.setTimeout = this.oldTimeout;
+    this.clock.restore();
   }
 });
 
@@ -635,44 +635,28 @@ QUnit.test(
 QUnit.test(
   'when loading a new playlist, trigger "playlistchange" on the player',
   function(assert) {
-    let oldTimeout = window.setTimeout;
-    let player = playerProxyMaker();
-    let playlist;
+    const spy = sinon.spy();
+    const player = playerProxyMaker();
 
-    window.setTimeout = function(fn, timeout) {
-      fn();
-    };
-
-    player.trigger = function(type) {
-      assert.equal(type, 'playlistchange', 'trigger playlistchange on playlistchange');
-    };
-
-    playlist = playlistMaker(player, [1, 2, 3]);
+    player.on('playlistchange', spy);
+    const playlist = playlistMaker(player, [1, 2, 3]);
 
     playlist([4, 5, 6]);
+    this.clock.tick(1);
 
-    window.setTimeout = oldTimeout;
-  }
-);
+    assert.strictEqual(spy.callCount, 1);
+    assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  });
 
 QUnit.test('clearTimeout on dispose', function(assert) {
-  let oldTimeout = window.setTimeout;
-  let oldClear = window.clearTimeout;
-  let timeout = 1;
-  let player = playerProxyMaker();
-  let playlist = playlistMaker(player, [1, 2, 3]);
-
-  window.setTimeout = function() {
-    return timeout;
-  };
-
-  window.clearTimeout = function(to) {
-    assert.equal(to, timeout, 'we cleared the timeout');
-  };
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
 
   playlist([1, 2, 3]);
+  const clearSpy = sinon.spy(window, 'clearTimeout');
+
   player.trigger('dispose');
 
-  window.setTimeout = oldTimeout;
-  window.clearTimeout = oldClear;
+  assert.strictEqual(clearSpy.callCount, 1);
+  clearSpy.restore();
 });

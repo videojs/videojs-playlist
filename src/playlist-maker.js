@@ -1,7 +1,15 @@
 import window from 'global/window';
-import assign from 'object.assign';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
+
+// Lightweight Object.assign alternative.
+const assign = (target, source) => {
+  for (let key in source) {
+    if (source.hasOwnProperty(key)) {
+      target[key] = source[key];
+    }
+  }
+};
 
 /**
  * Given two sources, check to see whether the two sources are equal.
