@@ -6,6 +6,9 @@ CHANGELOG
 
 --------------------
 
+## 3.0.0 (2016-09-12)
+* @misteroneill Remove Brightcove VideoCloud-specific Code [#51](https://github.com/brightcove/videojs-playlist/pull/51)
+
 ## 2.5.0 (2016-09-12)
 * @mister-ben Load playlist with initial video at specified index or no starting video [#38](https://github.com/brightcove/videojs-playlist/pull/38)
 
