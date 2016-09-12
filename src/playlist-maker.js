@@ -82,11 +82,15 @@ const indexInSources = (arr, src) => {
  * @param  {Array}  [initialList]
  *         If given, an initial list of sources with which to populate
  *         the playlist.
+ * @param  {Number}  [initialIndex]
+ *         If given, the index of the item in the list that should
+ *         be loaded first. If -1, no video is loaded. If omitted, The
+ *         the first video is loaded.
  *
  * @return {Function}
  *         Returns the playlist function specific to the given player.
  */
-const factory = (player, initialList) => {
+const factory = (player, initialList, initialIndex = 0) => {
   let list = Array.isArray(initialList) ? initialList.slice() : [];
 
   /**
@@ -98,13 +102,19 @@ const factory = (player, initialList) => {
    * @param  {Array} [newList]
    *         If given, a new list of sources with which to populate the
    *         playlist. Without this, the function acts as a getter.
+   * @param  {Number}  [newIndex]
+   *         If given, the index of the item in the list that should
+   *         be loaded first. If -1, no video is loaded. If omitted, The
+   *         the first video is loaded.
    *
    * @return {Array}
    */
-  const playlist = player.playlist = function(newList) {
+  const playlist = player.playlist = function(newList, newIndex = 0) {
     if (Array.isArray(newList)) {
       list = newList.slice();
-      playlist.first();
+      if (newIndex !== -1) {
+        playlist.currentItem(newIndex);
+      }
       playlist.changeTimeout_ = window.setTimeout(() => {
         player.trigger('playlistchange');
       }, 0);
@@ -266,7 +276,7 @@ const factory = (player, initialList) => {
     }
   });
 
-  playlist.first();
+  playlist.currentItem(initialIndex);
 
   return playlist;
 };

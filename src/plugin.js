@@ -7,8 +7,8 @@ import playlistMaker from './playlist-maker';
  *
  * @param {Array} list
  */
-const plugin = function(list) {
-  playlistMaker(this, list);
+const plugin = function(list, item) {
+  playlistMaker(this, list, item);
 };
 
 videojs.plugin('playlist', plugin);
