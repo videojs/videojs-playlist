@@ -2,9 +2,15 @@ CHANGELOG
 =========
 
 ## HEAD (Unreleased)
-* @gkatsev fixed build scripts to only apply browserify-shim for dist files. Fixes [#36](https://github.com/brightcove/videojs-playlist/issues/36). [#44](https://github.com/brightcove/videojs-playlist/pull/44)
+
 
 --------------------
+
+## 2.5.0 (2016-09-12)
+* @mister-ben Load playlist with initial video at specified index or no starting video [#38](https://github.com/brightcove/videojs-playlist/pull/38)
+
+## 2.4.1 (2016-04-21)
+* @gkatsev fixed build scripts to only apply browserify-shim for dist files. Fixes [#36](https://github.com/brightcove/videojs-playlist/issues/36). [#44](https://github.com/brightcove/videojs-playlist/pull/44)
 
 ## 2.4.0 (2016-04-21)
 * @vdeshpande Fixed an issue where incorrect end time value was used [#43](https://github.com/brightcove/videojs-playlist/pull/43)
