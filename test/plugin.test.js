@@ -13,8 +13,8 @@ QUnit.test('the environment is sane', function(assert) {
 QUnit.test('registers itself with video.js', function(assert) {
   assert.expect(1);
   assert.strictEqual(
-    videojs.getComponent('Player').prototype.playlist,
-    plugin,
+    typeof videojs.getComponent('Player').prototype.playlist,
+    'function',
     'videojs-playlist plugin was registered'
   );
 });
