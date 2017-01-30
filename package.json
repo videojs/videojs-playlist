@@ -43,7 +43,7 @@
     "qunitjs": "^1.12",
     "shelljs": "^0.7.0",
     "shelljs-nodecli": "^0.1.1",
-    "videojs-playlist": "^1.0.0"
+    "videojs-playlist": "^3.0.0"
   },
   "browserify-shim": {
     "video.js": "global:videojs"
