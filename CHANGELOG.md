@@ -1,14 +1,23 @@
 # CHANGELOG
 
+## 3.0.2
+
+* @misteroneill More complete documentation and examples
+
 ## 3.0.1
 
-- @misteroneill Update videojs-playlist to v3.0.0 [#24](https://github.com/brightcove/videojs-playlist-ui/pull/24)
-- @diniscorreia Fix documentation for placeholder element [#30](https://github.com/brightcove/videojs-playlist-ui/pull/30)
-- @diniscorreia Fix querySelector for list creation [#29](https://github.com/brightcove/videojs-playlist-ui/pull/29)
+* @misteroneill Update videojs-playlist to v3.0.0 [#24](https://github.com/brightcove/videojs-playlist-ui/pull/24)
+* @diniscorreia Fix documentation for placeholder element [#30](https://github.com/brightcove/videojs-playlist-ui/pull/30)
+* @diniscorreia Fix querySelector for list creation [#29](https://github.com/brightcove/videojs-playlist-ui/pull/29)
 
 ## 3.0.0
 
-Redesigned UI. Bigger thumbnails, more room for video titles, and more.
+* Redesigned UI. Bigger thumbnails, more room for video titles, and more.
+
+## 2.3.1
+
+* @misteroneill More complete documentation and examples [#32](https://github.com/brightcove/videojs-playlist-ui/pull/32)
+* @misteroneill Update to videojs-playlist 3.0.0 [#31](https://github.com/brightcove/videojs-playlist-ui/pull/31)
 
 ## 2.3.0
 
