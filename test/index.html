@@ -10,7 +10,15 @@
   <div id="qunit-fixture"></div>
   <script src="../node_modules/qunitjs/qunit/qunit.js"></script>
   <script src="../node_modules/video.js/dist/video.js"></script>
-  <script src="../node_modules/videojs-playlist/dist/bundle.js"></script>
+  <script>
+    Function.prototype.bind = Function.prototype.bind || function() {
+      var args = Array.prototype.slice.call(arguments);
+      var context = args.unshift();
+
+      return videojs.bind(context, this, args);
+    };
+  </script>
+  <script src="../node_modules/videojs-playlist/dist/videojs-playlist.js"></script>
   <script src="../dist/videojs-playlist-ui.js"></script>
   <script src="../dist/videojs-playlist-ui.test.js"></script>
 </body>
