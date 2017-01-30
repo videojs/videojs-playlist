@@ -2,9 +2,12 @@ CHANGELOG
 =========
 
 ## HEAD (Unreleased)
-* @misteroneill Update project to use latest version of plugin generator as well as ensure cross-version support between Video.js 5 and 6. [#63](https://github.com/brightcove/videojs-playlist/pull/63)
+_(none)_
 
 --------------------
+
+## 3.0.1 (2017-01-30)
+* @misteroneill Update project to use latest version of plugin generator as well as ensure cross-version support between Video.js 5 and 6. [#63](https://github.com/brightcove/videojs-playlist/pull/63)
 
 ## 3.0.0 (2016-09-12)
 * @misteroneill Remove Brightcove VideoCloud-specific Code [#51](https://github.com/brightcove/videojs-playlist/pull/51)
