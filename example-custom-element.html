@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Video.js Playlist UI - Default Implementation</title>
+  <title>Video.js Playlist UI - Using a Custom Element</title>
   <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
   <link href="dist/videojs-playlist-ui.vertical.css" rel="stylesheet">
   <style>
@@ -32,7 +32,7 @@
       float: left;
     }
 
-    .vjs-playlist {
+    #my-custom-element {
       float: left;
       width: 300px;
     }
@@ -40,14 +40,21 @@
 </head>
 <body>
   <div class="info">
-    <h1>Video.js Playlist UI - Default Implementation</h1>
+    <h1>Video.js Playlist UI - Using a Custom Element</h1>
     <p>
       You can see the Video.js Playlist UI plugin in action below. Look at the
       source of this page to see how to use it with your videos.
     </p>
     <p>
-      In the default configuration, the plugin looks for the first element that
-      has the class "vjs-playlist" and uses that as a container for the list.
+      When using a custom element, the plugin uses the element that it was
+      given as a container for the list.
+    </p>
+    <p>
+      <strong>Using this option means the default styles MAY NOT apply (it
+      depends on whether the element has the "vjs-playlist" class) so, you
+      might have to define your own.</strong> This may be desirable or not -
+      depending on your implementation. This example has been left un-styled
+      to demonstrate this fact.
     </p>
   </div>
 
@@ -62,7 +69,7 @@
       <source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm">
     </video>
 
-    <ol class="vjs-playlist">
+    <ol id="my-custom-element">
       <!--
         The contents of this element will be filled based on the
         currently loaded playlist
@@ -123,8 +130,8 @@
       sources: []
     }]);
 
-    // Initialize the playlist-ui plugin with no option (i.e. the defaults).
-    player.playlistUi();
+    // Initialize the playlist-ui plugin with an element.
+    player.playlistUi(document.getElementById('my-custom-element'));
   </script>
 </body>
 </html>

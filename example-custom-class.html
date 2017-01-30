@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Video.js Playlist UI - Default Implementation</title>
+  <title>Video.js Playlist UI - Using a Custom Class</title>
   <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
   <link href="dist/videojs-playlist-ui.vertical.css" rel="stylesheet">
   <style>
@@ -32,7 +32,7 @@
       float: left;
     }
 
-    .vjs-playlist {
+    .my-custom-class {
       float: left;
       width: 300px;
     }
@@ -40,14 +40,20 @@
 </head>
 <body>
   <div class="info">
-    <h1>Video.js Playlist UI - Default Implementation</h1>
+    <h1>Video.js Playlist UI - Using a Custom Class</h1>
     <p>
       You can see the Video.js Playlist UI plugin in action below. Look at the
       source of this page to see how to use it with your videos.
     </p>
     <p>
-      In the default configuration, the plugin looks for the first element that
-      has the class "vjs-playlist" and uses that as a container for the list.
+      When using a custom class, the plugin looks for the first element that
+      matches the given class and uses that as a container for the list.
+    </p>
+    <p>
+      <strong>Using this option means the default styles WILL NOT apply; so,
+      you'll have to define your own.</strong> This may be desirable or not -
+      depending on your implementation. This example has been left un-styled
+      to demonstrate this fact.
     </p>
   </div>
 
@@ -62,7 +68,7 @@
       <source src="http://vjs.zencdn.net/v/oceans.webm" type="video/webm">
     </video>
 
-    <ol class="vjs-playlist">
+    <ol class="my-custom-class">
       <!--
         The contents of this element will be filled based on the
         currently loaded playlist
@@ -124,7 +130,9 @@
     }]);
 
     // Initialize the playlist-ui plugin with no option (i.e. the defaults).
-    player.playlistUi();
+    player.playlistUi({
+      className: 'my-custom-class'
+    });
   </script>
 </body>
 </html>
