@@ -14,7 +14,7 @@ with the class `vjs-playlist` to house the playlist menu:
 <link href="videojs-playlist-ui.vertical.css" rel="stylesheet">
 
 <!-- The playlist menu will be built automatically in here: -->
-<ol class="vjs-playlist"></ol>
+<div class="vjs-playlist"></div>
 
 <!-- Include video.js, the videojs-playlist plugin and this plugin: -->
 <script src="video.js"></script>
