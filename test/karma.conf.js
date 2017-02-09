@@ -6,7 +6,7 @@ module.exports = function(config) {
 
   // On Travis CI, we can only run in Firefox.
   if (process.env.TRAVIS) {
-    config.browsers = ['Firefox'];
+    config.browsers = ['Firefox', 'travisChrome'];
   }
 
   // If no browsers are specified, we enable `karma-detect-browsers`
@@ -26,7 +26,12 @@ module.exports = function(config) {
       'node_modules/video.js/dist/video-js.css',
       'test/dist/bundle.js'
     ],
-
+    customLaunchers: {
+      travisChrome: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      }
+    },
     detectBrowsers: detectBrowsers,
     reporters: ['dots'],
     port: 9876,
