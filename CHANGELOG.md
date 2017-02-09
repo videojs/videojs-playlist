@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.0.3
+* chore: @brandonocasey Fix Video.js 6 deprecation warnings
+* chore: @brandonocasey Update unit tests to use karma
+
 ## 3.0.2
 
 * @misteroneill More complete documentation and examples
