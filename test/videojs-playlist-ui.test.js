@@ -44,7 +44,7 @@ const resolveUrl = url => {
   return a.href;
 };
 
-const Html5 = videojs.getComponent('Html5');
+const Html5 = videojs.getTech('Html5');
 
 test('the environment is sane', function() {
   ok(true, 'everything is swell');
@@ -209,11 +209,11 @@ test('outputs a <picture> for responsive thumbnails', function() {
       type: 'video/mp4'
     }],
     thumbnail: [{
-      srcset: 'test/example/oceans.jpg',
+      srcset: '/test/example/oceans.jpg',
       type: 'image/jpeg',
       media: '(min-width: 400px;)'
     }, {
-      src: 'test/example/oceans-low.jpg'
+      src: '/test/example/oceans-low.jpg'
     }]
   }];
   player.playlist(playlist);
@@ -277,9 +277,7 @@ test('updates the selected playlist item on loadstart', function() {
   player.playlistUi();
 
   player.playlist.currentItem(1);
-  if (/phantom/i.test(window.navigator.userAgent)) {
-    player.currentSrc = () => playlist[1].sources[0].src;
-  }
+  player.currentSrc = () => playlist[1].sources[0].src;
   player.trigger('loadstart');
 
   let selectedItems = document.querySelectorAll('.vjs-playlist-item.vjs-selected');
@@ -385,16 +383,14 @@ test('changes the selection when tapped', function(test) {
     playCalled = true;
   };
 
-  if (/phantom/i.test(window.navigator.userAgent)) {
-    let sources;
-    player.src = (src) => {
-      if (src) {
-        sources = src;
-      }
-      return sources[0];
-    };
-    player.currentSrc = () => sources[0].src;
-  }
+  let sources;
+  player.src = (src) => {
+    if (src) {
+      sources = src;
+    }
+    return sources[0];
+  };
+  player.currentSrc = () => sources[0].src;
   player.playlistMenu.items[1].trigger('tap');
   // trigger a loadstart synchronously to simplify the test
   player.trigger('loadstart');
@@ -414,16 +410,14 @@ test('play should not get called by default upon selection of menu items ', func
     playCalled = true;
   };
 
-  if (/phantom/i.test(window.navigator.userAgent)) {
-    let sources;
-    player.src = (src) => {
-      if (src) {
-        sources = src;
-      }
-      return sources[0];
-    };
-    player.currentSrc = () => sources[0].src;
-  }
+  let sources;
+  player.src = (src) => {
+    if (src) {
+      sources = src;
+    }
+    return sources[0];
+  };
+  player.currentSrc = () => sources[0].src;
   player.playlistMenu.items[1].trigger('tap');
   // trigger a loadstart synchronously to simplify the test
   player.trigger('loadstart');

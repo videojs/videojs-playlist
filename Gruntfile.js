@@ -45,8 +45,11 @@ module.exports = function(grunt) {
         dest: 'dist/videojs-playlist-ui.vertical.css'
       }
     },
-    qunit: {
-      files: 'test/**/*.html'
+    karma: {
+      options: {
+        configFile: 'test/karma.conf.js'
+      },
+      defaults: {},
     },
     jshint: {
       gruntfile: {
@@ -65,7 +68,7 @@ module.exports = function(grunt) {
         options: {
           jshintrc: 'test/.jshintrc'
         },
-        src: ['test/**/*.js']
+        src: ['test/**/*.test.js']
       }
     },
     watch: {
@@ -75,11 +78,11 @@ module.exports = function(grunt) {
       },
       src: {
         files: ['<%= jshint.src.src %>', 'lib/*.less'],
-        tasks: ['less', 'postcss', 'jshint:src', 'browserify:src', 'qunit']
+        tasks: ['less', 'postcss', 'jshint:src', 'browserify:src', 'karma:defaults']
       },
       test: {
         files: '<%= jshint.test.src %>',
-        tasks: ['jshint:test', 'browserify:test', 'qunit']
+        tasks: ['jshint:test', 'browserify:test', 'karma:defaults']
       }
     },
     connect: {
@@ -124,7 +127,7 @@ module.exports = function(grunt) {
 
   grunt.registerTask('build:dist', ['clean', 'build-js:dist', 'build-css']);
   grunt.registerTask('build', ['clean', 'build-js', 'build-css']);
-  grunt.registerTask('test', ['build', 'jshint', 'qunit']);
+  grunt.registerTask('test', ['build', 'jshint', 'karma:defaults']);
 
   grunt.registerTask('default', ['build', 'test']);
 };
