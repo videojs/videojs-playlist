@@ -2,9 +2,12 @@ CHANGELOG
 =========
 
 ## HEAD (Unreleased)
-* @misteroneill Suppress videojs.plugin deprecation warning in Video.js 6 [#68](https://github.com/brightcove/videojs-playlist/pull/68)
+_(none)_
 
 --------------------
+
+## 3.0.2 (2017-02-10)
+* @misteroneill Suppress videojs.plugin deprecation warning in Video.js 6 [#68](https://github.com/brightcove/videojs-playlist/pull/68)
 
 ## 3.0.1 (2017-01-30)
 * @misteroneill Update project to use latest version of plugin generator as well as ensure cross-version support between Video.js 5 and 6. [#63](https://github.com/brightcove/videojs-playlist/pull/63)
