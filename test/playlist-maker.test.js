@@ -283,6 +283,46 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
 
 });
 
+QUnit.test('playlistMaker updates the current source after using the same index', function(assert) {
+  let player = playerProxyMaker();
+  let src;
+
+  player.src = function(s) {
+    if (s) {
+      if (typeof s === 'string') {
+        src = s;
+      } else if (Array.isArray(s)) {
+        return player.src(s[0]);
+      } else {
+        return player.src(s.src);
+      }
+    }
+  };
+
+  player.currentSrc = function() {
+    return src;
+  };
+
+  let playlist = playlistMaker(player, videoList, 1);
+
+  assert.equal(
+      playlist.currentItem(), 1, 'if given an initial index, load that video'
+  );
+
+  playlist(videoList.slice(-2), 1);
+
+  assert.equal(
+      playlist.currentItem(), 1, 'if given the same initial index, load that video'
+  );
+
+  assert.equal(
+      player.currentSrc(),
+      'http://media.w3.org/2010/05/video/movie_300.mp4',
+      'if given the same initial index, currentSrc is updated with the new playlist item'
+  );
+
+});
+
 QUnit.test('playlist.contains() works as expected', function(assert) {
   let player = playerProxyMaker();
   let playlist = playlistMaker(player, videoList);

@@ -159,7 +159,8 @@ const factory = (player, initialList, initialIndex = 0) => {
     currentItem(index) {
       if (
         typeof index === 'number' &&
-        playlist.currentIndex_ !== index &&
+        (playlist.currentIndex_ !== index ||
+        playlist.indexOf(playlist.player_.currentSrc() || '') !== playlist.currentIndex_) &&
         index >= 0 &&
         index < list.length
       ) {
