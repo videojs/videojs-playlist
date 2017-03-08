@@ -108,6 +108,7 @@ const indexInSources = (arr, src) => {
  */
 const factory = (player, initialList, initialIndex = 0) => {
   let list = Array.isArray(initialList) ? initialList.slice() : [];
+  let plugin = player.playlist;
 
   /**
    * Get/set the playlist for a player.
@@ -126,12 +127,19 @@ const factory = (player, initialList, initialIndex = 0) => {
    * @return {Array}
    */
   const playlist = player.playlist = function(newList, newIndex = 0) {
+    playlist.shuffle_ = plugin.shuffle_;
+    playlist.repeat_ = plugin.repeat_;
+
     if (Array.isArray(newList)) {
       list = newList.slice();
 
-      let first = list.shift();
-      shuffle(list);
-      list.unshift(first);
+      if (playlist.shuffle_ === 'all') {
+        shuffle(list);
+      } else if (playlist.shuffle_ === 'allButFirst') {
+        let first = list.shift();
+        shuffle(list);
+        list.unshift(first);
+      }
 
       if (newIndex !== -1) {
         playlist.currentItem(newIndex);
@@ -159,8 +167,6 @@ const factory = (player, initialList, initialIndex = 0) => {
     currentIndex_: -1,
     player_: player,
     autoadvance_: {},
-    repeat_: false,
-    shuffle_: false,
 
     /**
      * Get or set the current item in the playlist.
@@ -318,9 +324,7 @@ const factory = (player, initialList, initialIndex = 0) => {
      *
      * @param {Boolean} val
      */
-    repeat(val) {
-      playlist.repeat_ = val;
-    },
+    repeat: plugin.repeat,
 
     /**
      * Sets `shuffle` option, which makes the "next" video of any video
@@ -328,9 +332,7 @@ const factory = (player, initialList, initialIndex = 0) => {
      *
      * @param {Boolean} val
      */
-    shuffle(val) {
-      playlist.shuffle_ = val;
-    }
+    shuffle: plugin.shuffle
   });
 
   playlist.currentItem(initialIndex);

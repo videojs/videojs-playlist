@@ -15,6 +15,8 @@
     - [`player.playlist.next() -> Object`](#playerplaylistnext---object)
     - [`player.playlist.previous() -> Object`](#playerplaylistprevious---object)
     - [`player.playlist.autoadvance([Number delay]) -> undefined`](#playerplaylistautoadvancenumber-delay---undefined)
+    - [`player.playlist.shuffle([String val]) -> undefined`](#playerplaylistshufflestring-val---undefined)
+    - [`player.playlist.repeat([Boolean val]) -> undefined`](#playerplaylistrepeatboolean-val---undefined)
 - [Events](#events)
   - [`playlistchange`](#playlistchange)
   - [`beforeplaylistitem`](#beforeplaylistitem)
@@ -259,6 +261,53 @@ player.playlist.autoadvance(5);
 
 // reset and cancel the auto-advance
 player.playlist.autoadvance();
+```
+
+#### `player.playlist.shuffle([String val]) -> undefined`
+
+Enable or disable shuffle by passing a string as the argument. Can be called before a playlist has been created.
+
+Possible options:
+
+* `'all'` All items are arranged randomly when a playlist is created.
+* `'rest'` All items _except the first one_ are arranged randomly when a playlist is created.
+* Any other value means items are not shuffled.
+
+This method returns the current value. Call with no argument to use as a getter.
+
+Examples:
+
+```
+player.shuffle('rest');
+```
+
+```
+var shuffle = player.shuffle();
+```
+
+You can force an immidiate shuffle by reloading the current playlist:
+
+```
+player.shuffle('all');
+player.playlist(player.playlist());
+```
+
+#### `player.playlist.repeat([Boolean val]) -> undefined`
+
+Enable or disable repeat by passing true or false as the argument. Can be called before a playlist has been created.
+
+When repeat is enabled, the "next" video after the last video in the playlist is the first video in the playlist.
+
+This method returns the current value. Call with no argument to use as a getter.
+
+Examples:
+
+```
+player.repeat(true);
+```
+
+```
+var repeat = player.repeat();
 ```
 
 ## Events
