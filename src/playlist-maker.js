@@ -11,6 +11,14 @@ const assign = (target, source) => {
   }
 };
 
+// Shuffle an array in place
+const shuffle = (a) => {
+  for (let i = a.length; i; i--) {
+    let j = Math.floor(Math.random() * i);
+    [a[i - 1], a[j]] = [a[j], a[i - 1]];
+  }
+};
+
 /**
  * Given two sources, check to see whether the two sources are equal.
  * If both source urls have a protocol, the protocols must match, otherwise, protocols
@@ -120,6 +128,11 @@ const factory = (player, initialList, initialIndex = 0) => {
   const playlist = player.playlist = function(newList, newIndex = 0) {
     if (Array.isArray(newList)) {
       list = newList.slice();
+
+      let first = list.shift();
+      shuffle(list);
+      list.unshift(first);
+
       if (newIndex !== -1) {
         playlist.currentItem(newIndex);
       }
@@ -146,6 +159,8 @@ const factory = (player, initialList, initialIndex = 0) => {
     currentIndex_: -1,
     player_: player,
     autoadvance_: {},
+    repeat_: false,
+    shuffle_: false,
 
     /**
      * Get or set the current item in the playlist.
@@ -248,11 +263,59 @@ const factory = (player, initialList, initialIndex = 0) => {
      */
     next() {
 
-      // Make sure we don't go past the end of the playlist.
-      let index = Math.min(playlist.currentIndex_ + 1, list.length - 1);
+      let nextIndex;
 
-      if (index !== playlist.currentIndex_) {
-        return list[playlist.currentItem(index)];
+      // Default behavior
+      if (playlist.repeat_ === false && playlist.shuffle_ === false) {
+
+        // Make sure we stop at the end
+        nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
+
+      // Shuffle
+      } else if (playlist.shuffle_ === true && false) {
+
+        // Create shuffle order if we don't have one
+        if (playlist.shuffleOrder_ === undefined) {
+          playlist.shuffleOrder_ = [];
+          for (let i = 1; i < list.length; i++) {
+            playlist.shuffleOrder_.push(i);
+          }
+          shuffle(playlist.shuffleOrder_);
+          playlist.shuffleOrder_.unshift(0);
+        }
+
+        // Next video in the shuffle order
+        let next = false;
+        for (let i = 0; i < playlist.shuffleOrder_.length; i++) {
+          if (next === true) {
+            nextIndex = playlist.shuffleOrder_[i];
+            next = false;
+            break;
+          } else if (playlist.shuffleOrder_[i] === playlist.currentIndex_) {
+            next = true;
+          }
+        }
+
+        // This was the last video in the shuffle order
+        if (next === true) {
+          if (playlist.repeat_ === true) {
+            nextIndex = playlist.shuffleOrder_[0];
+          } else {
+            nextIndex = playlist.currentIndex_;
+          }
+        }
+
+      // Repeat
+      } else if (playlist.repeat_ === true) {
+        nextIndex = playlist.currentIndex_ + 1;
+        if (nextIndex > list.length - 1) {
+          nextIndex = 0;
+        }
+      }
+      
+      // Make it happen
+      if (nextIndex !== playlist.currentIndex_) {
+        return list[playlist.currentItem(nextIndex)];
       }
     },
 
@@ -281,6 +344,26 @@ const factory = (player, initialList, initialIndex = 0) => {
     autoadvance(delay) {
       playlist.autoadvance_.delay = delay;
       autoadvance.setup(playlist.player_, delay);
+    },
+
+    /**
+     * Sets `repeat` option, which makes the "next" video of the last video
+     * is the first one.
+     *
+     * @param {Boolean} val
+     */
+    repeat(val) {
+      playlist.repeat_ = val;
+    },
+
+    /**
+     * Sets `shuffle` option, which makes the "next" video of any video
+     * a random video besides itself.
+     *
+     * @param {Boolean} val
+     */
+    shuffle(val) {
+      playlist.shuffle_ = val;
     }
   });
 
