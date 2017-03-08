@@ -266,54 +266,20 @@ const factory = (player, initialList, initialIndex = 0) => {
       let nextIndex;
 
       // Default behavior
-      if (playlist.repeat_ === false && playlist.shuffle_ === false) {
+      if (playlist.repeat_ === false) {
 
         // Make sure we stop at the end
         nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
 
-      // Shuffle
-      } else if (playlist.shuffle_ === true && false) {
-
-        // Create shuffle order if we don't have one
-        if (playlist.shuffleOrder_ === undefined) {
-          playlist.shuffleOrder_ = [];
-          for (let i = 1; i < list.length; i++) {
-            playlist.shuffleOrder_.push(i);
-          }
-          shuffle(playlist.shuffleOrder_);
-          playlist.shuffleOrder_.unshift(0);
-        }
-
-        // Next video in the shuffle order
-        let next = false;
-        for (let i = 0; i < playlist.shuffleOrder_.length; i++) {
-          if (next === true) {
-            nextIndex = playlist.shuffleOrder_[i];
-            next = false;
-            break;
-          } else if (playlist.shuffleOrder_[i] === playlist.currentIndex_) {
-            next = true;
-          }
-        }
-
-        // This was the last video in the shuffle order
-        if (next === true) {
-          if (playlist.repeat_ === true) {
-            nextIndex = playlist.shuffleOrder_[0];
-          } else {
-            nextIndex = playlist.currentIndex_;
-          }
-        }
-
       // Repeat
-      } else if (playlist.repeat_ === true) {
+      } else {
         nextIndex = playlist.currentIndex_ + 1;
         if (nextIndex > list.length - 1) {
           nextIndex = 0;
         }
       }
       
-      // Make it happen
+      // Only return a value if we advanced
       if (nextIndex !== playlist.currentIndex_) {
         return list[playlist.currentItem(nextIndex)];
       }
