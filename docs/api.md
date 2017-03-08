@@ -15,7 +15,7 @@
     - [`player.playlist.next() -> Object`](#playerplaylistnext---object)
     - [`player.playlist.previous() -> Object`](#playerplaylistprevious---object)
     - [`player.playlist.autoadvance([Number delay]) -> undefined`](#playerplaylistautoadvancenumber-delay---undefined)
-    - [`player.playlist.repeat([Boolean val]) -> Boolean`](#playerplaylistautoadvancenumber-delay---undefined)
+    - [`player.playlist.repeat([Boolean val]) -> Boolean`](#playerplaylistrepeatboolean-val---boolean)
 - [Events](#events)
   - [`playlistchange`](#playlistchange)
   - [`beforeplaylistitem`](#beforeplaylistitem)
