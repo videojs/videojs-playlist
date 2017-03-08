@@ -248,11 +248,25 @@ const factory = (player, initialList, initialIndex = 0) => {
      */
     next() {
 
-      // Make sure we don't go past the end of the playlist.
-      let index = Math.min(playlist.currentIndex_ + 1, list.length - 1);
+      let nextIndex;
 
-      if (index !== playlist.currentIndex_) {
-        return list[playlist.currentItem(index)];
+      // Default behavior
+      if (playlist.repeat_ === false) {
+
+        // Make sure we don't go past the end of the playlist.
+        nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
+
+      // Repeat
+      } else {
+        nextIndex = playlist.currentIndex_ + 1;
+        if (nextIndex > list.length - 1) {
+          nextIndex = 0;
+        }
+      }
+
+      // Make the change
+      if (nextIndex !== playlist.currentIndex_) {
+        return list[playlist.currentItem(nextIndex)];
       }
     },
 
