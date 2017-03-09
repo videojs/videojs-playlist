@@ -146,6 +146,7 @@ const factory = (player, initialList, initialIndex = 0) => {
     currentIndex_: -1,
     player_: player,
     autoadvance_: {},
+    repeat_: false,
 
     /**
      * Get or set the current item in the playlist.
@@ -251,7 +252,7 @@ const factory = (player, initialList, initialIndex = 0) => {
       let nextIndex;
 
       // Repeat
-      if (playlist.repeat_ === true) {
+      if (playlist.repeat_) {
         nextIndex = playlist.currentIndex_ + 1;
         if (nextIndex > list.length - 1) {
           nextIndex = 0;
@@ -303,7 +304,11 @@ const factory = (player, initialList, initialIndex = 0) => {
      */
     repeat(val) {
       if (val !== undefined) {
-        playlist.repeat_ = val;
+        if (typeof val !== 'boolean') {
+          videojs.log.error('Invalid value for repeat: "' + val + '"');
+        } else {
+          playlist.repeat_ = val;
+        }
       }
       return playlist.repeat_;
     }
