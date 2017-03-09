@@ -251,7 +251,7 @@ const factory = (player, initialList, initialIndex = 0) => {
       let nextIndex;
 
       // Don't go past the end of the playlist.
-      if (playlist.repeat_ === false) {
+      if (playlist.repeat_ !== true) {
         nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
 
       // Repeat
@@ -293,7 +293,21 @@ const factory = (player, initialList, initialIndex = 0) => {
     autoadvance(delay) {
       playlist.autoadvance_.delay = delay;
       autoadvance.setup(playlist.player_, delay);
+    },
+
+    /**
+     * Sets `repeat` option, which makes the "next" video of the last video
+     * is the first one.
+     *
+     * @param {Boolean} val
+     */
+    repeat(val) {
+      if (val !== undefined) {
+        playlist.repeat_ = val;
+      }
+      return playlist.repeat_;
     }
+
   });
 
   playlist.currentItem(initialIndex);
