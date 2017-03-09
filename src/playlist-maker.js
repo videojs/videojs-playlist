@@ -306,7 +306,7 @@ const factory = (player, initialList, initialIndex = 0) => {
     repeat(val) {
       if (val !== undefined) {
         if (typeof val !== 'boolean') {
-          videojs.log.error('Invalid value for repeat: "' + val + '"');
+          videojs.log.error('Invalid value for repeat', val);
         } else {
           playlist.repeat_ = val;
         }
