@@ -250,16 +250,16 @@ const factory = (player, initialList, initialIndex = 0) => {
 
       let nextIndex;
 
-      // Don't go past the end of the playlist.
-      if (playlist.repeat_ !== true) {
-        nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
-
       // Repeat
-      } else {
+      if (playlist.repeat_ === true) {
         nextIndex = playlist.currentIndex_ + 1;
         if (nextIndex > list.length - 1) {
           nextIndex = 0;
         }
+
+      // Don't go past the end of the playlist.
+      } else {
+        nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
       }
 
       // Make the change
