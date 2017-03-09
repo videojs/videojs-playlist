@@ -250,10 +250,8 @@ const factory = (player, initialList, initialIndex = 0) => {
 
       let nextIndex;
 
-      // Default behavior
+      // Don't go past the end of the playlist.
       if (playlist.repeat_ === false) {
-
-        // Make sure we don't go past the end of the playlist.
         nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
 
       // Repeat

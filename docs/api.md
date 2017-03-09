@@ -266,7 +266,7 @@ player.playlist.autoadvance();
 
 Enable or disable repeat by passing true or false as the argument.
 
-When repeat is enabled, the "next" video after the final video in the playlist is the first video in the playlist. This affects the behavior of clicking next, of autoplay, and so on.
+When repeat is enabled, the "next" video after the final video in the playlist is the first video in the playlist. This affects the behavior of calling `next()`, of autoplay, and so on.
 
 This method returns the current value. Call with no argument to use as a getter.
 
@@ -275,7 +275,9 @@ Examples:
 ```
 player.repeat(true);
 ```
-
+```
+player.repeat(false);
+```
 ```
 var repeat = player.repeat();
 ```
