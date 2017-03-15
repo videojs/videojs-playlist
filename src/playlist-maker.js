@@ -298,8 +298,8 @@ const factory = (player, initialList, initialIndex = 0) => {
     },
 
     /**
-     * Sets `repeat` option, which makes the "next" video of the last video
-     * is the first one.
+     * Sets `repeat` option, which makes the "next" video of the last video in the
+     * playlist be the first video in the playlist.
      *
      * @param {Boolean} val
      */
