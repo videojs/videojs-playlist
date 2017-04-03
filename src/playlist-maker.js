@@ -1,3 +1,4 @@
+import videojs from 'video.js';
 import window from 'global/window';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
@@ -146,6 +147,7 @@ const factory = (player, initialList, initialIndex = 0) => {
     currentIndex_: -1,
     player_: player,
     autoadvance_: {},
+    repeat_: false,
 
     /**
      * Get or set the current item in the playlist.
@@ -248,11 +250,23 @@ const factory = (player, initialList, initialIndex = 0) => {
      */
     next() {
 
-      // Make sure we don't go past the end of the playlist.
-      let index = Math.min(playlist.currentIndex_ + 1, list.length - 1);
+      let nextIndex;
 
-      if (index !== playlist.currentIndex_) {
-        return list[playlist.currentItem(index)];
+      // Repeat
+      if (playlist.repeat_) {
+        nextIndex = playlist.currentIndex_ + 1;
+        if (nextIndex > list.length - 1) {
+          nextIndex = 0;
+        }
+
+      // Don't go past the end of the playlist.
+      } else {
+        nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
+      }
+
+      // Make the change
+      if (nextIndex !== playlist.currentIndex_) {
+        return list[playlist.currentItem(nextIndex)];
       }
     },
 
@@ -281,7 +295,25 @@ const factory = (player, initialList, initialIndex = 0) => {
     autoadvance(delay) {
       playlist.autoadvance_.delay = delay;
       autoadvance.setup(playlist.player_, delay);
+    },
+
+    /**
+     * Sets `repeat` option, which makes the "next" video of the last video in the
+     * playlist be the first video in the playlist.
+     *
+     * @param {Boolean} val
+     */
+    repeat(val) {
+      if (val !== undefined) {
+        if (typeof val !== 'boolean') {
+          videojs.log.error('Invalid value for repeat', val);
+        } else {
+          playlist.repeat_ = val;
+        }
+      }
+      return playlist.repeat_;
     }
+
   });
 
   playlist.currentItem(initialIndex);

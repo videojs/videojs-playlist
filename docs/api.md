@@ -15,6 +15,7 @@
     - [`player.playlist.next() -> Object`](#playerplaylistnext---object)
     - [`player.playlist.previous() -> Object`](#playerplaylistprevious---object)
     - [`player.playlist.autoadvance([Number delay]) -> undefined`](#playerplaylistautoadvancenumber-delay---undefined)
+    - [`player.playlist.repeat([Boolean val]) -> Boolean`](#playerplaylistrepeatboolean-val---boolean)
 - [Events](#events)
   - [`playlistchange`](#playlistchange)
   - [`beforeplaylistitem`](#beforeplaylistitem)
@@ -259,6 +260,26 @@ player.playlist.autoadvance(5);
 
 // reset and cancel the auto-advance
 player.playlist.autoadvance();
+```
+
+#### `player.playlist.repeat([Boolean val]) -> Boolean`
+
+Enable or disable repeat by passing true or false as the argument.
+
+When repeat is enabled, the "next" video after the final video in the playlist is the first video in the playlist. This affects the behavior of calling `next()`, of autoplay, and so on.
+
+This method returns the current value. Call with no argument to use as a getter.
+
+Examples:
+
+```
+player.repeat(true);
+```
+```
+player.repeat(false);
+```
+```
+var repeat = player.repeat();
 ```
 
 ## Events
