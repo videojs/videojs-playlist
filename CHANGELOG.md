@@ -2,9 +2,12 @@ CHANGELOG
 =========
 
 ## HEAD (Unreleased)
-* @incompl Add repeat functionality to plugin [#71](https://github.com/brightcove/videojs-playlist/pull/71)
+_(none)_
 
 --------------------
+
+## 3.1.0 (2017-04-03)
+* @incompl Add repeat functionality to plugin [#71](https://github.com/brightcove/videojs-playlist/pull/71)
 
 ## 3.0.2 (2017-02-10)
 * @misteroneill Suppress videojs.plugin deprecation warning in Video.js 6 [#68](https://github.com/brightcove/videojs-playlist/pull/68)
