@@ -2,7 +2,7 @@ CHANGELOG
 =========
 
 ## HEAD (Unreleased)
-_(none)_
+* @incompl Add repeat functionality to plugin [#71](https://github.com/brightcove/videojs-playlist/pull/71)
 
 --------------------
 
