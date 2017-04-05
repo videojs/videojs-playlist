@@ -101,10 +101,13 @@
         player.playlist.autoadvance(JSON.parse(value));
       });
     });
+    document.querySelector('[name="autoadvance"][value="null"]').click();
 
-    document.querySelector('.repeat').addEventListener('click', function() {
+    var repeatCheckbox = document.querySelector('.repeat');
+    repeatCheckbox.addEventListener('click', function() {
       player.playlist.repeat(this.checked);
     });
+    repeatCheckbox.checked = false;
   </script>
 </body>
 </html>
