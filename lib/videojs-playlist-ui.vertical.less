@@ -37,6 +37,7 @@
   img {
     display: block;
     width: 100%;
+    min-height: 54px;
 
     // Needed because sometimes IE10 adds width / height properties
     height: auto;
@@ -136,7 +137,7 @@ during ads and capture click events on IE<11 */
     opacity: .2;
   }
 
-  .vjs-playlist-thumbnail .vjs-playlist-now-playing {
+  .vjs-playlist-thumbnail .vjs-playlist-now-playing-text {
     display: none;
     position: absolute;
     top: 0;
@@ -145,7 +146,7 @@ during ads and capture click events on IE<11 */
     padding-left: 2px;
   }
 
-  .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing {
+  .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing-text {
     display: block;
   }
 
@@ -206,5 +207,37 @@ during ads and capture click events on IE<11 */
 
   .vjs-playlist .vjs-playlist-name {
     line-height: 22px;
+  }
+}
+
+// Don't show now playing / up next when there isn't room
+@media (max-width: 520px) {
+  // These styles exist both with and without .vjs-mouse
+  .vjs-playlist .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing-text,
+  .vjs-playlist .vjs-up-next .vjs-up-next-text {
+    display: none;
+  }
+
+  .vjs-mouse.vjs-playlist .vjs-selected .vjs-playlist-thumbnail .vjs-playlist-now-playing-text,
+  .vjs-mouse.vjs-playlist .vjs-up-next .vjs-up-next-text {
+    display: none;
+  }
+}
+
+// If now playing / up next are shown, make sure there is room.
+// Only affects thumbnails with very wide aspect ratio, which get
+// stretched vertically. We could avoid the stretching by making this a
+// CSS background image and using background-size: cover; but then it'd
+// get clipped, so not sure that's better.
+@media (min-width: 521px) {
+  .vjs-playlist img {
+    min-height: 85px;
+  }
+}
+
+// Don't show duration when there isn't room
+@media (max-width: 750px) {
+  .vjs-playlist .vjs-playlist-duration {
+    display: none;
   }
 }
