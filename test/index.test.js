@@ -1,7 +1,7 @@
 import QUnit from 'qunit';
 import sinon from 'sinon';
 import videojs from 'video.js';
-import plugin from '../src/plugin';
+import plugin from '../src/js';
 
 QUnit.test('the environment is sane', function(assert) {
   assert.strictEqual(typeof Array.isArray, 'function', 'es5 exists');

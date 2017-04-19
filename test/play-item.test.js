@@ -1,15 +1,15 @@
 import QUnit from 'qunit';
 import sinon from 'sinon';
-import playItem from '../src/play-item';
-import {clearTracks} from '../src/play-item';
+import playItem from '../src/js/play-item';
+import {clearTracks} from '../src/js/play-item';
 import playerProxyMaker from './player-proxy-maker';
 
 QUnit.module('play-item');
 
 QUnit.test('clearTracks will try and remove all tracks', function(assert) {
-  let player = playerProxyMaker();
-  let remoteTracks = [1, 2, 3];
-  let removedTracks = [];
+  const player = playerProxyMaker();
+  const remoteTracks = [1, 2, 3];
+  const removedTracks = [];
 
   player.remoteTextTracks = function() {
     return remoteTracks;
@@ -29,7 +29,7 @@ QUnit.test('clearTracks will try and remove all tracks', function(assert) {
 });
 
 QUnit.test('will not try to play if paused', function(assert) {
-  let player = playerProxyMaker();
+  const player = playerProxyMaker();
   let tryPlay = false;
 
   player.paused = function() {
@@ -50,7 +50,7 @@ QUnit.test('will not try to play if paused', function(assert) {
 });
 
 QUnit.test('will try to play if not paused', function(assert) {
-  let player = playerProxyMaker();
+  const player = playerProxyMaker();
   let tryPlay = false;
 
   player.paused = function() {
@@ -71,7 +71,7 @@ QUnit.test('will try to play if not paused', function(assert) {
 });
 
 QUnit.test('will not try to play if paused and not ended', function(assert) {
-  let player = playerProxyMaker();
+  const player = playerProxyMaker();
   let tryPlay = false;
 
   player.paused = function() {
@@ -96,7 +96,7 @@ QUnit.test('will not try to play if paused and not ended', function(assert) {
 });
 
 QUnit.test('will try to play if paused and ended', function(assert) {
-  let player = playerProxyMaker();
+  const player = playerProxyMaker();
   let tryPlay = false;
 
   player.paused = function() {
