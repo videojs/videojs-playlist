@@ -287,7 +287,7 @@ It is fired asynchronously to let the browser start loading the first video in t
 
 ```js
 player.on('playlistchange', function() {
-  console.log(player.playlist());
+  player.playlist();
 });
 
 player.playlist([]);
