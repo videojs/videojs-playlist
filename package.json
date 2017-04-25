@@ -44,7 +44,6 @@
   "devDependencies": {
     "husky": "^0.13.1",
     "node.extend": "^1.1.5",
-    "sinon": "~1.14.0",
     "videojs-spellbook": "^4.0.0"
   },
   "generator-videojs-plugin": {
