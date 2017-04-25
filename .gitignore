@@ -30,4 +30,5 @@ node_modules/
 
 # Build-related directories
 dist/
+build/
 
