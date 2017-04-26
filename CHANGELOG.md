@@ -1,6 +1,12 @@
 # CHANGELOG
 
+## 3.0.4
+
+* @incompl Fix collision in CSS
+* @incompl Fix accessibility for image thumbnails
+
 ## 3.0.3
+
 * chore: @brandonocasey Fix Video.js 6 deprecation warnings
 * chore: @brandonocasey Update unit tests to use karma
 
