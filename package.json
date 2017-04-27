@@ -38,7 +38,7 @@
     "src/"
   ],
   "dependencies": {
-    "global": "^4.3.0",
+    "global": "^4.3.2",
     "video.js": "^5.16.0"
   },
   "devDependencies": {
@@ -47,7 +47,7 @@
     "videojs-spellbook": "^4.0.0"
   },
   "generator-videojs-plugin": {
-    "version": "3.2.0"
+    "version": "4.0.1"
   },
   "jsnext:main": "src/js/index.js",
   "engines": {
@@ -55,7 +55,7 @@
   },
   "spellbook": {
     "css": false,
-    "lang": false,
-    "ie8": true
+    "ie8": true,
+    "lang": false
   }
 }
