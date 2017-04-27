@@ -4,6 +4,7 @@ import {setup} from './auto-advance.js';
  * Removes all remote text tracks from a player.
  *
  * @param  {Player} player
+ *         The player to clear tracks on
  */
 const clearTracks = (player) => {
   const tracks = player.remoteTextTracks();
@@ -20,13 +21,16 @@ const clearTracks = (player) => {
  * Plays an item on a player's playlist.
  *
  * @param  {Player} player
- * @param  {Number} delay
+ *         The player to play the item on
+ *
+ * @param  {number} delay
  *         The number of seconds to wait before each auto-advance.
  *
  * @param  {Object} item
  *         A source from the playlist.
  *
  * @return {Player}
+ *         The player that is now playing the item
  */
 const playItem = (player, delay, item) => {
   const replay = !player.paused() || player.ended();

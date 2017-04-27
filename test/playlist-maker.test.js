@@ -1,8 +1,8 @@
 import window from 'global/window';
 import QUnit from 'qunit';
 import sinon from 'sinon';
-import playlistMaker from '../src/playlist-maker';
-import * as autoadvance from '../src/auto-advance';
+import playlistMaker from '../src/js/playlist-maker';
+import * as autoadvance from '../src/js/auto-advance';
 import playerProxyMaker from './player-proxy-maker';
 
 const videoList = [{
@@ -51,7 +51,7 @@ QUnit.module('playlist', {
 QUnit.test(
   'playlistMaker takes a player and a list and returns a playlist',
   function(assert) {
-    let playlist = playlistMaker(playerProxyMaker(), []);
+    const playlist = playlistMaker(playerProxyMaker(), []);
 
     assert.equal(typeof playlist, 'function', 'playlist is a function');
     assert.equal(
@@ -74,9 +74,9 @@ QUnit.test(
 );
 
 QUnit.test('playlistMaker can either take nothing or an Array as its first argument', function(assert) {
-  let playlist1 = playlistMaker(playerProxyMaker());
-  let playlist2 = playlistMaker(playerProxyMaker(), 'foo');
-  let playlist3 = playlistMaker(playerProxyMaker(), {foo: [1, 2, 3]});
+  const playlist1 = playlistMaker(playerProxyMaker());
+  const playlist2 = playlistMaker(playerProxyMaker(), 'foo');
+  const playlist3 = playlistMaker(playerProxyMaker(), {foo: [1, 2, 3]});
 
   assert.deepEqual(
     playlist1(), [], 'if given no initial array, default to an empty array'
@@ -92,7 +92,7 @@ QUnit.test('playlistMaker can either take nothing or an Array as its first argum
 });
 
 QUnit.test('playlist() is a getter and setter for the list', function(assert) {
-  let playlist = playlistMaker(playerProxyMaker(), [1, 2, 3]);
+  const playlist = playlistMaker(playerProxyMaker(), [1, 2, 3]);
 
   assert.deepEqual(playlist(), [1, 2, 3], 'equal to input list');
 
@@ -104,7 +104,7 @@ QUnit.test('playlist() is a getter and setter for the list', function(assert) {
 
   assert.deepEqual(playlist(), [1, 2, 3, 4, 5], 'equal to input list');
 
-  let list = playlist();
+  const list = playlist();
 
   list.unshift(10);
 
@@ -122,7 +122,7 @@ QUnit.test('playlist() is a getter and setter for the list', function(assert) {
 });
 
 QUnit.test('playlist() should only accept an Array as a new playlist', function(assert) {
-  let playlist = playlistMaker(playerProxyMaker(), [1, 2, 3]);
+  const playlist = playlistMaker(playerProxyMaker(), [1, 2, 3]);
 
   assert.deepEqual(
     playlist('foo'),
@@ -138,8 +138,8 @@ QUnit.test('playlist() should only accept an Array as a new playlist', function(
 });
 
 QUnit.test('playlist.currentItem() works as expected', function(assert) {
-  let player = playerProxyMaker();
-  let playlist = playlistMaker(player, videoList);
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, videoList);
   let src;
 
   player.src = function(s) {
@@ -178,7 +178,7 @@ QUnit.test('playlist.currentItem() works as expected', function(assert) {
 });
 
 QUnit.test('playlist.currentItem() returns -1 with an empty playlist', function(assert) {
-  let playlist = playlistMaker(playerProxyMaker(), []);
+  const playlist = playlistMaker(playerProxyMaker(), []);
 
   assert.equal(playlist.currentItem(), -1, 'we should get a -1 with an empty playlist');
 });
@@ -186,9 +186,8 @@ QUnit.test('playlist.currentItem() returns -1 with an empty playlist', function(
 QUnit.test(
   'playlist.currentItem() does not change items if same index is given',
   function(assert) {
-    let player = playerProxyMaker();
+    const player = playerProxyMaker();
     let sources = 0;
-    let playlist;
     let src;
 
     player.src = function(s) {
@@ -209,7 +208,7 @@ QUnit.test(
       return src;
     };
 
-    playlist = playlistMaker(player, videoList);
+    const playlist = playlistMaker(player, videoList);
 
     assert.equal(sources, 1, 'we switched to the first playlist item');
     sources = 0;
@@ -228,7 +227,7 @@ QUnit.test(
 );
 
 QUnit.test('playlistMaker accepts a starting index', function(assert) {
-  let player = playerProxyMaker();
+  const player = playerProxyMaker();
   let src;
 
   player.src = function(s) {
@@ -247,7 +246,7 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
     return src;
   };
 
-  let playlist = playlistMaker(player, videoList, 1);
+  const playlist = playlistMaker(player, videoList, 1);
 
   assert.equal(
     playlist.currentItem(), 1, 'if given an initial index, load that video'
@@ -256,7 +255,7 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
 });
 
 QUnit.test('playlistMaker accepts a starting index', function(assert) {
-  let player = playerProxyMaker();
+  const player = playerProxyMaker();
   let src;
 
   player.src = function(s) {
@@ -275,7 +274,7 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
     return src;
   };
 
-  let playlist = playlistMaker(player, videoList, -1);
+  const playlist = playlistMaker(player, videoList, -1);
 
   assert.equal(
     playlist.currentItem(), -1, 'if given -1 as initial index, load no video'
@@ -284,8 +283,8 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
 });
 
 QUnit.test('playlist.contains() works as expected', function(assert) {
-  let player = playerProxyMaker();
-  let playlist = playlistMaker(player, videoList);
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, videoList);
 
   player.playlist = playlist;
 
@@ -358,10 +357,10 @@ QUnit.test('playlist.contains() works as expected', function(assert) {
 });
 
 QUnit.test('playlist.indexOf() works as expected', function(assert) {
-  let player = playerProxyMaker();
-  let playlist = playlistMaker(player, videoList);
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, videoList);
 
-  let mixedSourcesPlaylist = playlistMaker(
+  const mixedSourcesPlaylist = playlistMaker(
     player,
     [{
       sources: [{
@@ -501,8 +500,8 @@ QUnit.test('playlist.indexOf() works as expected', function(assert) {
 });
 
 QUnit.test('playlist.next() works as expected', function(assert) {
-  let player = playerProxyMaker();
-  let playlist = playlistMaker(player, videoList);
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, videoList);
   let src;
 
   player.currentSrc = function() {
@@ -540,8 +539,8 @@ QUnit.test('playlist.next() works as expected', function(assert) {
 });
 
 QUnit.test('playlist.previous() works as expected', function(assert) {
-  let player = playerProxyMaker();
-  let playlist = playlistMaker(player, videoList);
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, videoList);
   let src;
 
   player.currentSrc = function() {
@@ -588,11 +587,10 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
 QUnit.test(
   'loading a non-playlist video will cancel autoadvance and set index of -1',
   function(assert) {
-    let playlist;
-    let oldReset = autoadvance.reset;
-    let player = playerProxyMaker();
+    const oldReset = autoadvance.reset;
+    const player = playerProxyMaker();
 
-    playlist = playlistMaker(player, [{
+    const playlist = playlistMaker(player, [{
       sources: [{
         src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
         type: 'video/mp4'
@@ -610,9 +608,9 @@ QUnit.test(
       return 'http://vjs.zencdn.net/v/oceans.mp4';
     };
 
-    autoadvance.reset = function() {
+    autoadvance.setReset_(function() {
       assert.ok(true, 'autoadvance.reset was called');
-    };
+    });
 
     player.trigger('loadstart');
 
@@ -622,13 +620,13 @@ QUnit.test(
       return 'http://media.w3.org/2010/05/sintel/trailer.mp4';
     };
 
-    autoadvance.reset = function() {
+    autoadvance.setReset_(function() {
       assert.ok(false, 'autoadvance.reset should not be called');
-    };
+    });
 
     player.trigger('loadstart');
 
-    autoadvance.reset = oldReset;
+    autoadvance.setReset_(oldReset);
   }
 );
 

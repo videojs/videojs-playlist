@@ -9,6 +9,10 @@ const registerPlugin = videojs.registerPlugin || videojs.plugin;
  * playlist function on the specific player.
  *
  * @param {Array} list
+ *        a list of sources
+ *
+ * @param {number} item
+ *        The index to start at
  */
 const plugin = function(list, item) {
   playlistMaker(this, list, item);

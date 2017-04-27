@@ -1,36 +1,15 @@
 # video.js Playlist Plugin API
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-
-- [Playlist Item Object](#playlist-item-object)
-- [Methods](#methods)
-  - [`player.playlist([Array newList], [Number newIndex]) -> Array`](#playerplaylistarray-newlist-number-newindex---array)
-    - [`player.playlist.currentItem([Number index]) -> Number`](#playerplaylistcurrentitemnumber-index---number)
-    - [`player.playlist.contains(String|Object|Array value) -> Boolean`](#playerplaylistcontainsstringobjectarray-value---boolean)
-    - [`player.playlist.indexOf(String|Object|Array value) -> Number`](#playerplaylistindexofstringobjectarray-value---number)
-    - [`player.playlist.first() -> Object|undefined`](#playerplaylistfirst---objectundefined)
-    - [`player.playlist.last() -> Object|undefined`](#playerplaylistlast---objectundefined)
-    - [`player.playlist.next() -> Object`](#playerplaylistnext---object)
-    - [`player.playlist.previous() -> Object`](#playerplaylistprevious---object)
-    - [`player.playlist.autoadvance([Number delay]) -> undefined`](#playerplaylistautoadvancenumber-delay---undefined)
-    - [`player.playlist.repeat([Boolean val]) -> Boolean`](#playerplaylistrepeatboolean-val---boolean)
-- [Events](#events)
-  - [`playlistchange`](#playlistchange)
-  - [`beforeplaylistitem`](#beforeplaylistitem)
-  - [`playlistitem`](#playlistitem)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+## Table of Contents
 
 ## Playlist Item Object
 
 A playlist is an array of playlist items. A playlist item is an object with the following properties:
 
-Property   | Type   | Optional | Description
----------- | ------ | -------- | -----------
-`sources`  | Array  |          | An array of sources that video.js understands.
-`poster`   | String | ✓        | A poster image to display for these sources.
+| Property   | Type   | Optional | Description                                    |
+| ---------- | ------ | -------- | ---------------------------------------------- |
+| `sources`  | Array  |          | An array of sources that video.js understands. |
+| `poster`   | String | ✓        | A poster image to display for these sources.   |
 
 ## Methods
 
@@ -113,6 +92,20 @@ If called without arguments, it is a getter. With an argument, it is a setter.
 If the player is currently playing a non-playlist video, it will return `-1`.
 
 ```js
+var samplePlaylist = [{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}];
+
 player.currentItem();
 // 0
 
@@ -132,16 +125,16 @@ Determine whether a string, source object, or playlist item is contained within 
 Assuming the playlist used above, consider the following example:
 
 ```js
-playlist.contains('http://media.w3.org/2010/05/sintel/trailer.mp4')
+player.playlist.contains('http://media.w3.org/2010/05/sintel/trailer.mp4');
 // true
 
-playlist.contains([{
+player.playlist.contains([{
   src: 'http://media.w3.org/2010/05/sintel/poster.png',
   type: 'image/png'
-}])
+}]);
 // false
 
-playlist.contains({
+player.playlist.contains({
   sources: [{
     src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
@@ -157,16 +150,16 @@ Get the index of a string, source object, or playlist item in the playlist. If n
 Assuming the playlist used above, consider the following example:
 
 ```js
-playlist.indexOf('http://media.w3.org/2010/05/bunny/trailer.mp4')
+player.playlist.indexOf('http://media.w3.org/2010/05/bunny/trailer.mp4');
 // 1
 
-playlist.contains([{
+player.playlist.contains([{
   src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
   type: 'video/mp4'
-}])
+}]);
 // 3
 
-playlist.contains({
+player.playlist.contains({
   sources: [{
     src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
     type: 'video/mp4'
@@ -214,7 +207,6 @@ Returns the activated playlist item unless the playlist is at the end (in which 
 ```js
 player.playlist.next();
 // { ... }
-
 
 player.playlist.last();
 player.playlist.next();
@@ -272,14 +264,17 @@ This method returns the current value. Call with no argument to use as a getter.
 
 Examples:
 
-```
+```js
+
 player.repeat(true);
-```
-```
+
+player.repeat();
+// true
+
 player.repeat(false);
-```
-```
-var repeat = player.repeat();
+player.repeat();
+// false
+
 ```
 
 ## Events
@@ -292,13 +287,13 @@ It is fired asynchronously to let the browser start loading the first video in t
 
 ```js
 player.on('playlistchange', function() {
-  console.log(player.playlist());
+  player.playlist();
 });
 
-player.playlist([ ... ]);
+player.playlist([]);
 // [ ... ]
 
-player.playlist([ ... ]);
+player.playlist([]);
 // [ ... ]
 ```
 

@@ -5,7 +5,7 @@ import * as autoadvance from './auto-advance';
 
 // Lightweight Object.assign alternative.
 const assign = (target, source) => {
-  for (let key in source) {
+  for (const key in source) {
     if (source.hasOwnProperty(key)) {
       target[key] = source[key];
     }
@@ -18,9 +18,14 @@ const assign = (target, source) => {
  * are ignored.
  *
  * @private
- * @param {String|Object} source1
- * @param {String|Object} source2
- * @return {Boolean}
+ * @param {string|Object} source1
+ *        The first source
+ *
+ * @param {string|Object} source2
+ *        The second source
+ *
+ * @return {boolean}
+ *         The result
  */
 const sourceEquals = (source1, source2) => {
   let src1 = source1;
@@ -50,16 +55,21 @@ const sourceEquals = (source1, source2) => {
  *
  * @private
  * @param   {Array} arr
- * @param   {String} src
- * @return  {Number}
+ *          An array of playlist items to look through
+ *
+ * @param   {string} src
+ *          The source to look for
+ *
+ * @return  {number}
+ *          The index of that source or -1
  */
 const indexInSources = (arr, src) => {
   for (let i = 0; i < arr.length; i++) {
-    let sources = arr[i].sources;
+    const sources = arr[i].sources;
 
     if (Array.isArray(sources)) {
       for (let j = 0; j < sources.length; j++) {
-        let source = sources[j];
+        const source = sources[j];
 
         if (source && sourceEquals(source, src)) {
           return i;
@@ -88,10 +98,13 @@ const indexInSources = (arr, src) => {
  * playlist.autoadvance() // cancel autoadvance
  *
  * @param  {Player} player
- * @param  {Array}  [initialList]
+ *         The current player
+ *
+ * @param  {Array=} initialList
  *         If given, an initial list of sources with which to populate
  *         the playlist.
- * @param  {Number}  [initialIndex]
+ *
+ * @param  {number=}  initialIndex
  *         If given, the index of the item in the list that should
  *         be loaded first. If -1, no video is loaded. If omitted, The
  *         the first video is loaded.
@@ -111,12 +124,14 @@ const factory = (player, initialList, initialIndex = 0) => {
    * @param  {Array} [newList]
    *         If given, a new list of sources with which to populate the
    *         playlist. Without this, the function acts as a getter.
-   * @param  {Number}  [newIndex]
+   *
+   * @param  {number}  [newIndex]
    *         If given, the index of the item in the list that should
    *         be loaded first. If -1, no video is loaded. If omitted, The
    *         the first video is loaded.
    *
    * @return {Array}
+   *         The playlist
    */
   const playlist = player.playlist = function(newList, newIndex = 0) {
     if (Array.isArray(newList)) {
@@ -152,10 +167,10 @@ const factory = (player, initialList, initialIndex = 0) => {
     /**
      * Get or set the current item in the playlist.
      *
-     * @param  {Number} [index]
+     * @param  {number} [index]
      *         If given as a valid value, plays the playlist item at that index.
      *
-     * @return {Number}
+     * @return {number}
      *         The current item index.
      */
     currentItem(index) {
@@ -181,8 +196,11 @@ const factory = (player, initialList, initialIndex = 0) => {
     /**
      * Checks if the playlist contains a value.
      *
-     * @param  {String|Object|Array} value
-     * @return {Boolean}
+     * @param  {string|Object|Array} value
+     *         The value to check
+     *
+     * @return {boolean}
+     *         The result
      */
     contains(value) {
       return playlist.indexOf(value) !== -1;
@@ -191,18 +209,21 @@ const factory = (player, initialList, initialIndex = 0) => {
     /**
      * Gets the index of a value in the playlist or -1 if not found.
      *
-     * @param  {String|Object|Array} value
-     * @return {Number}
+     * @param  {string|Object|Array} value
+     *         The value to find the index of
+     *
+     * @return {number}
+     *         The index or -1
      */
     indexOf(value) {
       if (typeof value === 'string') {
         return indexInSources(list, value);
       }
 
-      let sources = Array.isArray(value) ? value : value.sources;
+      const sources = Array.isArray(value) ? value : value.sources;
 
       for (let i = 0; i < sources.length; i++) {
-        let source = sources[i];
+        const source = sources[i];
 
         if (typeof source === 'string') {
           return indexInSources(list, source);
@@ -279,7 +300,7 @@ const factory = (player, initialList, initialIndex = 0) => {
     previous() {
 
       // Make sure we don't go past the start of the playlist.
-      let index = Math.max(playlist.currentIndex_ - 1, 0);
+      const index = Math.max(playlist.currentIndex_ - 1, 0);
 
       if (index !== playlist.currentIndex_) {
         return list[playlist.currentItem(index)];
@@ -289,7 +310,7 @@ const factory = (player, initialList, initialIndex = 0) => {
     /**
      * Sets up auto-advance on the playlist.
      *
-     * @param {Number} delay
+     * @param {number} delay
      *        The number of seconds to wait before each auto-advance.
      */
     autoadvance(delay) {
@@ -301,7 +322,11 @@ const factory = (player, initialList, initialIndex = 0) => {
      * Sets `repeat` option, which makes the "next" video of the last video in the
      * playlist be the first video in the playlist.
      *
-     * @param {Boolean} val
+     * @param {boolean=} val
+     *        The value to set repeat to
+     *
+     * @return {boolean}
+     *         The current value of repeat
      */
     repeat(val) {
       if (val !== undefined) {
