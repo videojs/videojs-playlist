@@ -6,6 +6,9 @@ _(none)_
 
 --------------------
 
+## 3.1.1 (2017-04-27)
+_(none)_
+
 ## 3.1.0 (2017-04-03)
 * @incompl Add repeat functionality to plugin [#71](https://github.com/brightcove/videojs-playlist/pull/71)
 
