@@ -1,6 +1,6 @@
 import window from 'global/window';
 import QUnit from 'qunit';
-import * as autoadvance from '../src/js/auto-advance.js';
+import * as autoadvance from '../src/auto-advance.js';
 import playerProxyMaker from './player-proxy-maker.js';
 
 QUnit.module('auto-advance');

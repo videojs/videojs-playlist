@@ -1,8 +1,8 @@
 import window from 'global/window';
 import QUnit from 'qunit';
 import sinon from 'sinon';
-import playlistMaker from '../src/js/playlist-maker';
-import * as autoadvance from '../src/js/auto-advance';
+import playlistMaker from '../src/playlist-maker';
+import * as autoadvance from '../src/auto-advance';
 import playerProxyMaker from './player-proxy-maker';
 
 const videoList = [{

@@ -2,7 +2,7 @@ import extend from 'node.extend';
 import videojs from 'video.js';
 
 const proxy = (props) => {
-  let player = extend(true, {}, videojs.EventTarget.prototype, {
+  const player = extend(true, {}, videojs.EventTarget.prototype, {
     play: Function.prototype,
     paused: Function.prototype,
     ended: Function.prototype,
