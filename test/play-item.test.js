@@ -1,7 +1,7 @@
 import QUnit from 'qunit';
 import sinon from 'sinon';
-import playItem from '../src/js/play-item';
-import {clearTracks} from '../src/js/play-item';
+import playItem from '../src/play-item';
+import {clearTracks} from '../src/play-item';
 import playerProxyMaker from './player-proxy-maker';
 
 QUnit.module('play-item');
