@@ -1,10 +1,14 @@
-CHANGELOG
-=========
+<a name="4.0.0"></a>
+# [4.0.0](https://github.com/brightcove/videojs-playlist/compare/v2.0.0...v4.0.0) (2017-05-19)
 
-## HEAD (Unreleased)
-_(none)_
+### Chores
 
---------------------
+* Update tooling using generator v5 prerelease. ([#79](https://github.com/brightcove/videojs-playlist/issues/79)) ([0b53140](https://github.com/brightcove/videojs-playlist/commit/0b53140))
+
+
+### BREAKING CHANGES
+
+* Remove Bower support.
 
 ## 3.1.1 (2017-04-27)
 _(none)_
