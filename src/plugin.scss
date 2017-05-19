@@ -1,9 +1,9 @@
 /* The default color for the playlist menu background, almost black */
-@background-color: #1a1a1a;
+$background-color: #1a1a1a;
 /* The color used to emphasize the currently playing video and for effects */
-@highlight-color: #141a21;
+$highlight-color: #141a21;
 /* The primary foreground color */
-@main-color: #fff;
+$main-color: #fff;
 
 /* Rules common to mouse and touch devices */
 .vjs-playlist {
@@ -114,16 +114,16 @@ during ads and capture click events on IE<11 */
 }
 
 /* Parametric rules. These are specialized for touch and mouse-based devices */
-.playlist-base(@base-font-size: 14px) {
-  @small-font-size: ceil(@base-font-size * 0.75);
-  @item-height: @base-font-size * 4;
-  @name-height: @base-font-size;
-  @description-height: @item-height - @name-height;
-  @thumbnail-font-size: 18px;
+@mixin playlist-base($base-font-size: 14px) {
+  $small-font-size: ceil($base-font-size * 0.75);
+  $item-height: $base-font-size * 4;
+  $name-height: $base-font-size;
+  $description-height: $item-height - $name-height;
+  $thumbnail-font-size: 18px;
 
-  font-size: @base-font-size;
-  background-color: @background-color;
-  color: @main-color;
+  font-size: $base-font-size;
+  background-color: $background-color;
+  color: $main-color;
   padding: 0;
 
   .vjs-playlist-item {
@@ -151,7 +151,7 @@ during ads and capture click events on IE<11 */
   }
 
   .vjs-selected {
-    background-color: @highlight-color;
+    background-color: $highlight-color;
   }
 
   .vjs-up-next-text {
@@ -184,25 +184,25 @@ during ads and capture click events on IE<11 */
   }
 
   .vjs-playlist-description {
-    height: @description-height;
-    line-height: ceil(@base-font-size * 1.5);
+    height: $description-height;
+    line-height: ceil($base-font-size * 1.5);
   }
 }
 
 /* Touch-device playlist dimensions */
 .vjs-playlist {
-  .playlist-base;
+  @include playlist-base();
 }
 
 /* Mouse-only playlist dimensions */
 .vjs-mouse.vjs-playlist {
-  .playlist-base(15px);
+  @include playlist-base(15px);
 }
 
 // Larger font size for larger player
 @media (min-width: 600px) {
   .vjs-mouse.vjs-playlist {
-    .playlist-base(17px);
+    @include playlist-base(17px);
   }
 
   .vjs-playlist .vjs-playlist-name {

@@ -4,7 +4,7 @@ module.exports = function(config) {
     usePhantomJS: false
   };
 
-  // On Travis CI, we can only run in Firefox.
+  // On Travis CI, we can only run in Firefox and Chrome; so, enforce that.
   if (process.env.TRAVIS) {
     config.browsers = ['Firefox', 'travisChrome'];
   }
@@ -18,20 +18,15 @@ module.exports = function(config) {
   config.set({
     basePath: '..',
     frameworks: ['qunit', 'detectBrowsers'],
-
     files: [
-      'node_modules/video.js/dist/video.js',
       'node_modules/video.js/dist/video-js.css',
+      'dist/videojs-playlist-ui.css',
+      'node_modules/es5-shim/es5-shim.js',
+      'node_modules/sinon/pkg/sinon.js',
+      'node_modules/video.js/dist/video.js',
       'node_modules/videojs-playlist/dist/videojs-playlist.js',
-      'dist/videojs-playlist-ui.js',
-      'dist/videojs-playlist-ui.test.js',
-      {pattern: 'test/example/*.jpg', served: true, included: false}
+      'test/dist/bundle.js'
     ],
-    // proxy the default karma serve location: /base/test/example
-    // to the place you would expect: /test/example/
-    proxies: {
-      "/test/example/": "/base/test/example/"
-    },
     customLaunchers: {
       travisChrome: {
         base: 'Chrome',
