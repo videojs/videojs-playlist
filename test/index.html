@@ -2,24 +2,19 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Video.js Playlist Ui</title>
+  <title>videojs-playlist-ui Unit Tests</title>
   <link rel="stylesheet" href="../node_modules/qunitjs/qunit/qunit.css">
+  <link rel="stylesheet" href="../node_modules/video.js/dist/video-js.css">
+  <link href="../dist/videojs-playlist-ui.vertical.css" rel="stylesheet">
 </head>
 <body>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
+  <script src="../node_modules/es5-shim/es5-shim.js"></script>
+  <script src="../node_modules/sinon/pkg/sinon.js"></script>
   <script src="../node_modules/qunitjs/qunit/qunit.js"></script>
   <script src="../node_modules/video.js/dist/video.js"></script>
-  <script>
-    Function.prototype.bind = Function.prototype.bind || function() {
-      var args = Array.prototype.slice.call(arguments);
-      var context = args.unshift();
-
-      return videojs.bind(context, this, args);
-    };
-  </script>
   <script src="../node_modules/videojs-playlist/dist/videojs-playlist.js"></script>
-  <script src="../dist/videojs-playlist-ui.js"></script>
-  <script src="../dist/videojs-playlist-ui.test.js"></script>
+  <script src="../test/dist/bundle.js"></script>
 </body>
 </html>

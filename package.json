@@ -1,58 +1,109 @@
 {
   "name": "videojs-playlist-ui",
   "version": "2.3.3",
-  "author": "Brightcove",
+  "author": "Brightcove, Inc.",
   "description": "A playlist video picker for video.js",
-  "main": "es5/videojs-playlist-ui.js",
+  "main": "dist/videojs-playlist-ui.cjs.js",
+  "module": "dist/videojs-playlist-ui.es.js",
   "license": "Apache-2.0",
   "keywords": [
-    "videojs-plugin",
     "playlist",
-    "videojs"
+    "videojs",
+    "videojs-plugin"
   ],
   "scripts": {
-    "test": "grunt test",
-    "prepublish": "grunt build:dist"
+    "prebuild": "npm run clean",
+    "build": "npm-run-all -p build:*",
+    "build:css": "npm-run-all build:css:sass build:css:bannerize",
+    "build:css:bannerize": "bannerize dist/videojs-playlist-ui.vertical.css --banner=scripts/banner.ejs",
+    "build:css:sass": "node-sass src/plugin.scss dist/videojs-playlist-ui.vertical.css --output-style=compressed --linefeed=lf",
+    "build:js": "npm-run-all build:js:rollup-modules build:js:rollup-umd build:js:bannerize build:js:uglify",
+    "build:js:bannerize": "bannerize dist/videojs-playlist-ui.js --banner=scripts/banner.ejs",
+    "build:js:rollup-modules": "rollup -c scripts/modules.rollup.config.js",
+    "build:js:rollup-umd": "rollup -c scripts/umd.rollup.config.js",
+    "build:js:uglify": "uglifyjs dist/videojs-playlist-ui.js --comments --mangle --compress --ie8 -o dist/videojs-playlist-ui.min.js",
+    "build:test": "rollup -c scripts/test.rollup.config.js",
+    "clean": "rimraf dist test/dist",
+    "postclean": "mkdirp dist test/dist",
+    "lint": "vjsstandard",
+    "prestart": "npm run build",
+    "start": "npm-run-all -p start:server watch",
+    "start:server": "static -a 0.0.0.0 -p 9999 -H '{\"Cache-Control\": \"no-cache, must-revalidate\"}' .",
+    "pretest": "npm-run-all lint build",
+    "test": "karma start test/karma.conf.js",
+    "preversion": "npm test",
+    "version": "node scripts/version.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:css": "node-sass src/plugin.scss dist/videojs-playlist-ui.vertical.css --output-style=compressed --linefeed=lf --watch src/**/*.scss",
+    "watch:js-modules": "rollup -c scripts/modules.rollup.config.js -w",
+    "watch:js-umd": "rollup -c scripts/umd.rollup.config.js -w",
+    "watch:test": "rollup -c scripts/test.rollup.config.js -w",
+    "prepublish": "npm run build",
+    "prepush": "npm run lint"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/brightcove/videojs-playlist-ui"
   },
   "dependencies": {
-    "video.js": "^5.2.0"
+    "global": "^4.3.2",
+    "video.js": "^5.19.2"
   },
   "devDependencies": {
-    "autoprefixer-core": "^5.1.8",
-    "babel": "^5.8.38",
-    "babelify": "^5.0.4",
-    "browserify": "^9.0.3",
-    "browserify-shim": "^3.8.12",
-    "grunt": "^0.4.0",
-    "grunt-browserify": "^3.5.0",
-    "grunt-cli": "^0.1.13",
-    "grunt-contrib-clean": "^0.4",
-    "grunt-contrib-connect": "^0.9.0",
-    "grunt-contrib-jshint": "^0.11",
-    "grunt-contrib-less": "^1.0.0",
-    "grunt-contrib-uglify": "^0.8.0",
-    "grunt-contrib-watch": "^0.4",
-    "grunt-karma": "^2.0.0",
-    "grunt-postcss": "^0.3.0",
-    "karma": "^1.4.1",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-detect-browsers": "^2.2.4",
-    "karma-firefox-launcher": "^1.0.0",
-    "karma-opera-launcher": "^1.0.0",
+    "babel-plugin-external-helpers": "^6.22.0",
+    "babel-plugin-transform-object-assign": "^6.8.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-es3": "^1.0.1",
+    "bannerize": "^1.0.2",
+    "conventional-changelog-cli": "^1.3.1",
+    "conventional-changelog-videojs": "^3.0.0",
+    "es5-shim": "^4.5.9",
+    "husky": "^0.13.3",
+    "karma": "~1.3.0",
+    "karma-chrome-launcher": "^2.1.1",
+    "karma-detect-browsers": "^2.2.5",
+    "karma-firefox-launcher": "^1.0.1",
+    "karma-ie-launcher": "^1.0.0",
     "karma-qunit": "^1.2.1",
     "karma-safari-launcher": "^1.0.0",
     "load-grunt-tasks": "^3.1.0",
-    "postcss-pseudoelements": "^2.1.1",
-    "qunitjs": "^1.12",
-    "shelljs": "^0.7.0",
-    "shelljs-nodecli": "^0.1.1",
-    "videojs-playlist": "^3.0.0"
+    "mkdirp": "^0.5.1",
+    "node-sass": "^4.5.3",
+    "node-static": "^0.7.9",
+    "npm-run-all": "^4.0.2",
+    "qunitjs": "^1.21.0",
+    "rimraf": "^2.6.1",
+    "rollup": "^0.41.6",
+    "rollup-plugin-babel": "^2.7.1",
+    "rollup-plugin-commonjs": "^8.0.2",
+    "rollup-plugin-json": "^2.1.1",
+    "rollup-plugin-multi-entry": "^2.0.1",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-watch": "^3.2.2",
+    "semver": "^5.3.0",
+    "sinon": "^2.2.0",
+    "uglify-js": "^3.0.7",
+    "videojs-playlist": "^3.0.0",
+    "videojs-standard": "^6.0.0"
   },
-  "browserify-shim": {
-    "video.js": "global:videojs"
-  }
+  "generator-videojs-plugin": {
+    "version": "5.0.0"
+  },
+  "vjsstandard": {
+    "ignore": [
+      "dist",
+      "docs",
+      "test/dist",
+      "test/karma.conf.js"
+    ]
+  },
+  "files": [
+    "CONTRIBUTING.md",
+    "dist/",
+    "docs/",
+    "index.html",
+    "scripts/",
+    "src/",
+    "test/"
+  ]
 }
