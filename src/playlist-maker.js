@@ -112,7 +112,7 @@ const indexInSources = (arr, src) => {
  * @return {Function}
  *         Returns the playlist function specific to the given player.
  */
-const factory = (player, initialList, initialIndex = 0) => {
+const factory = (player, initialList, initialIndex = 0, options) => {
   let list = Array.isArray(initialList) ? initialList.slice() : [];
 
   /**
@@ -337,6 +337,16 @@ const factory = (player, initialList, initialIndex = 0) => {
         }
       }
       return playlist.repeat_;
+    },
+
+    /**
+     * Sets custom function replacing the default player.src()
+     * for changing source.
+     *
+     * @param {function}
+     */
+    customSrcFunction(srcFunc) {
+      playlist.customSrcFunction_ = srcFunc;
     }
 
   });
