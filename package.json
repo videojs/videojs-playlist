@@ -1,6 +1,6 @@
 {
-  "name": "videojs-playlist",
-  "version": "4.0.0",
+  "name": "fw-videojs-playlist",
+  "version": "4.0.1",
   "description": "Playlist plugin for Video.js",
   "main": "dist/videojs-playlist.cjs.js",
   "scripts": {
@@ -38,11 +38,11 @@
     "videojs",
     "videojs-plugin"
   ],
-  "author": "Brightcove, Inc.",
+  "author": "Brightcove, Inc., Filmweb Sp. z o. o.",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/brightcove/videojs-playlist"
+    "url": "https://github.com/filmweb-open/fw-videojs-playlist.git"
   },
   "files": [
     "CONTRIBUTING.md",
