@@ -136,17 +136,17 @@ QUnit.test('fires "beforeplaylistitem" and "playlistitem"', function(assert) {
   assert.strictEqual(spy.callCount, 1);
 });
 
-QUnit.test('runs custom src function when provided', function(assert){
+QUnit.test('runs custom src function when provided', function(assert) {
   const player = playerProxyMaker();
-  let srcFunctionUsed = false,
-    item = {
-      sources: [1, 2, 3],
-      poster: 'http://example.com/poster.png'
-    };
+  const item = {
+    sources: [1, 2, 3],
+    poster: 'http://example.com/poster.png'
+  };
+  let srcFunctionUsed = false;
 
   QUnit.expect(3);
 
-  player.playlist.customSrcFunction_ = function(pl, itm){
+  player.playlist.customSrcFunction_ = function(pl, itm) {
     srcFunctionUsed = true;
 
     assert.equal(pl, player, 'player available within custom function');
@@ -158,11 +158,11 @@ QUnit.test('runs custom src function when provided', function(assert){
   assert.ok(srcFunctionUsed, 'custom function used');
 });
 
-QUnit.test('runs default src function when custom not provided', function(assert){
+QUnit.test('runs default src function when custom not provided', function(assert) {
   const player = playerProxyMaker();
   let srcFunctionUsed = false;
 
-  player.src = function(){
+  player.src = function() {
     srcFunctionUsed = true;
   };
 

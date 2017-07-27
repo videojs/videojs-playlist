@@ -112,7 +112,7 @@ const indexInSources = (arr, src) => {
  * @return {Function}
  *         Returns the playlist function specific to the given player.
  */
-const factory = (player, initialList, initialIndex = 0, options) => {
+const factory = (player, initialList, initialIndex = 0) => {
   let list = Array.isArray(initialList) ? initialList.slice() : [];
 
   /**
@@ -343,7 +343,10 @@ const factory = (player, initialList, initialIndex = 0, options) => {
      * Sets custom function replacing the default player.src()
      * for changing source.
      *
-     * @param {function}
+     * @param {Function} srcFunc
+     *        callback function that will be executed instead of player.src(),
+     *        to set new source on playlist item change.
+     *        Callback parameters: player, item.
      */
     customSrcFunction(srcFunc) {
       playlist.customSrcFunction_ = srcFunc;

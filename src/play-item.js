@@ -33,13 +33,13 @@ const clearTracks = (player) => {
  *         The player that is now playing the item
  */
 const playItem = (player, delay, item) => {
-  const replay = !player.paused() || player.ended(),
-      playlist = player.playlist;
+  const replay = !player.paused() || player.ended();
+  const playlist = player.playlist;
 
   player.trigger('beforeplaylistitem', item);
   player.poster(item.poster || '');
 
-  if (playlist.customSrcFunction_ && typeof playlist.customSrcFunction_=== "function"){
+  if (playlist.customSrcFunction_ && typeof playlist.customSrcFunction_ === 'function') {
     playlist.customSrcFunction_(player, item);
   } else {
     player.src(item.sources);
