@@ -1,44 +1,25 @@
 [![Build Status](https://travis-ci.org/brightcove/videojs-playlist.svg?branch=master)](https://travis-ci.org/brightcove/videojs-playlist)
 
-# Playlist Plugin for video.js
+# Filmweb fork of Brightcove Playlist Plugin for video.js
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 
 - [Installation](#installation)
-- [Inclusion](#inclusion)
 - [Basic Usage](#basic-usage)
+- [Fork changes](#fork-changes)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Installation
 
-Install videojs-playlist via npm (preferred):
+Install fw-videojs-playlist via npm (preferred):
 
 ```sh
-$ npm install videojs-playlist
+$ npm install fw-videojs-playlist
 ```
-
-Or Bower:
-
-```sh
-$ bower install videojs-playlist
-```
-
-## Inclusion
-
-Include videojs-playlist on your website using the tool(s) of your choice.
-
-The simplest method of inclusion is a `<script>` tag after the video.js `<script>` tag:
-
-```html
-<script src="path/to/video.js/dist/video.js"></script>
-<script src="path/to/videojs-playlist/dist/videojs-playlist.js"></script>
-```
-
-When installed via npm, videojs-playlist supports Browserify-based workflows out of the box.
 
 ## Basic Usage
 
@@ -82,6 +63,11 @@ player.playlist([{
 // Play through the playlist automatically.
 player.playlist.autoadvance(0);
 ```
+
+## Fork changes
+
+* **TODO** Events: `playlistautoadvance` and `playlistmanualchange` added to easily distinguish between playlist manual change and autoadvance 
+* **TODO** Custom `setSource` function (primarily to allow google-ima integration)
 
 ## License
 
