@@ -66,7 +66,7 @@ player.playlist.autoadvance(0);
 
 ## Fork changes
 
-* **TODO** Events: `playlistautoadvance` and `playlistmanualchange` added to easily distinguish between playlist manual change and autoadvance 
+* Event `playlistautoadvance` added to easily distinguish between playlist change and autoadvance 
 * **TODO** Custom `setSource` function (primarily to allow google-ima integration)
 
 ## License
