@@ -1,3 +1,6 @@
+<a name="4.0.1"></a>
+## [4.0.1](https://github.com/filmweb-open/fw-videojs-playlist/compare/v4.0.0...v4.0.1) (2017-07-27)
+
 <a name="4.0.0"></a>
 # [4.0.0](https://github.com/brightcove/videojs-playlist/compare/v2.0.0...v4.0.0) (2017-05-19)
 

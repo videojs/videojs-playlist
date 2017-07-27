@@ -9,6 +9,8 @@
 - [Installation](#installation)
 - [Basic Usage](#basic-usage)
 - [Fork changes](#fork-changes)
+  - [playlistautoadvance event](#playlistautoadvance-event)
+  - [Custom setSource function](#custom-setsource-function)
 - [License](#license)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -66,8 +68,31 @@ player.playlist.autoadvance(0);
 
 ## Fork changes
 
-* Event `playlistautoadvance` added to easily distinguish between playlist change and autoadvance 
-* **TODO** Custom `setSource` function (primarily to allow google-ima integration)
+### playlistautoadvance event
+Event fires on autoadvance, but not in other playlist change circumstances.
+ 
+### Custom setSource function
+Allows to override default change source behaviour provided by videojs
+on item change. Function is used between `beforeplaylistitem`
+and `playlistitem` events, and allows you extend or replace the default
+`player.src()` method.
+```javascript
+player.playlist.customSrcFunction(function(player,item) { 
+    /*...*/ 
+})
+```
+
+Use case - google IMA plugin:
+````javascript
+player.playlist.customSrcFunction(function(player, item){
+        if (player.ima && typeof player.ima.setContentWithAdTag === 'function') {
+            player.ima.setContentWithAdTag(item.sources, null, true);
+            player.ima.requestAds();
+        } else {
+            player.src(item.sources);
+        }
+    });
+````
 
 ## License
 
