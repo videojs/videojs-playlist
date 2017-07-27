@@ -56,6 +56,7 @@ const setup = (player, delay) => {
   player.playlist.autoadvance_.trigger = function() {
     player.playlist.autoadvance_.timeout = window.setTimeout(() => {
       reset(player);
+      player.trigger('playlistautoadvance');
       player.playlist.next();
     }, delay * 1000);
   };
