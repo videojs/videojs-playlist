@@ -138,3 +138,23 @@ QUnit.test('timeout is given in seconds', function(assert) {
 
   window.setTimeout = oldSetTimeout;
 });
+
+QUnit.asyncTest('fires "playlistautoadvance"', function(assert) {
+  const player = playerProxyMaker();
+  var passed = false;
+
+  expect(1);
+
+  player.on('playlistautoadvance', function() { //confirm test at autoadvance event
+    passed = true;
+  });
+
+  autoadvance.setup(player, 0);
+
+  player.trigger('ended'); //video ended autoadvance should commence
+
+  window.setTimeout(function(){ //making test wait for event to fire
+    assert.equal(passed, true, 'playlistautoadvance event emitted');
+    QUnit.start();
+  }, 10)
+});
