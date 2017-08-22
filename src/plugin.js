@@ -226,17 +226,9 @@ class PlaylistMenu extends Component {
     player.on('adstart', () => {
       this.addClass('vjs-ad-playing');
     });
+
     player.on('adend', () => {
-      if (player.ended()) {
-        // player.ended() is true because the content is done, but the ended event doesn't
-        // trigger until after the postroll is done and the ad implementation has finished
-        // its cycle. We don't consider a postroll ad ended until the "ended" event.
-        player.one('ended', () => {
-          this.removeClass('vjs-ad-playing');
-        });
-      } else {
-        this.removeClass('vjs-ad-playing');
-      }
+      this.removeClass('vjs-ad-playing');
     });
   }
 

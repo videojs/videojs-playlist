@@ -7,6 +7,7 @@ import '../src/plugin';
 
 let realIsHtmlSupported;
 let player;
+let oldVideojsBrowser;
 
 const playlist = [{
   name: 'Movie 1',
@@ -38,6 +39,9 @@ QUnit.test('the environment is sane', function(assert) {
 });
 
 function setup() {
+  oldVideojsBrowser = videojs.browser;
+  videojs.browser = videojs.mergeOptions({}, videojs.browser);
+
   const fixture = document.querySelector('#qunit-fixture');
 
   // force HTML support so the tests run in a reasonable
@@ -63,6 +67,7 @@ function setup() {
 }
 
 function teardown() {
+  videojs.browser = oldVideojsBrowser;
   Html5.isSupported = realIsHtmlSupported;
   player.dispose();
   player = null;
