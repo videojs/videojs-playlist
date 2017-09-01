@@ -12,7 +12,9 @@
   "scripts": {
     "prebuild": "npm run clean",
     "build": "npm-run-all -p build:*",
-    "build:css": "npm-run-all build:css:sass build:css:bannerize",
+    "build:css": "npm-run-all build:css:sass build:css:bannerize build:css:copy-vertical build:css:copy-no-prefix",
+    "build:css:copy-vertical": "cp dist/videojs-playlist-ui.css dist/videojs-playlist-ui.vertical.css",
+    "build:css:copy-no-prefix": "cp dist/videojs-playlist-ui.css dist/videojs-playlist-ui.vertical.no-prefix.css",
     "build:css:bannerize": "bannerize dist/videojs-playlist-ui.css --banner=scripts/banner.ejs",
     "build:css:sass": "node-sass src/plugin.scss dist/videojs-playlist-ui.css --output-style=compressed --linefeed=lf",
     "build:js": "npm-run-all build:js:rollup build:js:bannerize build:js:uglify",
