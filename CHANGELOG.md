@@ -1,3 +1,11 @@
+<a name="3.0.6"></a>
+## [3.0.6](https://github.com/brightcove/videojs-playlist-ui/compare/v3.0.5...v3.0.6) (2017-09-05)
+
+### Bug Fixes
+
+* breaking changed caused by dist files being renamed ([#46](https://github.com/brightcove/videojs-playlist-ui/issues/46)) ([52140f4](https://github.com/brightcove/videojs-playlist-ui/commit/52140f4))
+* simplify removal of vjs-ad-playing class ([#45](https://github.com/brightcove/videojs-playlist-ui/issues/45)) ([b49dc82](https://github.com/brightcove/videojs-playlist-ui/commit/b49dc82))
+
 <a name="3.0.5"></a>
 ## [3.0.5](https://github.com/brightcove/videojs-playlist-ui/compare/v3.0.3...v3.0.5) (2017-05-19)
 
