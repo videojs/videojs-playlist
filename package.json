@@ -1,6 +1,6 @@
 {
   "name": "fw-videojs-playlist",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Playlist plugin for Video.js",
   "main": "dist/videojs-playlist.cjs.js",
   "scripts": {
@@ -55,7 +55,7 @@
   ],
   "dependencies": {
     "global": "^4.3.2",
-    "video.js": "^5.19.2"
+    "video.js": "^6.3.3"
   },
   "devDependencies": {
     "babel-plugin-external-helpers": "^6.22.0",
