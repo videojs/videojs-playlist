@@ -10,10 +10,12 @@ import json from 'rollup-plugin-json';
 import resolve from 'rollup-plugin-node-resolve';
 
 export default {
-  moduleName: 'videojsPlaylist',
-  entry: 'src/plugin.js',
-  dest: 'dist/videojs-playlist.js',
-  format: 'umd',
+  name: 'videojsPlaylist',
+  input: 'src/plugin.js',
+  output: {
+    file: 'dist/videojs-playlist.js',
+    format: 'umd'
+  },
   external: ['video.js'],
   globals: {
     'video.js': 'videojs'
