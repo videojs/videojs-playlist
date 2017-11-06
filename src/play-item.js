@@ -38,9 +38,9 @@ const playItem = (player, delay, item) => {
   player.trigger('beforeplaylistitem', item);
   player.poster(item.poster || '');
   player.src(item.sources);
+  clearTracks(player);
 
   player.ready(() => {
-    clearTracks(player);
     (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
     player.trigger('playlistitem', item);
 
