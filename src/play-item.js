@@ -38,15 +38,18 @@ const playItem = (player, delay, item) => {
   player.trigger('beforeplaylistitem', item);
   player.poster(item.poster || '');
   player.src(item.sources);
-  clearTracks(player);
-  (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
-  player.trigger('playlistitem', item);
 
-  if (replay) {
-    player.play();
-  }
+  player.ready(() => {
+    clearTracks(player);
+    (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
+    player.trigger('playlistitem', item);
 
-  setup(player, delay);
+    if (replay) {
+      player.ready(() => player.play());
+    }
+
+    setup(player, delay);
+  });
 
   return player;
 };
