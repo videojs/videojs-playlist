@@ -9,9 +9,17 @@ import babel from 'rollup-plugin-babel';
 import json from 'rollup-plugin-json';
 
 export default {
-  moduleName: 'videojsPlaylist',
-  entry: 'src/plugin.js',
-  external: ['video.js'],
+  name: 'videojsPlaylist',
+  input: 'src/plugin.js',
+  output: [
+    {file: 'dist/videojs-playlist.cjs.js', format: 'cjs'},
+    {file: 'dist/videojs-playlist.es.js', format: 'es'}
+  ],
+  external: [
+    'global/document',
+    'global/window',
+    'video.js'
+  ],
   globals: {
     'video.js': 'videojs'
   },
@@ -33,9 +41,5 @@ export default {
         'transform-object-assign'
       ]
     })
-  ],
-  targets: [
-    {dest: 'dist/videojs-playlist.cjs.js', format: 'cjs'},
-    {dest: 'dist/videojs-playlist.es.js', format: 'es'}
   ]
 };

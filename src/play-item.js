@@ -39,14 +39,17 @@ const playItem = (player, delay, item) => {
   player.poster(item.poster || '');
   player.src(item.sources);
   clearTracks(player);
-  (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
-  player.trigger('playlistitem', item);
 
-  if (replay) {
-    player.play();
-  }
+  player.ready(() => {
+    (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
+    player.trigger('playlistitem', item);
 
-  setup(player, delay);
+    if (replay) {
+      player.play();
+    }
+
+    setup(player, delay);
+  });
 
   return player;
 };
