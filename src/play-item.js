@@ -45,7 +45,7 @@ const playItem = (player, delay, item) => {
     player.trigger('playlistitem', item);
 
     if (replay) {
-      player.ready(() => player.play());
+      player.play();
     }
 
     setup(player, delay);
