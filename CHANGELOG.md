@@ -1,3 +1,10 @@
+<a name="4.0.2"></a>
+## [4.0.2](https://github.com/brightcove/videojs-playlist/compare/v4.0.1...v4.0.2) (2017-11-13)
+
+### Bug Fixes
+
+* Fix item switching for asynchronous source setting in Video.js 6. ([#85](https://github.com/brightcove/videojs-playlist/issues/85)) ([8a77bf0](https://github.com/brightcove/videojs-playlist/commit/8a77bf0))
+
 <a name="4.0.1"></a>
 ## [4.0.1](https://github.com/brightcove/videojs-playlist/compare/v4.0.0...v4.0.1) (2017-10-16)
 
