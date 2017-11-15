@@ -1,3 +1,10 @@
+<a name="3.1.0"></a>
+# [3.1.0](https://github.com/brightcove/videojs-playlist-ui/compare/v3.0.6...v3.1.0) (2017-11-15)
+
+### Features
+
+* Better support for multiple in-page players by more intelligently finding a player's associated playlist element. ([#50](https://github.com/brightcove/videojs-playlist-ui/issues/50)) ([50bd97c](https://github.com/brightcove/videojs-playlist-ui/commit/50bd97c))
+
 <a name="3.0.6"></a>
 ## [3.0.6](https://github.com/brightcove/videojs-playlist-ui/compare/v3.0.5...v3.0.6) (2017-09-05)
 
