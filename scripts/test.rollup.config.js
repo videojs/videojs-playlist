@@ -7,10 +7,12 @@ import path from 'path';
 const pkg = require(path.resolve(__dirname, '../package.json'));
 
 export default {
-  moduleName: 'videojsPlaylistUiTests',
-  entry: 'test/**/*.test.js',
-  dest: 'test/dist/bundle.js',
-  format: 'iife',
+  name: 'videojsPlaylistUiTests',
+  input: 'test/**/*.test.js',
+  output: {
+    file: 'test/dist/bundle.js',
+    format: 'iife'
+  },
   external: [
     'qunit',
     'qunitjs',

@@ -7,8 +7,13 @@ import path from 'path';
 const pkg = require(path.resolve(__dirname, '../package.json'));
 
 export default {
-  moduleName: 'videojsPlaylistUi',
-  entry: 'src/plugin.js',
+  name: 'videojsPlaylistUi',
+  input: 'src/plugin.js',
+  output: [
+    {file: 'dist/videojs-playlist-ui.js', format: 'umd'},
+    {file: 'dist/videojs-playlist-ui.cjs.js', format: 'cjs'},
+    {file: 'dist/videojs-playlist-ui.es.js', format: 'es'}
+  ],
   external: ['video.js'],
   globals: {
     'video.js': 'videojs'
@@ -43,10 +48,5 @@ export default {
         'transform-object-assign'
       ]
     })
-  ],
-  targets: [
-    {dest: 'dist/videojs-playlist-ui.js', format: 'umd'},
-    {dest: 'dist/videojs-playlist-ui.cjs.js', format: 'cjs'},
-    {dest: 'dist/videojs-playlist-ui.es.js', format: 'es'}
   ]
 };

@@ -1,5 +1,4 @@
 import document from 'global/document';
-import window from 'global/window';
 import videojs from 'video.js';
 
 // support VJS5 & VJS6 at the same time
@@ -196,18 +195,18 @@ class PlaylistMenuItem extends Component {
 
 class PlaylistMenu extends Component {
 
-  constructor(player, settings) {
+  constructor(player, options) {
     if (!player.playlist) {
       throw new Error('videojs-playlist is required for the playlist component');
     }
 
-    super(player, settings);
+    super(player, options);
     this.items = [];
 
     // If CSS pointer events aren't supported, we have to prevent
     // clicking on playlist items during ads with slightly more
     // invasive techniques. Details in the stylesheet.
-    if (settings.supportsCssPointerEvents) {
+    if (options.supportsCssPointerEvents) {
       this.addClass('vjs-csspointerevents');
     }
 
@@ -233,17 +232,7 @@ class PlaylistMenu extends Component {
   }
 
   createEl() {
-    const settings = this.options_;
-
-    if (settings.el) {
-      return settings.el;
-    }
-
-    const ol = document.createElement('ol');
-
-    ol.className = settings.className;
-    settings.el = ol;
-    return ol;
+    return dom.createEl('div', {className: this.options_.className});
   }
 
   createPlaylist_() {
@@ -343,33 +332,83 @@ class PlaylistMenu extends Component {
 }
 
 /**
- * Initialize the plugin.
- * @param options (optional) {object} configuration for the plugin
+ * Returns a boolean indicating whether an element has child elements.
+ *
+ * Note that this is distinct from whether it has child _nodes_.
+ *
+ * @param  {HTMLElement} el
+ *         A DOM element.
+ *
+ * @return {boolean}
+ *         Whether the element has child elements.
+ */
+const hasChildEls = (el) => {
+  for (let i = 0; i < el.childNodes.length; i++) {
+    if (dom.isEl(el.childNodes[i])) {
+      return true;
+    }
+  }
+  return false;
+};
+
+/**
+ * Finds the first empty root element.
+ *
+ * @param  {string} className
+ *         An HTML class name to search for.
+ *
+ * @return {HTMLElement}
+ *         A DOM element to use as the root for a playlist.
+ */
+const findRoot = (className) => {
+  const all = document.querySelectorAll('.' + className);
+  let el;
+
+  for (let i = 0; i < all.length; i++) {
+    if (!hasChildEls(all[i])) {
+      el = all[i];
+      break;
+    }
+  }
+
+  return el;
+};
+
+/**
+ * Initialize the plugin on a player.
+ *
+ * @param  {Object} [options]
+ *         An options object.
+ *
+ * @param  {HTMLElement} [options.el]
+ *         A DOM element to use as a root node for the playlist.
+ *
+ * @param  {string} [options.className]
+ *         An HTML class name to use to find a root node for the playlist.
+ *
+ * @param  {boolean} [options.playOnSelect = false]
+ *         If true, will attempt to begin playback upon selecting a new
+ *         playlist item in the UI.
  */
 const playlistUi = function(options) {
   const player = this;
-  let settings;
-  let elem;
 
   if (!player.playlist) {
-    throw new Error('videojs-playlist is required for the playlist component');
+    throw new Error('videojs-playlist plugin is required by the videojs-playlist-ui plugin');
   }
 
-  // if the first argument is a DOM element, use it to build the component
-  if ((typeof window.HTMLElement !== 'undefined' && options instanceof window.HTMLElement) ||
-      // IE8 does not define HTMLElement so use a hackier type check
-      (options && options.nodeType === 1)) {
-    elem = options;
-    settings = videojs.mergeOptions(defaults);
-  } else {
-    // lookup the elements to use by class name
-    settings = videojs.mergeOptions(defaults, options);
-    elem = document.querySelector('.' + settings.className);
+  if (dom.isEl(options)) {
+    videojs.log.warn('videojs-playlist-ui: Passing an element directly to playlistUi() is deprecated, use the "el" option instead!');
+    options = {el: options};
   }
 
-  // build the playlist menu
-  settings.el = elem;
-  player.playlistMenu = new PlaylistMenu(player, settings);
+  options = videojs.mergeOptions(defaults, options);
+
+  if (!dom.isEl(options.el)) {
+    options.el = findRoot(options.className);
+  }
+
+  player.playlistMenu = new PlaylistMenu(player, options);
 };
 
 // register components
@@ -378,3 +417,5 @@ videojs.registerComponent('PlaylistMenuItem', PlaylistMenuItem);
 
 // register the plugin
 registerPlugin('playlistUi', playlistUi);
+
+export default playlistUi;
