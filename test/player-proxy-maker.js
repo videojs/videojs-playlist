@@ -1,3 +1,4 @@
+import window from 'global/window';
 import extend from 'node.extend';
 import videojs from 'video.js';
 
@@ -23,7 +24,9 @@ const proxy = (props) => {
       next: () => {},
       previous: () => {}
     },
-    ready: (cb) => cb()
+    ready: (cb) => cb(),
+    setTimeout: (cb, wait) => window.setTimeout(cb, wait),
+    clearTimeout: (id) => window.clearTimeout(id)
   }, props);
 
   player.constructor = videojs.getComponent('Player');
