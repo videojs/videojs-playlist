@@ -266,13 +266,13 @@ Examples:
 
 ```js
 
-player.repeat(true);
+player.playlist.repeat(true);
 
-player.repeat();
+player.playlist.repeat();
 // true
 
-player.repeat(false);
-player.repeat();
+player.playlist.repeat(false);
+player.playlist.repeat();
 // false
 
 ```
