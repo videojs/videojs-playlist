@@ -1,4 +1,3 @@
-import window from 'global/window';
 
 /**
  * Validates a number of seconds to use as the auto-advance delay.
@@ -20,16 +19,19 @@ const validSeconds = s =>
  *        The player to reset the behavior on
  */
 let reset = (player) => {
-  if (player.playlist.autoadvance_.timeout) {
-    window.clearTimeout(player.playlist.autoadvance_.timeout);
+  const aa = player.playlist.autoadvance_;
+
+  if (aa.timeout) {
+    player.clearTimeout(aa.timeout);
   }
 
-  if (player.playlist.autoadvance_.trigger) {
-    player.off('ended', player.playlist.autoadvance_.trigger);
+  if (aa.trigger) {
+    player.off('ended', aa.trigger);
   }
 
-  player.playlist.autoadvance_.timeout = null;
-  player.playlist.autoadvance_.trigger = null;
+  aa.delay = null;
+  aa.timeout = null;
+  aa.trigger = null;
 };
 
 /**
@@ -50,11 +52,14 @@ const setup = (player, delay) => {
   // Before queuing up new auto-advance behavior, check if `seconds` was
   // called with a valid value.
   if (!validSeconds(delay)) {
+    player.playlist.autoadvance_.delay = null;
     return;
   }
 
+  player.playlist.autoadvance_.delay = delay;
+
   player.playlist.autoadvance_.trigger = function() {
-    player.playlist.autoadvance_.timeout = window.setTimeout(() => {
+    player.playlist.autoadvance_.timeout = player.setTimeout(() => {
       reset(player);
       player.playlist.next();
     }, delay * 1000);
