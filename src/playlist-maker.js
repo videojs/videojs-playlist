@@ -1,3 +1,4 @@
+import videojs from 'video.js';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
@@ -356,6 +357,11 @@ export default function factory(player, initialList, initialIndex = 0) {
   playlist.repeat = (val) => {
     if (val === undefined) {
       return playlist.repeat_;
+    }
+
+    if (typeof val !== 'boolean') {
+      videojs.log.error('videojs-playlist: Invalid value for repeat', val);
+      return;
     }
 
     playlist.repeat_ = !!val;
