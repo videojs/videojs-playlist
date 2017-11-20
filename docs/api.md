@@ -167,7 +167,7 @@ player.playlist.contains({
 // 4
 ```
 
-#### `player.playlist.indexOfLast() -> Number`
+#### `player.playlist.lastIndex() -> Number`
 
 Get the index of the last item in the playlist.
 
@@ -186,12 +186,12 @@ var samplePlaylist = [{
   poster: 'http://media.w3.org/2010/05/bunny/poster.png'
 }];
 
-player.indexOfLast();
+player.lastIndex();
 // 1
 ```
 
 
-#### `player.playlist.indexOfNext() -> Number`
+#### `player.playlist.nextIndex() -> Number`
 
 Get the index of the next item in the playlist.
 
@@ -216,23 +216,23 @@ var samplePlaylist = [{
 
 player.playlist(samplePlaylist);
 
-player.indexOfNext();
+player.nextIndex();
 // 1
 
 player.next();
-player.indexOfNext();
+player.nextIndex();
 // 1
 
 player.repeat(true);
-player.indexOfNext();
+player.nextIndex();
 // 0
 
 player.src('http://example.com/video.mp4');
-player.playlist.indexOfNext();
+player.playlist.nextIndex();
 // -1
 ```
 
-#### `player.playlist.indexOfPrevious() -> Number`
+#### `player.playlist.previousIndex() -> Number`
 
 Get the index of the previous item in the playlist.
 
@@ -257,19 +257,19 @@ var samplePlaylist = [{
 
 player.playlist(samplePlaylist, 1);
 
-player.indexOfPrevious();
+player.previousIndex();
 // 0
 
 player.previous();
-player.indexOfPrevious();
+player.previousIndex();
 // 0
 
 player.repeat(true);
-player.indexOfPrevious();
+player.previousIndex();
 // 1
 
 player.src('http://example.com/video.mp4');
-player.playlist.indexOfPrevious();
+player.playlist.previousIndex();
 // -1
 ```
 
