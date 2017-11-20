@@ -220,15 +220,21 @@ export default function factory(player, initialList, initialIndex = 0) {
   };
 
   /**
+   * Get the index of the current item in the playlist.
+   *
+   * @return {number}
+   *         The current item index.
+   */
+  playlist.currentIndex = () => playlist.currentItem();
+
+  /**
    * Get the index of the last item in the playlist.
    *
    * @return {number}
    *         The index of the last item in the playlist or -1 if there are no
    *         items.
    */
-  playlist.lastIndex = () => {
-    return list.length - 1;
-  };
+  playlist.lastIndex = () => list.length - 1;
 
   /**
    * Get the index of the next item in the playlist.
