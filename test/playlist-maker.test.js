@@ -490,51 +490,51 @@ QUnit.test('playlist.indexOf() works as expected', function(assert) {
   );
 });
 
-QUnit.test('playlist.indexOfNext() works as expected', function(assert) {
+QUnit.test('playlist.nextIndex() works as expected', function(assert) {
   const playlist = playlistMaker(playerProxyMaker(), []);
 
-  assert.equal(playlist.indexOfNext(), -1, 'the next index was -1 for an empty list');
+  assert.equal(playlist.nextIndex(), -1, 'the next index was -1 for an empty list');
 
   playlist([1, 2, 3]);
   playlist.currentItem = () => 0;
-  assert.equal(playlist.indexOfNext(), 1, 'the next index was 1');
+  assert.equal(playlist.nextIndex(), 1, 'the next index was 1');
 
   playlist.currentItem = () => 1;
-  assert.equal(playlist.indexOfNext(), 2, 'the next index was 2');
+  assert.equal(playlist.nextIndex(), 2, 'the next index was 2');
 
   playlist.currentItem = () => 2;
-  assert.equal(playlist.indexOfNext(), 2, 'the next index did not change because the playlist does not repeat');
+  assert.equal(playlist.nextIndex(), 2, 'the next index did not change because the playlist does not repeat');
 
   playlist.repeat(true);
-  assert.equal(playlist.indexOfNext(), 0, 'the next index was now 0 because the playlist repeats');
+  assert.equal(playlist.nextIndex(), 0, 'the next index was now 0 because the playlist repeats');
 });
 
-QUnit.test('playlist.indexOfPrevious() works as expected', function(assert) {
+QUnit.test('playlist.previousIndex() works as expected', function(assert) {
   const playlist = playlistMaker(playerProxyMaker(), []);
 
-  assert.equal(playlist.indexOfPrevious(), -1, 'the previous index was -1 for an empty list');
+  assert.equal(playlist.previousIndex(), -1, 'the previous index was -1 for an empty list');
 
   playlist([1, 2, 3]);
   playlist.currentItem = () => 2;
-  assert.equal(playlist.indexOfPrevious(), 1, 'the previous index was 1');
+  assert.equal(playlist.previousIndex(), 1, 'the previous index was 1');
 
   playlist.currentItem = () => 1;
-  assert.equal(playlist.indexOfPrevious(), 0, 'the previous index was 0');
+  assert.equal(playlist.previousIndex(), 0, 'the previous index was 0');
 
   playlist.currentItem = () => 0;
-  assert.equal(playlist.indexOfPrevious(), 0, 'the previous index did not change because the playlist does not repeat');
+  assert.equal(playlist.previousIndex(), 0, 'the previous index did not change because the playlist does not repeat');
 
   playlist.repeat(true);
-  assert.equal(playlist.indexOfPrevious(), 2, 'the previous index was now 2 because the playlist repeats');
+  assert.equal(playlist.previousIndex(), 2, 'the previous index was now 2 because the playlist repeats');
 });
 
-QUnit.test('playlist.indexOfLast() works as expected', function(assert) {
+QUnit.test('playlist.lastIndex() works as expected', function(assert) {
   const playlist = playlistMaker(playerProxyMaker(), []);
 
-  assert.equal(playlist.indexOfLast(), -1, 'the last index was -1 for an empty list');
+  assert.equal(playlist.lastIndex(), -1, 'the last index was -1 for an empty list');
 
   playlist([1, 2, 3]);
-  assert.equal(playlist.indexOfLast(), 2, 'the last index was 2');
+  assert.equal(playlist.lastIndex(), 2, 'the last index was 2');
 });
 
 QUnit.test('playlist.next() works as expected', function(assert) {

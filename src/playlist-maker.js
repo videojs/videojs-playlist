@@ -225,7 +225,7 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The index of the last item in the playlist or -1 if there are no
    *         items.
    */
-  playlist.indexOfLast = () => {
+  playlist.lastIndex = () => {
     return list.length - 1;
   };
 
@@ -236,14 +236,14 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The index of the next item in the playlist or -1 if there is no
    *         current item.
    */
-  playlist.indexOfNext = () => {
+  playlist.nextIndex = () => {
     const current = playlist.currentItem();
 
     if (current === -1) {
       return -1;
     }
 
-    const lastIndex = playlist.indexOfLast();
+    const lastIndex = playlist.lastIndex();
 
     // When repeating, loop back to the beginning on the last item.
     if (playlist.repeat_ && current === lastIndex) {
@@ -261,7 +261,7 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The index of the previous item in the playlist or -1 if there is
    *         no current item.
    */
-  playlist.indexOfPrevious = () => {
+  playlist.previousIndex = () => {
     const current = playlist.currentItem();
 
     if (current === -1) {
@@ -270,7 +270,7 @@ export default function factory(player, initialList, initialIndex = 0) {
 
     // When repeating, loop back to the end of the playlist.
     if (playlist.repeat_ && current === 0) {
-      return playlist.indexOfLast();
+      return playlist.lastIndex();
     }
 
     // Don't go past the beginning of the playlist.
@@ -299,7 +299,7 @@ export default function factory(player, initialList, initialIndex = 0) {
    */
   playlist.last = () => {
     if (list.length) {
-      return list[playlist.currentItem(playlist.indexOfLast())];
+      return list[playlist.currentItem(playlist.lastIndex())];
     }
 
     playlist.currentIndex_ = -1;
@@ -312,7 +312,7 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         Returns undefined and has no side effects if on last item.
    */
   playlist.next = () => {
-    const index = playlist.indexOfNext();
+    const index = playlist.nextIndex();
 
     if (index !== playlist.currentIndex_) {
       return list[playlist.currentItem(index)];
@@ -326,7 +326,7 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         Returns undefined and has no side effects if on first item.
    */
   playlist.previous = () => {
-    const index = playlist.indexOfPrevious();
+    const index = playlist.previousIndex();
 
     if (index !== playlist.currentIndex_) {
       return list[playlist.currentItem(index)];
