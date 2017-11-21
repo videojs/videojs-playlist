@@ -29,7 +29,6 @@ let reset = (player) => {
     player.off('ended', aa.trigger);
   }
 
-  aa.delay = null;
   aa.timeout = null;
   aa.trigger = null;
 };
