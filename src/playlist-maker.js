@@ -167,7 +167,6 @@ export default function factory(player, initialList, initialIndex = 0) {
       playlist.currentIndex_ = index;
       playItem(
         playlist.player_,
-        playlist.autoadvance_.delay,
         list[playlist.currentIndex_]
       );
     } else {

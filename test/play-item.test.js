@@ -40,7 +40,7 @@ QUnit.test('will not try to play if paused', function(assert) {
     tryPlay = true;
   };
 
-  playItem(player, null, {
+  playItem(player, {
     sources: [1, 2, 3],
     textTracks: [4, 5, 6],
     poster: 'http://example.com/poster.png'
@@ -61,7 +61,7 @@ QUnit.test('will try to play if not paused', function(assert) {
     tryPlay = true;
   };
 
-  playItem(player, null, {
+  playItem(player, {
     sources: [1, 2, 3],
     textTracks: [4, 5, 6],
     poster: 'http://example.com/poster.png'
@@ -86,7 +86,7 @@ QUnit.test('will not try to play if paused and not ended', function(assert) {
     tryPlay = true;
   };
 
-  playItem(player, null, {
+  playItem(player, {
     sources: [1, 2, 3],
     textTracks: [4, 5, 6],
     poster: 'http://example.com/poster.png'
@@ -111,7 +111,7 @@ QUnit.test('will try to play if paused and ended', function(assert) {
     tryPlay = true;
   };
 
-  playItem(player, null, {
+  playItem(player, {
     sources: [1, 2, 3],
     poster: 'http://example.com/poster.png'
   });
@@ -127,7 +127,7 @@ QUnit.test('fires "beforeplaylistitem" and "playlistitem"', function(assert) {
   player.on('beforeplaylistitem', beforeSpy);
   player.on('playlistitem', spy);
 
-  playItem(player, null, {
+  playItem(player, {
     sources: [1, 2, 3],
     poster: 'http://example.com/poster.png'
   });
