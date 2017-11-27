@@ -23,16 +23,13 @@ const clearTracks = (player) => {
  * @param  {Player} player
  *         The player to play the item on
  *
- * @param  {number} delay
- *         The number of seconds to wait before each auto-advance.
- *
  * @param  {Object} item
  *         A source from the playlist.
  *
  * @return {Player}
  *         The player that is now playing the item
  */
-const playItem = (player, delay, item) => {
+const playItem = (player, item) => {
   const replay = !player.paused() || player.ended();
 
   player.trigger('beforeplaylistitem', item);
@@ -48,7 +45,7 @@ const playItem = (player, delay, item) => {
       player.play();
     }
 
-    setup(player, delay);
+    setup(player, player.playlist.autoadvance_.delay);
   });
 
   return player;
