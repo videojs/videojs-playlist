@@ -167,9 +167,9 @@ player.playlist.contains({
 // 4
 ```
 
-#### `player.playlist.lastIndex() -> Number`
+#### `player.playlist.currentIndex() -> Number`
 
-Get the index of the last item in the playlist.
+Get the index of the current item in the playlist. This is identical to calling `currentItem()` with no arguments.
 
 ```js
 var samplePlaylist = [{
@@ -186,10 +186,9 @@ var samplePlaylist = [{
   poster: 'http://media.w3.org/2010/05/bunny/poster.png'
 }];
 
-player.lastIndex();
-// 1
+player.currentIndex();
+// 0
 ```
-
 
 #### `player.playlist.nextIndex() -> Number`
 
@@ -271,6 +270,29 @@ player.previousIndex();
 player.src('http://example.com/video.mp4');
 player.playlist.previousIndex();
 // -1
+```
+
+#### `player.playlist.lastIndex() -> Number`
+
+Get the index of the last item in the playlist.
+
+```js
+var samplePlaylist = [{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}];
+
+player.lastIndex();
+// 1
 ```
 
 #### `player.playlist.first() -> Object|undefined`
