@@ -1,4 +1,3 @@
-import window from 'global/window';
 import QUnit from 'qunit';
 import sinon from 'sinon';
 import playlistMaker from '../src/playlist-maker';
@@ -37,7 +36,7 @@ const videoList = [{
   poster: 'http://media.w3.org/2010/05/video/poster.png'
 }];
 
-QUnit.module('playlist', {
+QUnit.module('playlist-maker', {
 
   beforeEach() {
     this.clock = sinon.useFakeTimers();
@@ -48,30 +47,27 @@ QUnit.module('playlist', {
   }
 });
 
-QUnit.test(
-  'playlistMaker takes a player and a list and returns a playlist',
-  function(assert) {
-    const playlist = playlistMaker(playerProxyMaker(), []);
+QUnit.test('playlistMaker takes a player and a list and returns a playlist', function(assert) {
+  const playlist = playlistMaker(playerProxyMaker(), []);
 
-    assert.equal(typeof playlist, 'function', 'playlist is a function');
-    assert.equal(
-      typeof playlist.autoadvance,
-      'function',
-      'we have a autoadvance function'
-    );
+  assert.equal(typeof playlist, 'function', 'playlist is a function');
+  assert.equal(
+    typeof playlist.autoadvance,
+    'function',
+    'we have a autoadvance function'
+  );
 
-    assert.equal(
-      typeof playlist.currentItem,
-      'function',
-      'we have a currentItem function'
-    );
+  assert.equal(
+    typeof playlist.currentItem,
+    'function',
+    'we have a currentItem function'
+  );
 
-    assert.equal(typeof playlist.first, 'function', 'we have a first function');
-    assert.equal(typeof playlist.indexOf, 'function', 'we have a indexOf function');
-    assert.equal(typeof playlist.next, 'function', 'we have a next function');
-    assert.equal(typeof playlist.previous, 'function', 'we have a previous function');
-  }
-);
+  assert.equal(typeof playlist.first, 'function', 'we have a first function');
+  assert.equal(typeof playlist.indexOf, 'function', 'we have a indexOf function');
+  assert.equal(typeof playlist.next, 'function', 'we have a next function');
+  assert.equal(typeof playlist.previous, 'function', 'we have a previous function');
+});
 
 QUnit.test('playlistMaker can either take nothing or an Array as its first argument', function(assert) {
   const playlist1 = playlistMaker(playerProxyMaker());
@@ -183,48 +179,45 @@ QUnit.test('playlist.currentItem() returns -1 with an empty playlist', function(
   assert.equal(playlist.currentItem(), -1, 'we should get a -1 with an empty playlist');
 });
 
-QUnit.test(
-  'playlist.currentItem() does not change items if same index is given',
-  function(assert) {
-    const player = playerProxyMaker();
-    let sources = 0;
-    let src;
+QUnit.test('playlist.currentItem() does not change items if same index is given', function(assert) {
+  const player = playerProxyMaker();
+  let sources = 0;
+  let src;
 
-    player.src = function(s) {
-      if (s) {
-        if (typeof s === 'string') {
-          src = s;
-        } else if (Array.isArray(s)) {
-          return player.src(s[0]);
-        } else {
-          return player.src(s.src);
-        }
+  player.src = function(s) {
+    if (s) {
+      if (typeof s === 'string') {
+        src = s;
+      } else if (Array.isArray(s)) {
+        return player.src(s[0]);
+      } else {
+        return player.src(s.src);
       }
+    }
 
-      sources++;
-    };
+    sources++;
+  };
 
-    player.currentSrc = function() {
-      return src;
-    };
+  player.currentSrc = function() {
+    return src;
+  };
 
-    const playlist = playlistMaker(player, videoList);
+  const playlist = playlistMaker(player, videoList);
 
-    assert.equal(sources, 1, 'we switched to the first playlist item');
-    sources = 0;
+  assert.equal(sources, 1, 'we switched to the first playlist item');
+  sources = 0;
 
-    assert.equal(playlist.currentItem(), 0, 'we start at index 0');
+  assert.equal(playlist.currentItem(), 0, 'we start at index 0');
 
-    playlist.currentItem(0);
-    assert.equal(sources, 0, 'we did not try to set sources');
+  playlist.currentItem(0);
+  assert.equal(sources, 0, 'we did not try to set sources');
 
-    playlist.currentItem(1);
-    assert.equal(sources, 1, 'we did try to set sources');
+  playlist.currentItem(1);
+  assert.equal(sources, 1, 'we did try to set sources');
 
-    playlist.currentItem(1);
-    assert.equal(sources, 1, 'we did not try to set sources');
-  }
-);
+  playlist.currentItem(1);
+  assert.equal(sources, 1, 'we did not try to set sources');
+});
 
 QUnit.test('playlistMaker accepts a starting index', function(assert) {
   const player = playerProxyMaker();
@@ -251,7 +244,6 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
   assert.equal(
     playlist.currentItem(), 1, 'if given an initial index, load that video'
   );
-
 });
 
 QUnit.test('playlistMaker accepts a starting index', function(assert) {
@@ -279,7 +271,6 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
   assert.equal(
     playlist.currentItem(), -1, 'if given -1 as initial index, load no video'
   );
-
 });
 
 QUnit.test('playlist.contains() works as expected', function(assert) {
@@ -499,6 +490,53 @@ QUnit.test('playlist.indexOf() works as expected', function(assert) {
   );
 });
 
+QUnit.test('playlist.nextIndex() works as expected', function(assert) {
+  const playlist = playlistMaker(playerProxyMaker(), []);
+
+  assert.equal(playlist.nextIndex(), -1, 'the next index was -1 for an empty list');
+
+  playlist([1, 2, 3]);
+  playlist.currentItem = () => 0;
+  assert.equal(playlist.nextIndex(), 1, 'the next index was 1');
+
+  playlist.currentItem = () => 1;
+  assert.equal(playlist.nextIndex(), 2, 'the next index was 2');
+
+  playlist.currentItem = () => 2;
+  assert.equal(playlist.nextIndex(), 2, 'the next index did not change because the playlist does not repeat');
+
+  playlist.repeat(true);
+  assert.equal(playlist.nextIndex(), 0, 'the next index was now 0 because the playlist repeats');
+});
+
+QUnit.test('playlist.previousIndex() works as expected', function(assert) {
+  const playlist = playlistMaker(playerProxyMaker(), []);
+
+  assert.equal(playlist.previousIndex(), -1, 'the previous index was -1 for an empty list');
+
+  playlist([1, 2, 3]);
+  playlist.currentItem = () => 2;
+  assert.equal(playlist.previousIndex(), 1, 'the previous index was 1');
+
+  playlist.currentItem = () => 1;
+  assert.equal(playlist.previousIndex(), 0, 'the previous index was 0');
+
+  playlist.currentItem = () => 0;
+  assert.equal(playlist.previousIndex(), 0, 'the previous index did not change because the playlist does not repeat');
+
+  playlist.repeat(true);
+  assert.equal(playlist.previousIndex(), 2, 'the previous index was now 2 because the playlist repeats');
+});
+
+QUnit.test('playlist.lastIndex() works as expected', function(assert) {
+  const playlist = playlistMaker(playerProxyMaker(), []);
+
+  assert.equal(playlist.lastIndex(), -1, 'the last index was -1 for an empty list');
+
+  playlist([1, 2, 3]);
+  assert.equal(playlist.lastIndex(), 2, 'the last index was 2');
+});
+
 QUnit.test('playlist.next() works as expected', function(assert) {
   const player = playerProxyMaker();
   const playlist = playlistMaker(player, videoList);
@@ -584,77 +622,124 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
   );
 });
 
-QUnit.test(
-  'loading a non-playlist video will cancel autoadvance and set index of -1',
-  function(assert) {
-    const oldReset = autoadvance.reset;
-    const player = playerProxyMaker();
+QUnit.test('loading a non-playlist video will cancel autoadvance and set index of -1', function(assert) {
+  const oldReset = autoadvance.reset;
+  const player = playerProxyMaker();
 
-    const playlist = playlistMaker(player, [{
-      sources: [{
-        src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
-        type: 'video/mp4'
-      }],
-      poster: 'http://media.w3.org/2010/05/sintel/poster.png'
-    }, {
-      sources: [{
-        src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
-        type: 'video/mp4'
-      }],
-      poster: 'http://media.w3.org/2010/05/bunny/poster.png'
-    }]);
+  const playlist = playlistMaker(player, [{
+    sources: [{
+      src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+      type: 'video/mp4'
+    }],
+    poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  }, {
+    sources: [{
+      src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+      type: 'video/mp4'
+    }],
+    poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  }]);
 
-    player.currentSrc = function() {
-      return 'http://vjs.zencdn.net/v/oceans.mp4';
-    };
+  player.currentSrc = function() {
+    return 'http://vjs.zencdn.net/v/oceans.mp4';
+  };
 
-    autoadvance.setReset_(function() {
-      assert.ok(true, 'autoadvance.reset was called');
-    });
-
-    player.trigger('loadstart');
-
-    assert.equal(playlist.currentItem(), -1, 'new currentItem is -1');
-
-    player.currentSrc = function() {
-      return 'http://media.w3.org/2010/05/sintel/trailer.mp4';
-    };
-
-    autoadvance.setReset_(function() {
-      assert.ok(false, 'autoadvance.reset should not be called');
-    });
-
-    player.trigger('loadstart');
-
-    autoadvance.setReset_(oldReset);
-  }
-);
-
-QUnit.test(
-  'when loading a new playlist, trigger "playlistchange" on the player',
-  function(assert) {
-    const spy = sinon.spy();
-    const player = playerProxyMaker();
-
-    player.on('playlistchange', spy);
-    const playlist = playlistMaker(player, [1, 2, 3]);
-
-    playlist([4, 5, 6]);
-    this.clock.tick(1);
-
-    assert.strictEqual(spy.callCount, 1);
-    assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  autoadvance.setReset_(function() {
+    assert.ok(true, 'autoadvance.reset was called');
   });
 
-QUnit.test('clearTimeout on dispose', function(assert) {
+  player.trigger('loadstart');
+
+  assert.equal(playlist.currentItem(), -1, 'new currentItem is -1');
+
+  player.currentSrc = function() {
+    return 'http://media.w3.org/2010/05/sintel/trailer.mp4';
+  };
+
+  autoadvance.setReset_(function() {
+    assert.ok(false, 'autoadvance.reset should not be called');
+  });
+
+  player.trigger('loadstart');
+
+  autoadvance.setReset_(oldReset);
+});
+
+QUnit.test('when loading a new playlist, trigger "playlistchange" on the player', function(assert) {
+  const spy = sinon.spy();
   const player = playerProxyMaker();
+
+  player.on('playlistchange', spy);
   const playlist = playlistMaker(player, [1, 2, 3]);
 
-  playlist([1, 2, 3]);
-  const clearSpy = sinon.spy(window, 'clearTimeout');
+  playlist([4, 5, 6]);
+  this.clock.tick(1);
 
-  player.trigger('dispose');
+  assert.strictEqual(spy.callCount, 1);
+  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+});
 
-  assert.strictEqual(clearSpy.callCount, 1);
-  clearSpy.restore();
+QUnit.test('playlist.sort() works as expected', function(assert) {
+  const player = playerProxyMaker();
+  const spy = sinon.spy();
+
+  player.on('playlistsorted', spy);
+  const playlist = playlistMaker(player, []);
+
+  playlist.sort();
+  assert.deepEqual(playlist(), [], 'playlist did not change because it is empty');
+  assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event did not trigger');
+
+  playlist([4, 2, 1, 3]);
+
+  playlist.sort();
+  assert.deepEqual(playlist(), [1, 2, 3, 4], 'playlist is sorted per default sort behavior');
+  assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
+
+  playlist.sort((a, b) => b - a);
+  assert.deepEqual(playlist(), [4, 3, 2, 1], 'playlist is sorted per default sort behavior');
+  assert.strictEqual(spy.callCount, 2, 'the "playlistsorted" event triggered');
+});
+
+QUnit.test('playlist.reverse() works as expected', function(assert) {
+  const player = playerProxyMaker();
+  const spy = sinon.spy();
+
+  player.on('playlistsorted', spy);
+  const playlist = playlistMaker(player, []);
+
+  playlist.reverse();
+  assert.deepEqual(playlist(), [], 'playlist did not change because it is empty');
+  assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event did not trigger');
+
+  playlist([1, 2, 3, 4]);
+
+  playlist.reverse();
+  assert.deepEqual(playlist(), [4, 3, 2, 1], 'playlist is reversed');
+  assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
+});
+
+QUnit.test('playlist.shuffle() works as expected', function(assert) {
+  const player = playerProxyMaker();
+  const spy = sinon.spy();
+
+  player.on('playlistsorted', spy);
+  const playlist = playlistMaker(player, []);
+
+  playlist.shuffle();
+  assert.deepEqual(playlist(), [], 'playlist did not change because it is empty');
+  assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event did not trigger');
+
+  playlist([1, 2, 3, 4]);
+
+  playlist.shuffle();
+
+  const list = playlist();
+
+  assert.strictEqual(list.length, 4, 'playlist is the correct length');
+  assert.notStrictEqual(list.indexOf(1), -1, '1 is in the list');
+  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
+  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
+  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
+  assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 });

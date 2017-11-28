@@ -1,18 +1,16 @@
-# video.js Playlist Plugin API
-
-## Table of Contents
+# video.js Playlist API
 
 ## Playlist Item Object
 
 A playlist is an array of playlist items. A playlist item is an object with the following properties:
 
-| Property   | Type   | Optional | Description                                    |
-| ---------- | ------ | -------- | ---------------------------------------------- |
-| `sources`  | Array  |          | An array of sources that video.js understands. |
-| `poster`   | String | ✓        | A poster image to display for these sources.   |
+| Property     | Type   | Optional | Description                                        |
+| ------------ | ------ | -------- | -------------------------------------------------- |
+| `sources`    | Array  |          | An array of sources that video.js understands.     |
+| `poster`     | String | ✓        | A poster image to display for these sources.       |
+| `textTracks` | Array  | ✓        | An array of text tracks that Video.js understands. |
 
 ## Methods
-
 ### `player.playlist([Array newList], [Number newIndex]) -> Array`
 
 Get or set the current playlist for a player.
@@ -106,13 +104,14 @@ var samplePlaylist = [{
   poster: 'http://media.w3.org/2010/05/bunny/poster.png'
 }];
 
+player.playlist(samplePlaylist);
+
 player.currentItem();
 // 0
 
 player.currentItem(2);
 // 2
 
-player.playlist(samplePlaylist);
 player.src('http://example.com/video.mp4');
 player.playlist.currentItem();
 // -1
@@ -166,6 +165,134 @@ player.playlist.contains({
   }]
 });
 // 4
+```
+
+#### `player.playlist.currentIndex() -> Number`
+
+Get the index of the current item in the playlist. This is identical to calling `currentItem()` with no arguments.
+
+```js
+var samplePlaylist = [{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}];
+
+player.currentIndex();
+// 0
+```
+
+#### `player.playlist.nextIndex() -> Number`
+
+Get the index of the next item in the playlist.
+
+If the player is on the last item, returns the last item's index. However, if the playlist repeats and is on the last item, returns `0`.
+
+If the player is currently playing a non-playlist video, it will return `-1`.
+
+```js
+var samplePlaylist = [{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}];
+
+player.playlist(samplePlaylist);
+
+player.nextIndex();
+// 1
+
+player.next();
+player.nextIndex();
+// 1
+
+player.repeat(true);
+player.nextIndex();
+// 0
+
+player.src('http://example.com/video.mp4');
+player.playlist.nextIndex();
+// -1
+```
+
+#### `player.playlist.previousIndex() -> Number`
+
+Get the index of the previous item in the playlist.
+
+If the player is on the first item, returns `0`. However, if the playlist repeats and is on the first item, returns the last item's index.
+
+If the player is currently playing a non-playlist video, it will return `-1`.
+
+```js
+var samplePlaylist = [{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}];
+
+player.playlist(samplePlaylist, 1);
+
+player.previousIndex();
+// 0
+
+player.previous();
+player.previousIndex();
+// 0
+
+player.repeat(true);
+player.previousIndex();
+// 1
+
+player.src('http://example.com/video.mp4');
+player.playlist.previousIndex();
+// -1
+```
+
+#### `player.playlist.lastIndex() -> Number`
+
+Get the index of the last item in the playlist.
+
+```js
+var samplePlaylist = [{
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+}];
+
+player.lastIndex();
+// 1
 ```
 
 #### `player.playlist.first() -> Object|undefined`
@@ -277,6 +404,24 @@ player.playlist.repeat();
 
 ```
 
+#### `player.playlist.sort([Function compare]) -> undefined`
+
+Sort the playlist in a manner identical to [`Array#sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort).
+
+Fires the `playlistsorted` event after sorting.
+
+#### `player.playlist.reverse() -> undefined`
+
+Reverse the playlist in a manner identical to [`Array#reverse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse).
+
+Fires the `playlistsorted` event after reversing.
+
+#### `player.playlist.shuffle() -> undefined`
+
+Shuffles/randomizes the order of playlist items in a manner identical to [`lodash.shuffle`](https://lodash.com/docs/4.17.4#shuffle).
+
+Fires the `playlistsorted` event after shuffling.
+
 ## Events
 
 ### `playlistchange`
@@ -304,3 +449,7 @@ This event is fired before switching to a new content source within a playlist (
 ### `playlistitem`
 
 This event is fired when switching to a new content source within a playlist (i.e., when any of `currentItem()`, `first()`, or `last()` is called; after the player's state has been changed, but before playback has been resumed).
+
+### `playlistsorted`
+
+This event is fired when any method is called that changes the order of playlist items - `sort()`, `reverse()`, or `shuffle()`.

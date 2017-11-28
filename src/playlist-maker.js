@@ -1,16 +1,6 @@
 import videojs from 'video.js';
-import window from 'global/window';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
-
-// Lightweight Object.assign alternative.
-const assign = (target, source) => {
-  for (const key in source) {
-    if (source.hasOwnProperty(key)) {
-      target[key] = source[key];
-    }
-  }
-};
 
 /**
  * Given two sources, check to see whether the two sources are equal.
@@ -112,7 +102,7 @@ const indexInSources = (arr, src) => {
  * @return {Function}
  *         Returns the playlist function specific to the given player.
  */
-const factory = (player, initialList, initialIndex = 0) => {
+export default function factory(player, initialList, initialIndex = 0) {
   let list = Array.isArray(initialList) ? initialList.slice() : [];
 
   /**
@@ -133,217 +123,343 @@ const factory = (player, initialList, initialIndex = 0) => {
    * @return {Array}
    *         The playlist
    */
-  const playlist = player.playlist = function(newList, newIndex = 0) {
+  const playlist = player.playlist = (newList, newIndex = 0) => {
     if (Array.isArray(newList)) {
       list = newList.slice();
       if (newIndex !== -1) {
         playlist.currentItem(newIndex);
       }
-      playlist.changeTimeout_ = window.setTimeout(() => {
-        player.trigger('playlistchange');
-      }, 0);
+      player.setTimeout(() => player.trigger('playlistchange'), 0);
     }
 
     // Always return a shallow clone of the playlist list.
     return list.slice();
   };
 
+  // On a new source, if there is no current item, disable auto-advance.
   player.on('loadstart', () => {
     if (playlist.currentItem() === -1) {
       autoadvance.reset(player);
     }
   });
 
-  player.on('dispose', () => {
-    window.clearTimeout(playlist.changeTimeout_);
-  });
+  playlist.currentIndex_ = -1;
+  playlist.player_ = player;
+  playlist.autoadvance_ = {};
+  playlist.repeat_ = false;
 
-  assign(playlist, {
-    currentIndex_: -1,
-    player_: player,
-    autoadvance_: {},
-    repeat_: false,
+  /**
+   * Get or set the current item in the playlist.
+   *
+   * @param  {number} [index]
+   *         If given as a valid value, plays the playlist item at that index.
+   *
+   * @return {number}
+   *         The current item index.
+   */
+  playlist.currentItem = (index) => {
+    if (
+      typeof index === 'number' &&
+      playlist.currentIndex_ !== index &&
+      index >= 0 &&
+      index < list.length
+    ) {
+      playlist.currentIndex_ = index;
+      playItem(
+        playlist.player_,
+        list[playlist.currentIndex_]
+      );
+    } else {
+      playlist.currentIndex_ = playlist.indexOf(playlist.player_.currentSrc() || '');
+    }
 
-    /**
-     * Get or set the current item in the playlist.
-     *
-     * @param  {number} [index]
-     *         If given as a valid value, plays the playlist item at that index.
-     *
-     * @return {number}
-     *         The current item index.
-     */
-    currentItem(index) {
-      if (
-        typeof index === 'number' &&
-        playlist.currentIndex_ !== index &&
-        index >= 0 &&
-        index < list.length
-      ) {
-        playlist.currentIndex_ = index;
-        playItem(
-          playlist.player_,
-          playlist.autoadvance_.delay,
-          list[playlist.currentIndex_]
-        );
-      } else {
-        playlist.currentIndex_ = playlist.indexOf(playlist.player_.currentSrc() || '');
+    return playlist.currentIndex_;
+  };
+
+  /**
+   * Checks if the playlist contains a value.
+   *
+   * @param  {string|Object|Array} value
+   *         The value to check
+   *
+   * @return {boolean}
+   *         The result
+   */
+  playlist.contains = (value) => {
+    return playlist.indexOf(value) !== -1;
+  };
+
+  /**
+   * Gets the index of a value in the playlist or -1 if not found.
+   *
+   * @param  {string|Object|Array} value
+   *         The value to find the index of
+   *
+   * @return {number}
+   *         The index or -1
+   */
+  playlist.indexOf = (value) => {
+    if (typeof value === 'string') {
+      return indexInSources(list, value);
+    }
+
+    const sources = Array.isArray(value) ? value : value.sources;
+
+    for (let i = 0; i < sources.length; i++) {
+      const source = sources[i];
+
+      if (typeof source === 'string') {
+        return indexInSources(list, source);
+      } else if (source.src) {
+        return indexInSources(list, source.src);
       }
+    }
 
-      return playlist.currentIndex_;
-    },
+    return -1;
+  };
 
-    /**
-     * Checks if the playlist contains a value.
-     *
-     * @param  {string|Object|Array} value
-     *         The value to check
-     *
-     * @return {boolean}
-     *         The result
-     */
-    contains(value) {
-      return playlist.indexOf(value) !== -1;
-    },
+  /**
+   * Get the index of the current item in the playlist. This is identical to
+   * calling `currentItem()` with no arguments.
+   *
+   * @return {number}
+   *         The current item index.
+   */
+  playlist.currentIndex = () => playlist.currentItem();
 
-    /**
-     * Gets the index of a value in the playlist or -1 if not found.
-     *
-     * @param  {string|Object|Array} value
-     *         The value to find the index of
-     *
-     * @return {number}
-     *         The index or -1
-     */
-    indexOf(value) {
-      if (typeof value === 'string') {
-        return indexInSources(list, value);
-      }
+  /**
+   * Get the index of the last item in the playlist.
+   *
+   * @return {number}
+   *         The index of the last item in the playlist or -1 if there are no
+   *         items.
+   */
+  playlist.lastIndex = () => list.length - 1;
 
-      const sources = Array.isArray(value) ? value : value.sources;
+  /**
+   * Get the index of the next item in the playlist.
+   *
+   * @return {number}
+   *         The index of the next item in the playlist or -1 if there is no
+   *         current item.
+   */
+  playlist.nextIndex = () => {
+    const current = playlist.currentItem();
 
-      for (let i = 0; i < sources.length; i++) {
-        const source = sources[i];
-
-        if (typeof source === 'string') {
-          return indexInSources(list, source);
-        } else if (source.src) {
-          return indexInSources(list, source.src);
-        }
-      }
-
+    if (current === -1) {
       return -1;
-    },
+    }
 
-    /**
-     * Plays the first item in the playlist.
-     *
-     * @return {Object|undefined}
-     *         Returns undefined and has no side effects if the list is empty.
-     */
-    first() {
-      if (list.length) {
-        return list[playlist.currentItem(0)];
-      }
+    const lastIndex = playlist.lastIndex();
 
-      playlist.currentIndex_ = -1;
-    },
+    // When repeating, loop back to the beginning on the last item.
+    if (playlist.repeat_ && current === lastIndex) {
+      return 0;
+    }
 
-    /**
-     * Plays the last item in the playlist.
-     *
-     * @return {Object|undefined}
-     *         Returns undefined and has no side effects if the list is empty.
-     */
-    last() {
-      if (list.length) {
-        return list[playlist.currentItem(list.length - 1)];
-      }
+    // Don't go past the end of the playlist.
+    return Math.min(current + 1, lastIndex);
+  };
 
-      playlist.currentIndex_ = -1;
-    },
+  /**
+   * Get the index of the previous item in the playlist.
+   *
+   * @return {number}
+   *         The index of the previous item in the playlist or -1 if there is
+   *         no current item.
+   */
+  playlist.previousIndex = () => {
+    const current = playlist.currentItem();
 
-    /**
-     * Plays the next item in the playlist.
-     *
-     * @return {Object|undefined}
-     *         Returns undefined and has no side effects if on last item.
-     */
-    next() {
+    if (current === -1) {
+      return -1;
+    }
 
-      let nextIndex;
+    // When repeating, loop back to the end of the playlist.
+    if (playlist.repeat_ && current === 0) {
+      return playlist.lastIndex();
+    }
 
-      // Repeat
-      if (playlist.repeat_) {
-        nextIndex = playlist.currentIndex_ + 1;
-        if (nextIndex > list.length - 1) {
-          nextIndex = 0;
-        }
+    // Don't go past the beginning of the playlist.
+    return Math.max(current - 1, 0);
+  };
 
-      // Don't go past the end of the playlist.
-      } else {
-        nextIndex = Math.min(playlist.currentIndex_ + 1, list.length - 1);
-      }
+  /**
+   * Plays the first item in the playlist.
+   *
+   * @return {Object|undefined}
+   *         Returns undefined and has no side effects if the list is empty.
+   */
+  playlist.first = () => {
+    if (list.length) {
+      return list[playlist.currentItem(0)];
+    }
 
-      // Make the change
-      if (nextIndex !== playlist.currentIndex_) {
-        return list[playlist.currentItem(nextIndex)];
-      }
-    },
+    playlist.currentIndex_ = -1;
+  };
 
-    /**
-     * Plays the previous item in the playlist.
-     *
-     * @return {Object|undefined}
-     *         Returns undefined and has no side effects if on first item.
-     */
-    previous() {
+  /**
+   * Plays the last item in the playlist.
+   *
+   * @return {Object|undefined}
+   *         Returns undefined and has no side effects if the list is empty.
+   */
+  playlist.last = () => {
+    if (list.length) {
+      return list[playlist.currentItem(playlist.lastIndex())];
+    }
 
-      // Make sure we don't go past the start of the playlist.
-      const index = Math.max(playlist.currentIndex_ - 1, 0);
+    playlist.currentIndex_ = -1;
+  };
 
-      if (index !== playlist.currentIndex_) {
-        return list[playlist.currentItem(index)];
-      }
-    },
+  /**
+   * Plays the next item in the playlist.
+   *
+   * @return {Object|undefined}
+   *         Returns undefined and has no side effects if on last item.
+   */
+  playlist.next = () => {
+    const index = playlist.nextIndex();
 
-    /**
-     * Sets up auto-advance on the playlist.
-     *
-     * @param {number} delay
-     *        The number of seconds to wait before each auto-advance.
-     */
-    autoadvance(delay) {
-      playlist.autoadvance_.delay = delay;
-      autoadvance.setup(playlist.player_, delay);
-    },
+    if (index !== playlist.currentIndex_) {
+      return list[playlist.currentItem(index)];
+    }
+  };
 
-    /**
-     * Sets `repeat` option, which makes the "next" video of the last video in the
-     * playlist be the first video in the playlist.
-     *
-     * @param {boolean=} val
-     *        The value to set repeat to
-     *
-     * @return {boolean}
-     *         The current value of repeat
-     */
-    repeat(val) {
-      if (val !== undefined) {
-        if (typeof val !== 'boolean') {
-          videojs.log.error('Invalid value for repeat', val);
-        } else {
-          playlist.repeat_ = val;
-        }
-      }
+  /**
+   * Plays the previous item in the playlist.
+   *
+   * @return {Object|undefined}
+   *         Returns undefined and has no side effects if on first item.
+   */
+  playlist.previous = () => {
+    const index = playlist.previousIndex();
+
+    if (index !== playlist.currentIndex_) {
+      return list[playlist.currentItem(index)];
+    }
+  };
+
+  /**
+   * Set up auto-advance on the playlist.
+   *
+   * @param  {number} [delay]
+   *         The number of seconds to wait before each auto-advance.
+   */
+  playlist.autoadvance = (delay) => {
+    autoadvance.setup(playlist.player_, delay);
+  };
+
+  /**
+   * Sets `repeat` option, which makes the "next" video of the last video in
+   * the playlist be the first video in the playlist.
+   *
+   * @param  {boolean} [val]
+   *         The value to set repeat to
+   *
+   * @return {boolean}
+   *         The current value of repeat
+   */
+  playlist.repeat = (val) => {
+    if (val === undefined) {
       return playlist.repeat_;
     }
 
-  });
+    if (typeof val !== 'boolean') {
+      videojs.log.error('videojs-playlist: Invalid value for repeat', val);
+      return;
+    }
+
+    playlist.repeat_ = !!val;
+    return playlist.repeat_;
+  };
+
+  /**
+   * Sorts the playlist array.
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort}
+   * @fires playlistsorted
+   *
+   * @param {Function} compare
+   *        A comparator function as per the native Array method.
+   */
+  playlist.sort = (compare) => {
+
+    // Bail if the array is empty.
+    if (!list.length) {
+      return;
+    }
+
+    list.sort(compare);
+
+    /**
+     * Triggered after the playlist is sorted internally.
+     *
+     * @event playlistsorted
+     * @type {Object}
+     */
+    player.trigger('playlistsorted');
+  };
+
+  /**
+   * Reverses the playlist array.
+   *
+   * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse}
+   * @fires playlistsorted
+   */
+  playlist.reverse = () => {
+
+    // Bail if the array is empty.
+    if (!list.length) {
+      return;
+    }
+
+    list.reverse();
+
+    /**
+     * Triggered after the playlist is sorted internally.
+     *
+     * @event playlistsorted
+     * @type {Object}
+     */
+    player.trigger('playlistsorted');
+  };
+
+  /**
+   * Shuffle the contents of the list randomly.
+   *
+   * @see {@link https://github.com/lodash/lodash/blob/40e096b6d5291a025e365a0f4c010d9a0efb9a69/shuffle.js}
+   * @fires playlistsorted
+   */
+  playlist.shuffle = () => {
+    let index = -1;
+    const length = list.length;
+
+    // Bail if the array is empty.
+    if (!length) {
+      return;
+    }
+
+    const lastIndex = length - 1;
+
+    while (++index < length) {
+      const rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
+      const value = list[rand];
+
+      list[rand] = list[index];
+      list[index] = value;
+    }
+
+    /**
+     * Triggered after the playlist is sorted internally.
+     *
+     * @event playlistsorted
+     * @type {Object}
+     */
+    player.trigger('playlistsorted');
+  };
 
   playlist.currentItem(initialIndex);
 
   return playlist;
-};
-
-export default factory;
+}
