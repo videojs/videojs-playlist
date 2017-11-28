@@ -1,3 +1,14 @@
+<a name="4.1.0"></a>
+# [4.1.0](https://github.com/brightcove/videojs-playlist/compare/v4.0.2...v4.1.0) (2017-11-28)
+
+### Features
+
+* Add new methods: `currentIndex`, `nextIndex`, `previousIndex`, `lastIndex`, `sort`, `reverse`, and `shuffle`. ([#87](https://github.com/brightcove/videojs-playlist/issues/87)) ([271a27b](https://github.com/brightcove/videojs-playlist/commit/271a27b))
+
+### Documentation
+
+* Fix missing call to playlist ([#86](https://github.com/brightcove/videojs-playlist/issues/86)) ([a7ffd57](https://github.com/brightcove/videojs-playlist/commit/a7ffd57))
+
 <a name="4.0.2"></a>
 ## [4.0.2](https://github.com/brightcove/videojs-playlist/compare/v4.0.1...v4.0.2) (2017-11-13)
 
