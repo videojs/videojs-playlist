@@ -219,7 +219,8 @@ export default function factory(player, initialList, initialIndex = 0) {
   };
 
   /**
-   * Get the index of the current item in the playlist.
+   * Get the index of the current item in the playlist. This is identical to
+   * calling `currentItem()` with no arguments.
    *
    * @return {number}
    *         The current item index.
