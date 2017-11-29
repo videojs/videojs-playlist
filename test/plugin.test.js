@@ -5,10 +5,6 @@ import videojs from 'video.js';
 
 import '../src/plugin';
 
-let realIsHtmlSupported;
-let player;
-let oldVideojsBrowser;
-
 const playlist = [{
   name: 'Movie 1',
   description: 'Movie 1 description',
@@ -32,6 +28,7 @@ const resolveUrl = url => {
   return a.href;
 };
 
+const dom = videojs.dom || videojs;
 const Html5 = videojs.getTech('Html5');
 
 QUnit.test('the environment is sane', function(assert) {
@@ -39,14 +36,14 @@ QUnit.test('the environment is sane', function(assert) {
 });
 
 function setup() {
-  oldVideojsBrowser = videojs.browser;
+  this.oldVideojsBrowser = videojs.browser;
   videojs.browser = videojs.mergeOptions({}, videojs.browser);
 
-  const fixture = document.querySelector('#qunit-fixture');
+  this.fixture = document.querySelector('#qunit-fixture');
 
   // force HTML support so the tests run in a reasonable
   // environment under phantomjs
-  realIsHtmlSupported = Html5.isSupported;
+  this.realIsHtmlSupported = Html5.isSupported;
   Html5.isSupported = function() {
     return true;
   };
@@ -54,135 +51,171 @@ function setup() {
   // create a video element
   const video = document.createElement('video');
 
-  fixture.appendChild(video);
+  this.fixture.appendChild(video);
 
   // create a video.js player
-  player = videojs(video);
+  this.player = videojs(video);
 
-  // create a default playlist element
-  const elem = document.createElement('ol');
-
-  elem.className = 'vjs-playlist';
-  fixture.appendChild(elem);
+  // Create two playlist container elements.
+  this.fixture.appendChild(dom.createEl('div', {className: 'vjs-playlist'}));
+  this.fixture.appendChild(dom.createEl('div', {className: 'vjs-playlist'}));
 }
 
 function teardown() {
-  videojs.browser = oldVideojsBrowser;
-  Html5.isSupported = realIsHtmlSupported;
-  player.dispose();
-  player = null;
+  videojs.browser = this.oldVideojsBrowser;
+  Html5.isSupported = this.realIsHtmlSupported;
+  this.player.dispose();
+  this.player = null;
+  dom.emptyEl(this.fixture);
 }
 
-QUnit.module('Playlist Plugin', {setup, teardown});
+QUnit.module('videojs-playlist-ui', {setup, teardown});
 
 QUnit.test('registers itself', function(assert) {
-  assert.ok(player.playlistUi, 'registered the plugin');
+  assert.ok(this.player.playlistUi, 'registered the plugin');
 });
 
 QUnit.test('errors if used without the playlist plugin', function(assert) {
   assert.throws(function() {
-    player.playlist = null;
-    player.playlistUi();
+    this.player.playlist = null;
+    this.player.playlistUi();
   }, 'threw on init');
 });
 
 QUnit.test('is empty if the playlist plugin isn\'t initialized', function(assert) {
-  player.playlistUi();
+  this.player.playlistUi();
 
-  const items = document.querySelectorAll('.vjs-playlist-item');
+  const items = this.fixture.querySelectorAll('.vjs-playlist-item');
 
-  assert.ok(document.querySelector('.vjs-playlist'), 'created the menu');
-  assert.equal(items.length, 0, 'displayed no items');
+  assert.ok(this.fixture.querySelector('.vjs-playlist'), 'created the menu');
+  assert.strictEqual(items.length, 0, 'displayed no items');
 });
 
-QUnit.test('can be initialized to replace a pre-existing element', function(assert) {
-  const parent = document.createElement('div');
-  const elem = document.createElement('ol');
+QUnit.test('can be initialized with an element (deprecated form)', function(assert) {
+  const elem = dom.createEl('div');
 
-  parent.appendChild(elem);
-  player.playlist(playlist);
-  player.playlistUi(elem);
+  this.player.playlist(playlist);
+  this.player.playlistUi(elem);
 
-  assert.equal(parent.querySelectorAll('li.vjs-playlist-item').length,
-        playlist.length,
-        'created an element for each playlist item');
+  assert.strictEqual(
+    elem.querySelectorAll('li.vjs-playlist-item').length,
+    playlist.length,
+    'created an element for each playlist item'
+  );
 });
 
-QUnit.test('can auto-setup elements with the class vjs-playlist', function(assert) {
-  const parent = document.querySelector('#qunit-fixture');
-  const elem = parent.querySelector('.vjs-playlist');
+QUnit.test('can be initialized with an element', function(assert) {
+  const elem = dom.createEl('div');
 
-  player.playlist(playlist);
-  player.playlistUi();
+  this.player.playlist(playlist);
+  this.player.playlistUi({el: elem});
 
-  const menus = parent.querySelectorAll('.vjs-playlist');
-
-  assert.equal(menus.length, 1, 'created one child node');
-  assert.strictEqual(menus[0], elem, 're-used the existing element');
-  assert.equal(elem.querySelectorAll('li.vjs-playlist-item').length,
-        playlist.length,
-        'created an element for each playlist item');
+  assert.strictEqual(
+    elem.querySelectorAll('li.vjs-playlist-item').length,
+    playlist.length,
+    'created an element for each playlist item'
+  );
 });
 
-QUnit.test('can auto-setup elements with a custom class', function(assert) {
-  const elem = document.createElement('ol');
+QUnit.test('can look for an element with the class "vjs-playlist" that is not already in use', function(assert) {
+  const firstEl = this.fixture.querySelectorAll('.vjs-playlist')[0];
+  const secondEl = this.fixture.querySelectorAll('.vjs-playlist')[1];
 
-  elem.className = 'super-playlist';
-  document.querySelector('#qunit-fixture').appendChild(elem);
+  // Give the firstEl a child, so the plugin thinks it is in use and moves on
+  // to the next one.
+  firstEl.appendChild(dom.createEl('div'));
 
-  player.playlist(playlist);
-  player.playlistUi({
+  this.player.playlist(playlist);
+  this.player.playlistUi();
+
+  assert.strictEqual(this.player.playlistMenu.el(), secondEl, 'used the first matching/empty element');
+  assert.strictEqual(
+    secondEl.querySelectorAll('li.vjs-playlist-item').length,
+    playlist.length,
+    'found an element for each playlist item'
+  );
+});
+
+QUnit.test('can look for an element with a custom class that is not already in use', function(assert) {
+  const firstEl = dom.createEl('div', {className: 'super-playlist'});
+  const secondEl = dom.createEl('div', {className: 'super-playlist'});
+
+  // Give the firstEl a child, so the plugin thinks it is in use and moves on
+  // to the next one.
+  firstEl.appendChild(dom.createEl('div'));
+
+  this.fixture.appendChild(firstEl);
+  this.fixture.appendChild(secondEl);
+
+  this.player.playlist(playlist);
+  this.player.playlistUi({
     className: 'super-playlist'
   });
-  assert.equal(elem.querySelectorAll('li.vjs-playlist-item').length,
-        playlist.length,
-        'created an element for each playlist item');
+
+  assert.strictEqual(this.player.playlistMenu.el(), secondEl, 'used the first matching/empty element');
+  assert.strictEqual(
+    this.fixture.querySelectorAll('li.vjs-playlist-item').length,
+    playlist.length,
+    'created an element for each playlist item'
+  );
 });
 
 QUnit.test('specializes the class name if touch input is absent', function(assert) {
-  const touchEnabled = videojs.browser.TOUCH_ENABLED;
+  videojs.browser.TOUCH_ENABLED = false;
 
-  videojs.browser.TOUCH_ENABLED = videojs.TOUCH_ENABLED = false;
+  this.player.playlist(playlist);
+  this.player.playlistUi();
 
-  player.playlist(playlist);
-  player.playlistUi();
-
-  assert.ok(player.playlistMenu.hasClass('vjs-mouse'), 'marked the playlist menu');
-
-  videojs.browser.TOUCH_ENABLED = videojs.TOUCH_ENABLED = touchEnabled;
+  assert.ok(this.player.playlistMenu.hasClass('vjs-mouse'), 'marked the playlist menu');
 });
 
-QUnit.module('Playlist Component', {setup, teardown});
+QUnit.test('can be re-initialized without doubling the contents of the list', function(assert) {
+  const el = this.fixture.querySelectorAll('.vjs-playlist')[0];
+
+  this.player.playlist(playlist);
+  this.player.playlistUi();
+  this.player.playlistUi();
+  this.player.playlistUi();
+
+  assert.strictEqual(this.player.playlistMenu.el(), el, 'used the first matching/empty element');
+  assert.strictEqual(
+    el.querySelectorAll('li.vjs-playlist-item').length,
+    playlist.length,
+    'found an element for each playlist item'
+  );
+});
+
+QUnit.module('videojs-playlist-ui: Components', {setup, teardown});
 
 // --------------------
 // Creation and Updates
 // --------------------
 
 QUnit.test('includes the video name if provided', function(assert) {
-  player.playlist(playlist);
-  player.playlistUi();
+  this.player.playlist(playlist);
+  this.player.playlistUi();
 
-  const items = document.querySelectorAll('.vjs-playlist-item');
+  const items = this.fixture.querySelectorAll('.vjs-playlist-item');
 
-  assert.equal(items[0].querySelector('.vjs-playlist-name').textContent,
+  assert.strictEqual(items[0].querySelector('.vjs-playlist-name').textContent,
         playlist[0].name,
         'wrote the name');
-  assert.equal(items[1].querySelector('.vjs-playlist-name').textContent,
+  assert.strictEqual(items[1].querySelector('.vjs-playlist-name').textContent,
         'Untitled Video',
         'wrote a placeholder for the name');
 });
 
 QUnit.test('outputs a <picture> for simple thumbnails', function(assert) {
-  player.playlist(playlist);
-  player.playlistUi();
+  this.player.playlist(playlist);
+  this.player.playlistUi();
 
-  const pictures = document.querySelectorAll('.vjs-playlist-item picture');
+  const pictures = this.fixture.querySelectorAll('.vjs-playlist-item picture');
 
-  assert.equal(pictures.length, 1, 'output one picture');
+  assert.strictEqual(pictures.length, 1, 'output one picture');
   const imgs = pictures[0].querySelectorAll('img');
 
-  assert.equal(imgs.length, 1, 'output one img');
-  assert.equal(imgs[0].src, window.location.protocol + playlist[1].thumbnail, 'set the src attribute');
+  assert.strictEqual(imgs.length, 1, 'output one img');
+  assert.strictEqual(imgs[0].src, window.location.protocol + playlist[1].thumbnail, 'set the src attribute');
 });
 
 QUnit.test('outputs a <picture> for responsive thumbnails', function(assert) {
@@ -200,220 +233,220 @@ QUnit.test('outputs a <picture> for responsive thumbnails', function(assert) {
     }]
   }];
 
-  player.playlist(playlistOverride);
-  player.playlistUi();
+  this.player.playlist(playlistOverride);
+  this.player.playlistUi();
 
-  const sources = document.querySelectorAll('.vjs-playlist-item picture source');
-  const imgs = document.querySelectorAll('.vjs-playlist-item picture img');
+  const sources = this.fixture.querySelectorAll('.vjs-playlist-item picture source');
+  const imgs = this.fixture.querySelectorAll('.vjs-playlist-item picture img');
 
-  assert.equal(sources.length, 1, 'output one source');
-  assert.equal(sources[0].srcset,
+  assert.strictEqual(sources.length, 1, 'output one source');
+  assert.strictEqual(sources[0].srcset,
         playlistOverride[0].thumbnail[0].srcset,
         'wrote the srcset attribute');
-  assert.equal(sources[0].type,
+  assert.strictEqual(sources[0].type,
         playlistOverride[0].thumbnail[0].type,
         'wrote the type attribute');
-  assert.equal(sources[0].media,
+  assert.strictEqual(sources[0].media,
         playlistOverride[0].thumbnail[0].media,
         'wrote the type attribute');
-  assert.equal(imgs.length, 1, 'output one img');
-  assert.equal(imgs[0].src,
+  assert.strictEqual(imgs.length, 1, 'output one img');
+  assert.strictEqual(imgs[0].src,
         resolveUrl(playlistOverride[0].thumbnail[1].src),
         'output the img src attribute');
 });
 
 QUnit.test('outputs a placeholder for items without thumbnails', function(assert) {
-  player.playlist(playlist);
-  player.playlistUi();
+  this.player.playlist(playlist);
+  this.player.playlistUi();
 
-  const thumbnails = document.querySelectorAll('.vjs-playlist-item .vjs-playlist-thumbnail');
+  const thumbnails = this.fixture.querySelectorAll('.vjs-playlist-item .vjs-playlist-thumbnail');
 
-  assert.equal(thumbnails.length, playlist.length, 'output two thumbnails');
-  assert.equal(thumbnails[0].nodeName.toLowerCase(), 'div', 'the second is a placeholder');
+  assert.strictEqual(thumbnails.length, playlist.length, 'output two thumbnails');
+  assert.strictEqual(thumbnails[0].nodeName.toLowerCase(), 'div', 'the second is a placeholder');
 });
 
 QUnit.test('includes the duration if one is provided', function(assert) {
-  player.playlist(playlist);
-  player.playlistUi();
+  this.player.playlist(playlist);
+  this.player.playlistUi();
 
-  const durations = document.querySelectorAll('.vjs-playlist-item .vjs-playlist-duration');
+  const durations = this.fixture.querySelectorAll('.vjs-playlist-item .vjs-playlist-duration');
 
-  assert.equal(durations.length, 1, 'skipped the item without a duration');
-  assert.equal(durations[0].textContent,
+  assert.strictEqual(durations.length, 1, 'skipped the item without a duration');
+  assert.strictEqual(durations[0].textContent,
         '1:40',
         'wrote the duration');
-  assert.equal(durations[0].getAttribute('datetime'),
+  assert.strictEqual(durations[0].getAttribute('datetime'),
         'PT0H0M' + playlist[0].duration + 'S',
         'wrote a machine-readable datetime');
 });
 
 QUnit.test('marks the selected playlist item on startup', function(assert) {
-  player.playlist(playlist);
-  player.currentSrc = () => playlist[0].sources[0].src;
-  player.playlistUi();
+  this.player.playlist(playlist);
+  this.player.currentSrc = () => playlist[0].sources[0].src;
+  this.player.playlistUi();
 
-  const selectedItems = document.querySelectorAll('.vjs-playlist-item.vjs-selected');
+  const selectedItems = this.fixture.querySelectorAll('.vjs-playlist-item.vjs-selected');
 
-  assert.equal(selectedItems.length, 1, 'marked one playlist item');
-  assert.equal(selectedItems[0].querySelector('.vjs-playlist-name').textContent,
+  assert.strictEqual(selectedItems.length, 1, 'marked one playlist item');
+  assert.strictEqual(selectedItems[0].querySelector('.vjs-playlist-name').textContent,
         playlist[0].name,
         'marked the first playlist item');
 });
 
 QUnit.test('updates the selected playlist item on loadstart', function(assert) {
-  player.playlist(playlist);
-  player.playlistUi();
+  this.player.playlist(playlist);
+  this.player.playlistUi();
 
-  player.playlist.currentItem(1);
-  player.currentSrc = () => playlist[1].sources[0].src;
-  player.trigger('loadstart');
+  this.player.playlist.currentItem(1);
+  this.player.currentSrc = () => playlist[1].sources[0].src;
+  this.player.trigger('loadstart');
 
-  const selectedItems = document.querySelectorAll('.vjs-playlist-item.vjs-selected');
+  const selectedItems = this.fixture.querySelectorAll('.vjs-playlist-item.vjs-selected');
 
-  assert.equal(document.querySelectorAll('.vjs-playlist-item').length,
+  assert.strictEqual(this.fixture.querySelectorAll('.vjs-playlist-item').length,
         playlist.length,
         'displayed the correct number of items');
-  assert.equal(selectedItems.length, 1, 'marked one playlist item');
-  assert.equal(selectedItems[0].querySelector('img').src,
+  assert.strictEqual(selectedItems.length, 1, 'marked one playlist item');
+  assert.strictEqual(selectedItems[0].querySelector('img').src,
         resolveUrl(playlist[1].thumbnail),
         'marked the second playlist item');
 });
 
 QUnit.test('selects no item if the playlist is not in use', function(assert) {
-  player.playlist(playlist);
-  player.playlist.currentItem = () => -1;
-  player.playlistUi();
+  this.player.playlist(playlist);
+  this.player.playlist.currentItem = () => -1;
+  this.player.playlistUi();
 
-  player.trigger('loadstart');
+  this.player.trigger('loadstart');
 
-  assert.equal(document.querySelectorAll('.vjs-playlist-item.vjs-selected').length,
+  assert.strictEqual(this.fixture.querySelectorAll('.vjs-playlist-item.vjs-selected').length,
         0,
         'no items selected');
 });
 
 QUnit.test('updates on "playlistchange", different lengths', function(assert) {
-  player.playlist([]);
-  player.playlistUi();
+  this.player.playlist([]);
+  this.player.playlistUi();
 
-  let items = document.querySelectorAll('.vjs-playlist-item');
+  let items = this.fixture.querySelectorAll('.vjs-playlist-item');
 
-  assert.equal(items.length, 0, 'no items initially');
+  assert.strictEqual(items.length, 0, 'no items initially');
 
-  player.playlist(playlist);
-  player.trigger('playlistchange');
-  items = document.querySelectorAll('.vjs-playlist-item');
-  assert.equal(items.length, playlist.length, 'updated with the new items');
+  this.player.playlist(playlist);
+  this.player.trigger('playlistchange');
+  items = this.fixture.querySelectorAll('.vjs-playlist-item');
+  assert.strictEqual(items.length, playlist.length, 'updated with the new items');
 });
 
 QUnit.test('updates on "playlistchange", equal lengths', function(assert) {
-  player.playlist([{sources: []}, {sources: []}]);
-  player.playlistUi();
+  this.player.playlist([{sources: []}, {sources: []}]);
+  this.player.playlistUi();
 
-  let items = document.querySelectorAll('.vjs-playlist-item');
+  let items = this.fixture.querySelectorAll('.vjs-playlist-item');
 
-  assert.equal(items.length, 2, 'two items initially');
+  assert.strictEqual(items.length, 2, 'two items initially');
 
-  player.playlist(playlist);
-  player.trigger('playlistchange');
-  items = document.querySelectorAll('.vjs-playlist-item');
-  assert.equal(items.length, playlist.length, 'updated with the new items');
-  assert.equal(player.playlistMenu.items[0].item, playlist[0], 'we have updated items');
-  assert.equal(player.playlistMenu.items[1].item, playlist[1], 'we have updated items');
+  this.player.playlist(playlist);
+  this.player.trigger('playlistchange');
+  items = this.fixture.querySelectorAll('.vjs-playlist-item');
+  assert.strictEqual(items.length, playlist.length, 'updated with the new items');
+  assert.strictEqual(this.player.playlistMenu.items[0].item, playlist[0], 'we have updated items');
+  assert.strictEqual(this.player.playlistMenu.items[1].item, playlist[1], 'we have updated items');
 });
 
 QUnit.test('updates on "playlistchange", update selection', function(assert) {
-  player.playlist(playlist);
-  player.currentSrc = function() {
+  this.player.playlist(playlist);
+  this.player.currentSrc = function() {
     return playlist[0].sources[0].src;
   };
-  player.playlistUi();
+  this.player.playlistUi();
 
-  let items = document.querySelectorAll('.vjs-playlist-item');
+  let items = this.fixture.querySelectorAll('.vjs-playlist-item');
 
-  assert.equal(items.length, 2, 'two items initially');
+  assert.strictEqual(items.length, 2, 'two items initially');
 
   assert.ok((/vjs-selected/).test(items[0].getAttribute('class')), 'first item is selected by default');
-  player.playlist.currentItem(1);
-  player.currentSrc = function() {
+  this.player.playlist.currentItem(1);
+  this.player.currentSrc = function() {
     return playlist[1].sources[0].src;
   };
 
-  player.trigger('playlistchange');
-  items = document.querySelectorAll('.vjs-playlist-item');
-  assert.equal(items.length, playlist.length, 'updated with the new items');
+  this.player.trigger('playlistchange');
+  items = this.fixture.querySelectorAll('.vjs-playlist-item');
+  assert.strictEqual(items.length, playlist.length, 'updated with the new items');
   assert.ok((/vjs-selected/).test(items[1].getAttribute('class')), 'second item is selected after update');
   assert.ok(!(/vjs-selected/).test(items[0].getAttribute('class')), 'first item is not selected after update');
 });
 
 QUnit.test('updates on "playlistsorted", different lengths', function(assert) {
-  player.playlist([]);
-  player.playlistUi();
+  this.player.playlist([]);
+  this.player.playlistUi();
 
-  let items = document.querySelectorAll('.vjs-playlist-item');
+  let items = this.fixture.querySelectorAll('.vjs-playlist-item');
 
-  assert.equal(items.length, 0, 'no items initially');
+  assert.strictEqual(items.length, 0, 'no items initially');
 
-  player.playlist(playlist);
-  player.trigger('playlistsorted');
-  items = document.querySelectorAll('.vjs-playlist-item');
-  assert.equal(items.length, playlist.length, 'updated with the new items');
+  this.player.playlist(playlist);
+  this.player.trigger('playlistsorted');
+  items = this.fixture.querySelectorAll('.vjs-playlist-item');
+  assert.strictEqual(items.length, playlist.length, 'updated with the new items');
 });
 
 QUnit.test('updates on "playlistsorted", equal lengths', function(assert) {
-  player.playlist([{sources: []}, {sources: []}]);
-  player.playlistUi();
+  this.player.playlist([{sources: []}, {sources: []}]);
+  this.player.playlistUi();
 
-  let items = document.querySelectorAll('.vjs-playlist-item');
+  let items = this.fixture.querySelectorAll('.vjs-playlist-item');
 
-  assert.equal(items.length, 2, 'two items initially');
+  assert.strictEqual(items.length, 2, 'two items initially');
 
-  player.playlist(playlist);
-  player.trigger('playlistsorted');
-  items = document.querySelectorAll('.vjs-playlist-item');
-  assert.equal(items.length, playlist.length, 'updated with the new items');
-  assert.equal(player.playlistMenu.items[0].item, playlist[0], 'we have updated items');
-  assert.equal(player.playlistMenu.items[1].item, playlist[1], 'we have updated items');
+  this.player.playlist(playlist);
+  this.player.trigger('playlistsorted');
+  items = this.fixture.querySelectorAll('.vjs-playlist-item');
+  assert.strictEqual(items.length, playlist.length, 'updated with the new items');
+  assert.strictEqual(this.player.playlistMenu.items[0].item, playlist[0], 'we have updated items');
+  assert.strictEqual(this.player.playlistMenu.items[1].item, playlist[1], 'we have updated items');
 });
 
 QUnit.test('updates on "playlistsorted", update selection', function(assert) {
-  player.playlist(playlist);
-  player.currentSrc = function() {
+  this.player.playlist(playlist);
+  this.player.currentSrc = function() {
     return playlist[0].sources[0].src;
   };
-  player.playlistUi();
+  this.player.playlistUi();
 
-  let items = document.querySelectorAll('.vjs-playlist-item');
+  let items = this.fixture.querySelectorAll('.vjs-playlist-item');
 
-  assert.equal(items.length, 2, 'two items initially');
+  assert.strictEqual(items.length, 2, 'two items initially');
 
   assert.ok((/vjs-selected/).test(items[0].getAttribute('class')), 'first item is selected by default');
-  player.playlist.currentItem(1);
-  player.currentSrc = function() {
+  this.player.playlist.currentItem(1);
+  this.player.currentSrc = function() {
     return playlist[1].sources[0].src;
   };
 
-  player.trigger('playlistsorted');
-  items = document.querySelectorAll('.vjs-playlist-item');
-  assert.equal(items.length, playlist.length, 'updated with the new items');
+  this.player.trigger('playlistsorted');
+  items = this.fixture.querySelectorAll('.vjs-playlist-item');
+  assert.strictEqual(items.length, playlist.length, 'updated with the new items');
   assert.ok((/vjs-selected/).test(items[1].getAttribute('class')), 'second item is selected after update');
   assert.ok(!(/vjs-selected/).test(items[0].getAttribute('class')), 'first item is not selected after update');
 });
 
 QUnit.test('tracks when an ad is playing', function(assert) {
-  player.playlist([]);
-  player.playlistUi();
+  this.player.playlist([]);
+  this.player.playlistUi();
 
-  player.duration = () => 5;
+  this.player.duration = () => 5;
 
-  const playlistMenu = player.playlistMenu;
+  const playlistMenu = this.player.playlistMenu;
 
   assert.ok(!playlistMenu.hasClass('vjs-ad-playing'),
      'does not have class vjs-ad-playing');
-  player.trigger('adstart');
+  this.player.trigger('adstart');
   assert.ok(playlistMenu.hasClass('vjs-ad-playing'),
      'has class vjs-ad-playing');
 
-  player.trigger('adend');
+  this.player.trigger('adend');
   assert.ok(!playlistMenu.hasClass('vjs-ad-playing'),
      'does not have class vjs-ad-playing');
 });
@@ -425,52 +458,52 @@ QUnit.test('tracks when an ad is playing', function(assert) {
 QUnit.test('changes the selection when tapped', function(assert) {
   let playCalled = false;
 
-  player.playlist(playlist);
-  player.playlistUi({playOnSelect: true});
-  player.play = function() {
+  this.player.playlist(playlist);
+  this.player.playlistUi({playOnSelect: true});
+  this.player.play = function() {
     playCalled = true;
   };
 
   let sources;
 
-  player.src = (src) => {
+  this.player.src = (src) => {
     if (src) {
       sources = src;
     }
     return sources[0];
   };
-  player.currentSrc = () => sources[0].src;
-  player.playlistMenu.items[1].trigger('tap');
+  this.player.currentSrc = () => sources[0].src;
+  this.player.playlistMenu.items[1].trigger('tap');
   // trigger a loadstart synchronously to simplify the test
-  player.trigger('loadstart');
+  this.player.trigger('loadstart');
 
-  assert.ok(player.playlistMenu.items[1].hasClass('vjs-selected'),
+  assert.ok(this.player.playlistMenu.items[1].hasClass('vjs-selected'),
      'selected the new item');
-  assert.ok(!player.playlistMenu.items[0].hasClass('vjs-selected'),
+  assert.ok(!this.player.playlistMenu.items[0].hasClass('vjs-selected'),
      'deselected the old item');
-  assert.equal(playCalled, true, 'play gets called if option is set');
+  assert.strictEqual(playCalled, true, 'play gets called if option is set');
 });
 
 QUnit.test('play should not get called by default upon selection of menu items ', function(assert) {
   let playCalled = false;
 
-  player.playlist(playlist);
-  player.playlistUi();
-  player.play = function() {
+  this.player.playlist(playlist);
+  this.player.playlistUi();
+  this.player.play = function() {
     playCalled = true;
   };
 
   let sources;
 
-  player.src = (src) => {
+  this.player.src = (src) => {
     if (src) {
       sources = src;
     }
     return sources[0];
   };
-  player.currentSrc = () => sources[0].src;
-  player.playlistMenu.items[1].trigger('tap');
+  this.player.currentSrc = () => sources[0].src;
+  this.player.playlistMenu.items[1].trigger('tap');
   // trigger a loadstart synchronously to simplify the test
-  player.trigger('loadstart');
-  assert.equal(playCalled, false, 'play should not get called by default');
+  this.player.trigger('loadstart');
+  assert.strictEqual(playCalled, false, 'play should not get called by default');
 });

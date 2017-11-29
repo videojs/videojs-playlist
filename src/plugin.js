@@ -404,6 +404,34 @@ const playlistUi = function(options) {
 
   options = videojs.mergeOptions(defaults, options);
 
+  // If the player is already using this plugin, remove the pre-existing
+  // PlaylistMenu, but retain the element and its location in the DOM because
+  // it will be re-used.
+  if (player.playlistMenu) {
+    const el = player.playlistMenu.el();
+
+    // Catch cases where the menu may have been disposed elsewhere or the
+    // element removed from the DOM.
+    if (el) {
+      const parentNode = el.parentNode;
+      const nextSibling = el.nextSibling;
+
+      // Disposing the menu will remove `el` from the DOM, but we need to
+      // empty it ourselves to be sure.
+      player.playlistMenu.dispose();
+      dom.emptyEl(el);
+
+      // Put the element back in its place.
+      if (nextSibling) {
+        parentNode.insertBefore(el, nextSibling);
+      } else {
+        parentNode.appendChild(el);
+      }
+
+      options.el = el;
+    }
+  }
+
   if (!dom.isEl(options.el)) {
     options.el = findRoot(options.className);
   }
