@@ -216,7 +216,7 @@ class PlaylistMenu extends Component {
       this.addClass('vjs-mouse');
     }
 
-    player.on(['loadstart', 'playlistchange'], (event) => {
+    player.on(['loadstart', 'playlistchange', 'playlistsorted'], (event) => {
       this.update();
     });
 

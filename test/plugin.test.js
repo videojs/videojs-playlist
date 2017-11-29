@@ -345,6 +345,60 @@ QUnit.test('updates on "playlistchange", update selection', function(assert) {
   assert.ok(!(/vjs-selected/).test(items[0].getAttribute('class')), 'first item is not selected after update');
 });
 
+QUnit.test('updates on "playlistsorted", different lengths', function(assert) {
+  player.playlist([]);
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+
+  assert.equal(items.length, 0, 'no items initially');
+
+  player.playlist(playlist);
+  player.trigger('playlistsorted');
+  items = document.querySelectorAll('.vjs-playlist-item');
+  assert.equal(items.length, playlist.length, 'updated with the new items');
+});
+
+QUnit.test('updates on "playlistsorted", equal lengths', function(assert) {
+  player.playlist([{sources: []}, {sources: []}]);
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+
+  assert.equal(items.length, 2, 'two items initially');
+
+  player.playlist(playlist);
+  player.trigger('playlistsorted');
+  items = document.querySelectorAll('.vjs-playlist-item');
+  assert.equal(items.length, playlist.length, 'updated with the new items');
+  assert.equal(player.playlistMenu.items[0].item, playlist[0], 'we have updated items');
+  assert.equal(player.playlistMenu.items[1].item, playlist[1], 'we have updated items');
+});
+
+QUnit.test('updates on "playlistsorted", update selection', function(assert) {
+  player.playlist(playlist);
+  player.currentSrc = function() {
+    return playlist[0].sources[0].src;
+  };
+  player.playlistUi();
+
+  let items = document.querySelectorAll('.vjs-playlist-item');
+
+  assert.equal(items.length, 2, 'two items initially');
+
+  assert.ok((/vjs-selected/).test(items[0].getAttribute('class')), 'first item is selected by default');
+  player.playlist.currentItem(1);
+  player.currentSrc = function() {
+    return playlist[1].sources[0].src;
+  };
+
+  player.trigger('playlistsorted');
+  items = document.querySelectorAll('.vjs-playlist-item');
+  assert.equal(items.length, playlist.length, 'updated with the new items');
+  assert.ok((/vjs-selected/).test(items[1].getAttribute('class')), 'second item is selected after update');
+  assert.ok(!(/vjs-selected/).test(items[0].getAttribute('class')), 'first item is not selected after update');
+});
+
 QUnit.test('tracks when an ad is playing', function(assert) {
   player.playlist([]);
   player.playlistUi();
