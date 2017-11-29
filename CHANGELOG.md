@@ -1,3 +1,10 @@
+<a name="3.2.0"></a>
+# [3.2.0](https://github.com/brightcove/videojs-playlist-ui/compare/v3.1.0...v3.2.0) (2017-11-29)
+
+### Features
+
+* Support the 'playlistsorted' event added in videojs-playlist 4.1.0. ([#52](https://github.com/brightcove/videojs-playlist-ui/issues/52)) ([6d79ac1](https://github.com/brightcove/videojs-playlist-ui/commit/6d79ac1))
+
 <a name="3.1.0"></a>
 # [3.1.0](https://github.com/brightcove/videojs-playlist-ui/compare/v3.0.6...v3.1.0) (2017-11-15)
 
