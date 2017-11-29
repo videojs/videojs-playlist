@@ -1,3 +1,10 @@
+<a name="3.2.1"></a>
+## [3.2.1](https://github.com/brightcove/videojs-playlist-ui/compare/v3.2.0...v3.2.1) (2017-11-29)
+
+### Bug Fixes
+
+* Do not concatenate playlist items if the plugin is re-initialized. ([#53](https://github.com/brightcove/videojs-playlist-ui/issues/53)) ([7953ad6](https://github.com/brightcove/videojs-playlist-ui/commit/7953ad6))
+
 <a name="3.2.0"></a>
 # [3.2.0](https://github.com/brightcove/videojs-playlist-ui/compare/v3.1.0...v3.2.0) (2017-11-29)
 
