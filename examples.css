@@ -1,0 +1,40 @@
+/*
+  We include some minimal custom CSS to make the playlist UI look good
+  in this context.
+*/
+
+body {
+  font-family: Arial, sans-serif;
+}
+
+.info {
+  background-color: #eee;
+  border: thin solid #333;
+  border-radius: 3px;
+  margin: 0 0 20px;
+  padding: 0 5px;
+}
+
+.player-container {
+  background: #1a1a1a;
+  overflow: auto;
+  width: 900px;
+  margin: 0 0 20px;
+}
+
+.video-js {
+  float: left;
+}
+
+.vjs-playlist,
+.my-custom-class,
+#my-custom-element {
+  float: left;
+  width: 300px;
+}
+
+.vjs-playlist.vjs-playlist-horizontal {
+  float: none;
+  height: 120px;
+  width: 600px;
+}

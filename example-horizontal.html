@@ -2,14 +2,14 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Video.js Playlist UI - Default Implementation</title>
+  <title>Video.js Playlist UI - Horizontal Implementation</title>
   <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
   <link href="dist/videojs-playlist-ui.css" rel="stylesheet">
   <link href="examples.css" rel="stylesheet">
 </head>
 <body>
   <div class="info">
-    <h1>Video.js Playlist UI - Default Implementation</h1>
+    <h1>Video.js Playlist UI - Horizontal Implementation</h1>
     <p>
       You can see the Video.js Playlist UI plugin in action below. Look at the
       source of this page to see how to use it with your videos.
@@ -18,6 +18,10 @@
       In the default configuration, the plugin looks for the first element that
       has the class "vjs-playlist" and uses that as a container for the list.
     </p>
+    <p>
+      When using the `horizontal` option, you'll want to set a width on the
+      "vjs-playlist" element (or the class that gets added,
+      "vjs-playlist-horizontal").
   </div>
 
   <div class="player-container">
@@ -155,8 +159,8 @@
       }]
     }]);
 
-    // Initialize the playlist-ui plugin with no option (i.e. the defaults).
-    player.playlistUi();
+    // Initialize the playlist-ui plugin with the horizontal option
+    player.playlistUi({horizontal: true});
   </script>
 </body>
 </html>
