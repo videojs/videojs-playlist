@@ -1,3 +1,10 @@
+<a name="3.3.0"></a>
+# [3.3.0](https://github.com/brightcove/videojs-playlist-ui/compare/v3.2.1...v3.3.0) (2017-12-04)
+
+### Features
+
+* Support horizontal playlist display. ([#54](https://github.com/brightcove/videojs-playlist-ui/issues/54)) ([85965b6](https://github.com/brightcove/videojs-playlist-ui/commit/85965b6))
+
 <a name="3.2.1"></a>
 ## [3.2.1](https://github.com/brightcove/videojs-playlist-ui/compare/v3.2.0...v3.2.1) (2017-11-29)
 
