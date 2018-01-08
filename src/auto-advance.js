@@ -58,8 +58,20 @@ const setup = (player, delay) => {
   player.playlist.autoadvance_.delay = delay;
 
   player.playlist.autoadvance_.trigger = function() {
+
+    // This calls setup again, which will reset the existing auto-advance and
+    // set up another auto-advance for the next "ended" event.
+    const cancelOnPlay = () => setup(player, delay);
+
+    // If there is a "play" event while we're waiting for an auto-advance,
+    // we need to cancel the auto-advance. This could mean the user seeked
+    // back into the content or restarted the content. This is reproducible
+    // with an auto-advance > 0.
+    player.one('play', cancelOnPlay);
+
     player.playlist.autoadvance_.timeout = player.setTimeout(() => {
       reset(player);
+      player.off('play', cancelOnPlay);
       player.playlist.next();
     }, delay * 1000);
   };
