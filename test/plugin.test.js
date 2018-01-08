@@ -3,6 +3,7 @@ import window from 'global/window';
 import QUnit from 'qunit';
 import videojs from 'video.js';
 
+import 'videojs-playlist';
 import '../src/plugin';
 
 const playlist = [{

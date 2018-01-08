@@ -24,7 +24,6 @@ module.exports = function(config) {
       'node_modules/es5-shim/es5-shim.js',
       'node_modules/sinon/pkg/sinon.js',
       'node_modules/video.js/dist/video.js',
-      'node_modules/videojs-playlist/dist/videojs-playlist.js',
       'test/dist/bundle.js'
     ],
     customLaunchers: {

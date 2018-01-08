@@ -2,8 +2,7 @@ sudo: false
 dist: trusty
 language: node_js
 node_js:
-  - 'node'
-  - 'lts/argon'
+  - 'lts/*'
 before_script:
 
   # Check if the current version is equal to the major version for the env.
