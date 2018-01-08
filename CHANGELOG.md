@@ -1,3 +1,10 @@
+<a name="4.1.1"></a>
+## [4.1.1](https://github.com/brightcove/videojs-playlist/compare/v4.1.0...v4.1.1) (2018-01-08)
+
+### Bug Fixes
+
+* Fix an issue where we could auto-advance even if the user restarted playback after an ended event. ([#88](https://github.com/brightcove/videojs-playlist/issues/88)) ([5d872d1](https://github.com/brightcove/videojs-playlist/commit/5d872d1))
+
 <a name="4.1.0"></a>
 # [4.1.0](https://github.com/brightcove/videojs-playlist/compare/v4.0.2...v4.1.0) (2017-11-28)
 
