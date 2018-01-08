@@ -1,5 +1,6 @@
 import window from 'global/window';
 import QUnit from 'qunit';
+import sinon from 'sinon';
 import * as autoadvance from '../src/auto-advance.js';
 import playerProxyMaker from './player-proxy-maker.js';
 
@@ -137,4 +138,30 @@ QUnit.test('timeout is given in seconds', function(assert) {
   player.trigger('ended');
 
   window.setTimeout = oldSetTimeout;
+});
+
+QUnit.test('cancel a pending auto-advance if play is requested', function(assert) {
+  const clock = sinon.useFakeTimers();
+  const player = playerProxyMaker();
+
+  sinon.spy(player.playlist, 'next');
+
+  autoadvance.setup(player, 10);
+  player.trigger('ended');
+  clock.tick(10000);
+
+  assert.equal(player.playlist.next.callCount, 1, 'next was called');
+
+  autoadvance.setup(player, 10);
+  player.trigger('ended');
+  clock.tick(5000);
+  player.trigger('play');
+  clock.tick(5000);
+
+  assert.equal(player.playlist.next.callCount, 1, 'next was not called because a "play" occurred');
+
+  player.trigger('ended');
+  clock.tick(10000);
+
+  assert.equal(player.playlist.next.callCount, 2, 'next was called again because the content ended again and the appropriate wait time elapsed');
 });
