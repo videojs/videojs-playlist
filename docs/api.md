@@ -424,6 +424,42 @@ Fires the `playlistsorted` event after shuffling.
 
 ## Events
 
+### `beforeplaylistchange`
+
+This event is fired _after_ the contents of the playlist are changed, but _before_ the current playlist item is changed. The event object has several special properties:
+
+- `nextIndex`: The index from the next playlist that will be played first.
+- `nextPlaylist`: A shallow clone of the next playlist.
+- `previousIndex`: The index from the previous playlist (will always match the current index when this event triggers, but is provided for completeness).
+- `previousPlaylist`: A shallow clone of the previous playlist.
+
+#### Caveats
+
+During the firing of this event, the playlist is considered to be in a **changing state**, which has the following effects:
+
+- Calling the main playlist method (i.e. `player.playlist([...])`) will throw an error.
+- Playlist navigation methods - `first`, `last`, `next`, and `previous` - are rendered inoperable.
+- The `currentItem()` method only acts as a getter.
+- While the sorting methods - `sort`, `reverse`, and `shuffle` - will continue to work, they do not fire the `playlistsorted` event.
+
+#### Why have this event?
+
+This event provides an opportunity to intercept the playlist setting process before a new source is set on the player and before the `playlistchange` event fires, while providing a consistent playlist API.
+
+One use-case might be shuffling a playlist that has just come from a server, but before its initial source is loaded into the player or the playlist UI is updated:
+
+```js
+player.on('beforeplaylistchange', function() {
+
+  // Remember, this will not trigger a "playlistsorted" event!
+  player.playlist.shuffle();
+});
+
+player.on('playlistchange', function() {
+  videojs.log('The playlist was shuffled, so the UI can be updated.');
+});
+```
+
 ### `playlistchange`
 
 This event is fired asynchronously whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument).
