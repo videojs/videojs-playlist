@@ -1,3 +1,11 @@
+<a name="4.2.0"></a>
+# [4.2.0](https://github.com/brightcove/videojs-playlist/compare/v4.1.1...v4.2.0) (2018-01-25)
+
+### Features
+
+* Add 'duringplaylistchange' event. ([#92](https://github.com/brightcove/videojs-playlist/issues/92)) ([eb80503](https://github.com/brightcove/videojs-playlist/commit/eb80503))
+* Add 'rest' option to the shuffle method. ([#91](https://github.com/brightcove/videojs-playlist/issues/91)) ([57d5f0c](https://github.com/brightcove/videojs-playlist/commit/57d5f0c))
+
 <a name="4.1.1"></a>
 ## [4.1.1](https://github.com/brightcove/videojs-playlist/compare/v4.1.0...v4.1.1) (2018-01-08)
 
