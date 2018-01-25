@@ -73,6 +73,16 @@
       player.volume(0);
     } catch (e) {}
 
+    player.on([
+      'duringplaylistchange',
+      'playlistchange',
+      'beforeplaylistitem',
+      'playlistitem',
+      'playlistsorted'
+    ], function(e) {
+      videojs.log('player saw "' + e.type + '"');
+    });
+
     player.playlist(videoList);
 
     document.querySelector('.previous').addEventListener('click', function() {
@@ -86,15 +96,18 @@
     Array.prototype.forEach.call(document.querySelectorAll('[name=autoadvance]'), function(el) {
       el.addEventListener('click', function() {
         var value = document.querySelector('[name=autoadvance]:checked').value;
-        player.playlist.autoadvance(JSON.parse(value));
+        player.playlist.autoadvance(Number(value));
       });
     });
+
     document.querySelector('[name="autoadvance"][value="null"]').click();
 
     var repeatCheckbox = document.querySelector('.repeat');
+
     repeatCheckbox.addEventListener('click', function() {
       player.playlist.repeat(this.checked);
     });
+
     repeatCheckbox.checked = false;
   </script>
 </body>

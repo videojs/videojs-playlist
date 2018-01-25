@@ -724,6 +724,62 @@ QUnit.test('when loading a new playlist, trigger "playlistchange" on the player'
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
 });
 
+QUnit.test('"duringplaylistchange" and "playlistchange" on first call without an initial list', function(assert) {
+  const changeSpy = sinon.spy();
+  const duringSpy = sinon.spy();
+  const player = playerProxyMaker();
+
+  player.on('playlistchange', changeSpy);
+  player.on('duringplaylistchange', duringSpy);
+
+  const playlist = playlistMaker(player);
+
+  this.clock.tick(1);
+
+  assert.strictEqual(changeSpy.callCount, 0, 'on initial call, the "playlistchange" event did not fire');
+  assert.strictEqual(duringSpy.callCount, 0, 'on initial call, the "duringplaylistchange" event did not fire');
+
+  playlist([1]);
+  this.clock.tick(1);
+
+  assert.strictEqual(changeSpy.callCount, 1, 'on second call, the "playlistchange" event did fire');
+  assert.strictEqual(duringSpy.callCount, 1, 'on second call, the "duringplaylistchange" event did fire');
+
+  playlist([2]);
+  this.clock.tick(1);
+
+  assert.strictEqual(changeSpy.callCount, 2, 'on third call, the "playlistchange" event did fire');
+  assert.strictEqual(duringSpy.callCount, 2, 'on third call, the "duringplaylistchange" event did fire');
+});
+
+QUnit.test('"duringplaylistchange" and "playlistchange" on first call with an initial list', function(assert) {
+  const changeSpy = sinon.spy();
+  const duringSpy = sinon.spy();
+  const player = playerProxyMaker();
+
+  player.on('playlistchange', changeSpy);
+  player.on('duringplaylistchange', duringSpy);
+
+  const playlist = playlistMaker(player, [1]);
+
+  this.clock.tick(1);
+
+  assert.strictEqual(changeSpy.callCount, 0, 'on initial call, the "playlistchange" event did not fire');
+  assert.strictEqual(duringSpy.callCount, 1, 'on initial call, the "duringplaylistchange" event did fire');
+
+  playlist([2]);
+  this.clock.tick(1);
+
+  assert.strictEqual(changeSpy.callCount, 1, 'on second call, the "playlistchange" event did fire');
+  assert.strictEqual(duringSpy.callCount, 2, 'on second call, the "duringplaylistchange" event did fire');
+
+  playlist([3]);
+  this.clock.tick(1);
+
+  assert.strictEqual(changeSpy.callCount, 2, 'on third call, the "playlistchange" event did fire');
+  assert.strictEqual(duringSpy.callCount, 3, 'on third call, the "duringplaylistchange" event did fire');
+});
+
 QUnit.test('playlist.sort() works as expected', function(assert) {
   const player = playerProxyMaker();
   const spy = sinon.spy();

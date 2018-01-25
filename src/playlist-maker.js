@@ -128,7 +128,7 @@ const randomize = (arr) => {
  *         Returns the playlist function specific to the given player.
  */
 export default function factory(player, initialList, initialIndex = 0) {
-  let list = Array.isArray(initialList) ? initialList.slice() : [];
+  let list = null;
   let changing = false;
 
   /**
@@ -155,7 +155,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     if (Array.isArray(newList)) {
-      const previousPlaylist = list.slice();
+
+      // @todo - Simplify this to `list.slice()` for v5.
+      const previousPlaylist = Array.isArray(list) ? list.slice() : null;
 
       list = newList.slice();
 
@@ -167,7 +169,9 @@ export default function factory(player, initialList, initialIndex = 0) {
         nextIndex: newIndex,
         nextPlaylist: list,
         previousIndex: playlist.currentIndex_,
-        previousPlaylist
+
+        // @todo - Simplify this to simply pass along `previousPlaylist` for v5.
+        previousPlaylist: previousPlaylist || []
       });
 
       changing = false;
@@ -176,9 +180,18 @@ export default function factory(player, initialList, initialIndex = 0) {
         playlist.currentItem(newIndex);
       }
 
-      player.setTimeout(() => {
-        player.trigger('playlistchange');
-      }, 0);
+      // The only time the previous playlist is null is the first call to this
+      // function. This allows us to fire the `duringplaylistchange` event
+      // every time the playlist is populated and to maintain backward
+      // compatibility by not firing the `playlistchange` event on the initial
+      // population of the list.
+      //
+      // @todo - Remove this condition in preparation for v5.
+      if (previousPlaylist) {
+        player.setTimeout(() => {
+          player.trigger('playlistchange');
+        }, 0);
+      }
     }
 
     // Always return a shallow clone of the playlist list.
@@ -564,7 +577,14 @@ export default function factory(player, initialList, initialIndex = 0) {
     player.trigger('playlistsorted');
   };
 
-  playlist.currentItem(initialIndex);
+  // If an initial list was given, populate the playlist with it.
+  if (Array.isArray(initialList)) {
+    playlist(initialList.slice(), initialIndex);
+
+  // If there is no initial list given, silently set an empty array.
+  } else {
+    list = [];
+  }
 
   return playlist;
 }

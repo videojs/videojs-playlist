@@ -433,6 +433,8 @@ This event is fired _after_ the contents of the playlist are changed when callin
 - `previousIndex`: The index from the previous playlist (will always match the current index when this event triggers, but is provided for completeness).
 - `previousPlaylist`: A shallow clone of the previous playlist.
 
+**NOTE**: This event fires every time `player.playlist()` is called - including the first time.
+
 #### Caveats
 
 During the firing of this event, the playlist is considered to be in a **changing state**, which has the following effects:
@@ -462,7 +464,7 @@ player.on('playlistchange', function() {
 
 ### `playlistchange`
 
-This event is fired asynchronously whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument).
+This event is fired _asynchronously_ whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument) - except the first time.
 
 It is fired asynchronously to let the browser start loading the first video in the new playlist.
 
@@ -477,6 +479,20 @@ player.playlist([]);
 player.playlist([]);
 // [ ... ]
 ```
+
+#### Backward Compatibility
+
+This event _does not fire_ the first time `player.playlist()` is called. If you want it to fire on the first call to `player.playlist()`, you can call it without an argument before calling it with one:
+
+```js
+// This will fire no events.
+player.playlist();
+
+// This will fire both "duringplaylistchange" and "playlistchange"
+player.playlist([...]);
+```
+
+This behavior will be removed in v5.0.0 and the event will fire in all cases.
 
 ### `beforeplaylistitem`
 
