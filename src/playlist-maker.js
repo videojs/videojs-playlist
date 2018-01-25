@@ -72,6 +72,31 @@ const indexInSources = (arr, src) => {
 };
 
 /**
+ * Randomize the contents of an array.
+ *
+ * @private
+ * @param  {Array} arr
+ *         An array.
+ *
+ * @return {Array}
+ *         The same array that was passed in.
+ */
+const randomize = (arr) => {
+  let index = -1;
+  const lastIndex = arr.length - 1;
+
+  while (++index < arr.length) {
+    const rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
+    const value = arr[rand];
+
+    arr[rand] = arr[index];
+    arr[index] = value;
+  }
+
+  return arr;
+};
+
+/**
  * Factory function for creating new playlist implementation on the given player.
  *
  * API summary:
@@ -486,26 +511,43 @@ export default function factory(player, initialList, initialIndex = 0) {
   /**
    * Shuffle the contents of the list randomly.
    *
-   * @see {@link https://github.com/lodash/lodash/blob/40e096b6d5291a025e365a0f4c010d9a0efb9a69/shuffle.js}
+   * @see   {@link https://github.com/lodash/lodash/blob/40e096b6d5291a025e365a0f4c010d9a0efb9a69/shuffle.js}
    * @fires playlistsorted
+   * @todo  Make the `rest` option default to `true` in v5.0.0.
+   * @param {Object} [options]
+   *        An object containing shuffle options.
+   *
+   * @param {boolean} [options.rest = false]
+   *        By default, the entire playlist is randomized. However, this may
+   *        not be desirable in all cases, such as when a user is already
+   *        watching a video.
+   *
+   *        When `true` is passed for this option, it will only shuffle
+   *        playlist items after the current item. For example, when on the
+   *        first item, will shuffle the second item and beyond.
    */
-  playlist.shuffle = () => {
-    let index = -1;
-    const length = list.length;
+  playlist.shuffle = ({rest} = {}) => {
+    let index = 0;
+    let arr = list;
 
-    // Bail if the array is empty.
-    if (!length) {
+    // When options.rest is true, start randomization at the item after the
+    // current item.
+    if (rest) {
+      index = playlist.currentIndex_ + 1;
+      arr = list.slice(index);
+    }
+
+    // Bail if the array is empty or too short to shuffle.
+    if (arr.length <= 1) {
       return;
     }
 
-    const lastIndex = length - 1;
+    randomize(arr);
 
-    while (++index < length) {
-      const rand = index + Math.floor(Math.random() * (lastIndex - index + 1));
-      const value = list[rand];
-
-      list[rand] = list[index];
-      list[index] = value;
+    // When options.rest is true, splice the randomized sub-array back into
+    // the original array.
+    if (rest) {
+      list.splice(...[index, arr.length].concat(arr));
     }
 
     // If the playlist is changing, don't trigger events.

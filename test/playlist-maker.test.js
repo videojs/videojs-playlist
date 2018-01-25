@@ -788,3 +788,58 @@ QUnit.test('playlist.shuffle() works as expected', function(assert) {
   assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 });
+
+QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) {
+  const player = playerProxyMaker();
+  const spy = sinon.spy();
+
+  player.on('playlistsorted', spy);
+  const playlist = playlistMaker(player, [1, 2, 3, 4]);
+
+  playlist.currentIndex_ = 3;
+  playlist.shuffle({rest: true});
+  let list = playlist();
+
+  assert.deepEqual(list, [1, 2, 3, 4], 'playlist is unchanged because the last item is selected');
+  assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event was not triggered');
+
+  playlist.currentIndex_ = 2;
+  playlist.shuffle({rest: true});
+  list = playlist();
+
+  assert.deepEqual(list, [1, 2, 3, 4], 'playlist is unchanged because the second-to-last item is selected');
+  assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event was not triggered');
+
+  playlist.currentIndex_ = 1;
+  playlist.shuffle({rest: true});
+  list = playlist();
+
+  assert.strictEqual(list.length, 4, 'playlist is the correct length');
+  assert.strictEqual(list.indexOf(1), 0, '1 is the first item in the list');
+  assert.strictEqual(list.indexOf(2), 1, '2 is the second item in the list');
+  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
+  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
+  assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
+
+  playlist.currentIndex_ = 0;
+  playlist.shuffle({rest: true});
+  list = playlist();
+
+  assert.strictEqual(list.length, 4, 'playlist is the correct length');
+  assert.strictEqual(list.indexOf(1), 0, '1 is the first item in the list');
+  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
+  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
+  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
+  assert.strictEqual(spy.callCount, 2, 'the "playlistsorted" event triggered');
+
+  playlist.currentIndex_ = -1;
+  playlist.shuffle({rest: true});
+  list = playlist();
+
+  assert.strictEqual(list.length, 4, 'playlist is the correct length');
+  assert.notStrictEqual(list.indexOf(1), -1, '1 is in the list');
+  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
+  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
+  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
+  assert.strictEqual(spy.callCount, 3, 'the "playlistsorted" event triggered');
+});
