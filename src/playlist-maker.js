@@ -104,6 +104,7 @@ const indexInSources = (arr, src) => {
  */
 export default function factory(player, initialList, initialIndex = 0) {
   let list = Array.isArray(initialList) ? initialList.slice() : [];
+  let changing = false;
 
   /**
    * Get/set the playlist for a player.
@@ -124,12 +125,35 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The playlist
    */
   const playlist = player.playlist = (newList, newIndex = 0) => {
+    if (changing) {
+      throw new Error('do not call playlist() during a playlist change');
+    }
+
     if (Array.isArray(newList)) {
+      const previousPlaylist = list.slice();
+
       list = newList.slice();
+
+      // Mark the playlist as changing during the duringplaylistchange lifecycle.
+      changing = true;
+
+      player.trigger({
+        type: 'duringplaylistchange',
+        nextIndex: newIndex,
+        nextPlaylist: list,
+        previousIndex: playlist.currentIndex_,
+        previousPlaylist
+      });
+
+      changing = false;
+
       if (newIndex !== -1) {
         playlist.currentItem(newIndex);
       }
-      player.setTimeout(() => player.trigger('playlistchange'), 0);
+
+      player.setTimeout(() => {
+        player.trigger('playlistchange');
+      }, 0);
     }
 
     // Always return a shallow clone of the playlist list.
@@ -151,6 +175,8 @@ export default function factory(player, initialList, initialIndex = 0) {
   /**
    * Get or set the current item in the playlist.
    *
+   * During the duringplaylistchange event, acts only as a getter.
+   *
    * @param  {number} [index]
    *         If given as a valid value, plays the playlist item at that index.
    *
@@ -158,6 +184,12 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The current item index.
    */
   playlist.currentItem = (index) => {
+
+    // If the playlist is changing, only act as a getter.
+    if (changing) {
+      return playlist.currentIndex_;
+    }
+
     if (
       typeof index === 'number' &&
       playlist.currentIndex_ !== index &&
@@ -291,6 +323,10 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         Returns undefined and has no side effects if the list is empty.
    */
   playlist.first = () => {
+    if (changing) {
+      return;
+    }
+
     if (list.length) {
       return list[playlist.currentItem(0)];
     }
@@ -305,6 +341,10 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         Returns undefined and has no side effects if the list is empty.
    */
   playlist.last = () => {
+    if (changing) {
+      return;
+    }
+
     if (list.length) {
       return list[playlist.currentItem(playlist.lastIndex())];
     }
@@ -319,6 +359,10 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         Returns undefined and has no side effects if on last item.
    */
   playlist.next = () => {
+    if (changing) {
+      return;
+    }
+
     const index = playlist.nextIndex();
 
     if (index !== playlist.currentIndex_) {
@@ -333,6 +377,10 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         Returns undefined and has no side effects if on first item.
    */
   playlist.previous = () => {
+    if (changing) {
+      return;
+    }
+
     const index = playlist.previousIndex();
 
     if (index !== playlist.currentIndex_) {
@@ -392,6 +440,11 @@ export default function factory(player, initialList, initialIndex = 0) {
 
     list.sort(compare);
 
+    // If the playlist is changing, don't trigger events.
+    if (changing) {
+      return;
+    }
+
     /**
      * Triggered after the playlist is sorted internally.
      *
@@ -415,6 +468,11 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     list.reverse();
+
+    // If the playlist is changing, don't trigger events.
+    if (changing) {
+      return;
+    }
 
     /**
      * Triggered after the playlist is sorted internally.
@@ -448,6 +506,11 @@ export default function factory(player, initialList, initialIndex = 0) {
 
       list[rand] = list[index];
       list[index] = value;
+    }
+
+    // If the playlist is changing, don't trigger events.
+    if (changing) {
+      return;
     }
 
     /**

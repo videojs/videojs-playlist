@@ -665,6 +665,51 @@ QUnit.test('loading a non-playlist video will cancel autoadvance and set index o
   autoadvance.setReset_(oldReset);
 });
 
+QUnit.test('when loading a new playlist, trigger "duringplaylistchange" on the player', function(assert) {
+  const done = assert.async();
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3], 1);
+
+  player.on('duringplaylistchange', (e) => {
+    assert.strictEqual(e.type, 'duringplaylistchange', 'the event object had the correct "type" property');
+    assert.strictEqual(e.previousIndex, 1, 'the event object had the correct "previousIndex" property');
+    assert.deepEqual(e.previousPlaylist, [1, 2, 3], 'the event object had the correct "previousPlaylist" property');
+    assert.strictEqual(e.nextIndex, 0, 'the event object had the correct "nextIndex" property');
+    assert.deepEqual(e.nextPlaylist, [4, 5, 6], 'the event object had the correct "nextPlaylist" property');
+
+    assert.throws(() => {
+      playlist([1, 2, 3]);
+    }, Error, 'cannot set a new playlist during a change');
+
+    const spy = sinon.spy();
+
+    player.on('playlistsorted', spy);
+    playlist.sort();
+    playlist.reverse();
+    playlist.shuffle();
+    assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event never fired');
+
+    playlist.currentItem(2);
+    assert.strictEqual(playlist.currentItem(), 1, 'the playlist current item could not be changed');
+
+    playlist.next();
+    assert.strictEqual(playlist.currentItem(), 1, 'the playlist current item could not be changed');
+
+    playlist.previous();
+    assert.strictEqual(playlist.currentItem(), 1, 'the playlist current item could not be changed');
+
+    playlist.first();
+    assert.strictEqual(playlist.currentItem(), 1, 'the playlist current item could not be changed');
+
+    playlist.last();
+    assert.strictEqual(playlist.currentItem(), 1, 'the playlist current item could not be changed');
+
+    done();
+  });
+
+  playlist([4, 5, 6]);
+});
+
 QUnit.test('when loading a new playlist, trigger "playlistchange" on the player', function(assert) {
   const spy = sinon.spy();
   const player = playerProxyMaker();
