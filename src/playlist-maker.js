@@ -134,11 +134,11 @@ export default function factory(player, initialList, initialIndex = 0) {
 
       list = newList.slice();
 
-      // Mark the playlist as changing during the beforeplaylistchange lifecycle.
+      // Mark the playlist as changing during the duringplaylistchange lifecycle.
       changing = true;
 
       player.trigger({
-        type: 'beforeplaylistchange',
+        type: 'duringplaylistchange',
         nextIndex: newIndex,
         nextPlaylist: list,
         previousIndex: playlist.currentIndex_,
@@ -175,7 +175,7 @@ export default function factory(player, initialList, initialIndex = 0) {
   /**
    * Get or set the current item in the playlist.
    *
-   * During the beforeplaylistchange event, acts only as a getter.
+   * During the duringplaylistchange event, acts only as a getter.
    *
    * @param  {number} [index]
    *         If given as a valid value, plays the playlist item at that index.

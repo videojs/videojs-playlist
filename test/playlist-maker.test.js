@@ -665,13 +665,13 @@ QUnit.test('loading a non-playlist video will cancel autoadvance and set index o
   autoadvance.setReset_(oldReset);
 });
 
-QUnit.test('when loading a new playlist, trigger "beforeplaylistchange" on the player', function(assert) {
+QUnit.test('when loading a new playlist, trigger "duringplaylistchange" on the player', function(assert) {
   const done = assert.async();
   const player = playerProxyMaker();
   const playlist = playlistMaker(player, [1, 2, 3], 1);
 
-  player.on('beforeplaylistchange', (e) => {
-    assert.strictEqual(e.type, 'beforeplaylistchange', 'the event object had the correct "type" property');
+  player.on('duringplaylistchange', (e) => {
+    assert.strictEqual(e.type, 'duringplaylistchange', 'the event object had the correct "type" property');
     assert.strictEqual(e.previousIndex, 1, 'the event object had the correct "previousIndex" property');
     assert.deepEqual(e.previousPlaylist, [1, 2, 3], 'the event object had the correct "previousPlaylist" property');
     assert.strictEqual(e.nextIndex, 0, 'the event object had the correct "nextIndex" property');

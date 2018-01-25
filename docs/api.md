@@ -424,9 +424,9 @@ Fires the `playlistsorted` event after shuffling.
 
 ## Events
 
-### `beforeplaylistchange`
+### `duringplaylistchange`
 
-This event is fired _after_ the contents of the playlist are changed, but _before_ the current playlist item is changed. The event object has several special properties:
+This event is fired _after_ the contents of the playlist are changed when calling `playlist()`, but _before_ the current playlist item is changed. The event object has several special properties:
 
 - `nextIndex`: The index from the next playlist that will be played first.
 - `nextPlaylist`: A shallow clone of the next playlist.
@@ -449,7 +449,7 @@ This event provides an opportunity to intercept the playlist setting process bef
 One use-case might be shuffling a playlist that has just come from a server, but before its initial source is loaded into the player or the playlist UI is updated:
 
 ```js
-player.on('beforeplaylistchange', function() {
+player.on('duringplaylistchange', function() {
 
   // Remember, this will not trigger a "playlistsorted" event!
   player.playlist.shuffle();
