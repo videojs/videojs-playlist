@@ -1,5 +1,6 @@
 import videojs from 'video.js';
 import playlistMaker from './playlist-maker';
+import {version as VERSION} from '../package.json';
 
 // Video.js 5/6 cross-compatible.
 const registerPlugin = videojs.registerPlugin || videojs.plugin;
@@ -19,5 +20,7 @@ const plugin = function(list, item) {
 };
 
 registerPlugin('playlist', plugin);
+
+plugin.VERSION = VERSION;
 
 export default plugin;
