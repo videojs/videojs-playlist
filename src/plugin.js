@@ -1,5 +1,6 @@
 import document from 'global/document';
 import videojs from 'video.js';
+import {version as VERSION} from '../package.json';
 
 // support VJS5 & VJS6 at the same time
 const dom = videojs.dom || videojs;
@@ -451,5 +452,7 @@ videojs.registerComponent('PlaylistMenuItem', PlaylistMenuItem);
 
 // register the plugin
 registerPlugin('playlistUi', playlistUi);
+
+playlistUi.VERSION = VERSION;
 
 export default playlistUi;
