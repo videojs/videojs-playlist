@@ -1,3 +1,18 @@
+<a name="3.4.0"></a>
+# [3.4.0](https://github.com/brightcove/videojs-playlist-ui/compare/v3.3.0...v3.4.0) (2018-03-29)
+
+### Features
+
+* Expose the version of the plugin at the `VERSION` property. ([#56](https://github.com/brightcove/videojs-playlist-ui/issues/56)) ([cb2da9d](https://github.com/brightcove/videojs-playlist-ui/commit/cb2da9d))
+
+### Bug Fixes
+
+* Truncate longer video titles with ellipses when they overflow ([#57](https://github.com/brightcove/videojs-playlist-ui/issues/57)) ([18d8a18](https://github.com/brightcove/videojs-playlist-ui/commit/18d8a18))
+
+### Chores
+
+* Update tooling via the plugin generator. ([#55](https://github.com/brightcove/videojs-playlist-ui/issues/55)) ([b753ab3](https://github.com/brightcove/videojs-playlist-ui/commit/b753ab3))
+
 <a name="3.3.0"></a>
 # [3.3.0](https://github.com/brightcove/videojs-playlist-ui/compare/v3.2.1...v3.3.0) (2017-12-04)
 

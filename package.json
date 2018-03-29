@@ -1,6 +1,6 @@
 {
   "name": "videojs-playlist-ui",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "author": "Brightcove, Inc.",
   "description": "A user interface for the videojs-playlist API",
   "license": "Apache-2.0",
