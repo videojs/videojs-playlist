@@ -82,7 +82,9 @@ $placeholder-background-color: #303030;
     padding: 0 0 4px 2px;
     font-style: normal;
     text-overflow: ellipsis;
-
+    overflow: hidden;
+    white-space: nowrap;
+    
     // line-height: normal was causing overflow cutoff issues on Android, since normal
     // lets different user agents pick a value. Here we set a consistent precise value.
     line-height: 20px;
