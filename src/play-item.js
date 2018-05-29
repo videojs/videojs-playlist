@@ -42,7 +42,13 @@ const playItem = (player, item) => {
     player.trigger('playlistitem', item);
 
     if (replay) {
-      player.play();
+      const playPromise = player.play();
+
+      // silence error when a pause interrupts a play request
+      // on browsers which return a promise
+      if (typeof playPromise !== 'undefined' && typeof playPromise.then === 'function') {
+        playPromise.then(null, (e) => {});
+      }
     }
 
     setup(player, player.playlist.autoadvance_.delay);
