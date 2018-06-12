@@ -1,6 +1,14 @@
-[![Build Status](https://travis-ci.org/brightcove/videojs-playlist.svg?branch=master)](https://travis-ci.org/brightcove/videojs-playlist)
+# videojs-playlist
 
-# Playlist Plugin for video.js
+[![Build Status](https://travis-ci.org/brightcove/videojs-playlist.svg?branch=master)](https://travis-ci.org/brightcove/videojs-playlist)
+[![Greenkeeper badge](https://badges.greenkeeper.io/brightcove/videojs-playlist.svg)](https://greenkeeper.io/)
+[![Slack Status](http://slack.videojs.com/badge.svg)](http://slack.videojs.com)
+
+[![NPM](https://nodei.co/npm/videojs-playlist.png?downloads=true&downloadRank=true)](https://nodei.co/npm/videojs-playlist/)
+
+A plugin to enable playlists in video.js
+
+Maintenance Status: Stable
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
