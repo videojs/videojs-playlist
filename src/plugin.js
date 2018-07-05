@@ -2,7 +2,6 @@ import document from 'global/document';
 import videojs from 'video.js';
 import {version as VERSION} from '../package.json';
 
-// support VJS5 & VJS6 at the same time
 const dom = videojs.dom || videojs;
 const registerPlugin = videojs.registerPlugin || videojs.plugin;
 

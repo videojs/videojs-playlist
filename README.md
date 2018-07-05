@@ -1,7 +1,31 @@
-[![Build Status](https://travis-ci.org/brightcove/videojs-playlist-ui.svg?branch=master)](https://travis-ci.org/brightcove/videojs-playlist-ui)
+# videojs-playlist-ui
 
-# Video.js Playlist UI
+[![Build Status](https://travis-ci.org/brightcove/videojs-playlist-ui.svg?branch=master)](https://travis-ci.org/brightcove/videojs-playlist-ui)
+[![Greenkeeper badge](https://badges.greenkeeper.io/brightcove/videojs-playlist-ui.svg)](https://greenkeeper.io/)
+[![Slack Status](http://slack.videojs.com/badge.svg)](http://slack.videojs.com)
+
+[![NPM](https://nodei.co/npm/videojs-playlist-ui.png?downloads=true&downloadRank=true)](https://nodei.co/npm/videojs-playlist-ui/)
+
 A playlist video picker for video.js and videojs-playlist
+
+Maintenance Status: Stable
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Getting Started](#getting-started)
+- [Root Element](#root-element)
+  - [Using Automatic Discovery (default, example)](#using-automatic-discovery-default-example)
+  - [Using a Custom Class (example)](#using-a-custom-class-example)
+  - [Using a Custom Element (example)](#using-a-custom-element-example)
+- [Other Options](#other-options)
+    - [`className`](#classname)
+    - [playOnSelect](#playonselect)
+- [Playlists and Advertisements](#playlists-and-advertisements)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 
 ## Getting Started
 Include the plugin script in your page, and a placeholder list element with the class `vjs-playlist` to house the playlist menu:

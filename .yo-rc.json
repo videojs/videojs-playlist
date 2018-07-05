@@ -1,0 +1,14 @@
+{
+  "generator-videojs-plugin": {
+    "scope": "",
+    "name": "playlist-ui",
+    "description": "A playlist video picker for video.js",
+    "author": "Brightcove, Inc.",
+    "license": "apache2",
+    "pluginType": "advanced",
+    "css": true,
+    "docs": true,
+    "lang": false,
+    "husky": "lint"
+  }
+}

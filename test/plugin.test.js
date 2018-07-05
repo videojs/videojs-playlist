@@ -70,7 +70,7 @@ function teardown() {
   dom.emptyEl(this.fixture);
 }
 
-QUnit.module('videojs-playlist-ui', {setup, teardown});
+QUnit.module('videojs-playlist-ui', {beforeEach: setup, afterEach: teardown});
 
 QUnit.test('registers itself', function(assert) {
   assert.ok(this.player.playlistUi, 'registered the plugin');
@@ -186,7 +186,7 @@ QUnit.test('can be re-initialized without doubling the contents of the list', fu
   );
 });
 
-QUnit.module('videojs-playlist-ui: Components', {setup, teardown});
+QUnit.module('videojs-playlist-ui: Components', {beforeEach: setup, afterEach: teardown});
 
 // --------------------
 // Creation and Updates
