@@ -1,3 +1,10 @@
+<a name="4.2.2"></a>
+## [4.2.2](https://github.com/brightcove/videojs-playlist/compare/v4.2.1...v4.2.2) (2018-07-05)
+
+### Chores
+
+* generator v6 ([#102](https://github.com/brightcove/videojs-playlist/issues/102)) ([8c50798](https://github.com/brightcove/videojs-playlist/commit/8c50798))
+
 <a name="4.2.1"></a>
 ## [4.2.1](https://github.com/brightcove/videojs-playlist/compare/v4.2.0...v4.2.1) (2018-06-13)
 
