@@ -1,3 +1,14 @@
+<a name="3.4.1"></a>
+## [3.4.1](https://github.com/brightcove/videojs-playlist-ui/compare/v3.0.7...v3.4.1) (2018-07-20)
+
+### Bug Fixes
+
+* css builds ([#63](https://github.com/brightcove/videojs-playlist-ui/issues/63)) ([603ec73](https://github.com/brightcove/videojs-playlist-ui/commit/603ec73))
+
+### Reverts
+
+* unintended pkg changes ([#64](https://github.com/brightcove/videojs-playlist-ui/issues/64)) ([be83683](https://github.com/brightcove/videojs-playlist-ui/commit/be83683))
+
 <a name="3.0.7"></a>
 ## [3.0.7](https://github.com/brightcove/videojs-playlist-ui/compare/v3.4.0...v3.0.7) (2018-07-05)
 
