@@ -9,6 +9,14 @@
 
 * unintended pkg changes ([#64](https://github.com/brightcove/videojs-playlist-ui/issues/64)) ([be83683](https://github.com/brightcove/videojs-playlist-ui/commit/be83683))
 
+<a name="3.0.8"></a>
+## [3.0.8](https://github.com/brightcove/videojs-playlist-ui/compare/v3.0.6...v3.0.8) (2018-07-20)
+
+### Bug Fixes
+
+* update rollup to fix test build ([d329710](https://github.com/brightcove/videojs-playlist-ui/commit/d329710))
+* revert: generator update from 3.0.7
+
 <a name="3.0.7"></a>
 ## [3.0.7](https://github.com/brightcove/videojs-playlist-ui/compare/v3.4.0...v3.0.7) (2018-07-05)
 
