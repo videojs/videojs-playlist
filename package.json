@@ -12,9 +12,8 @@
   "scripts": {
     "prebuild": "npm run clean",
     "build": "npm-run-all -p build:*",
-    "build:css": "node-sass src/plugin.scss dist/videojs-ssai.css --output-style=compressed --linefeed=lf",
-    "build:css:postcss": "npm-run-all build:css:main build:css:copy-vertical build:css:copy-no-prefix",
-    "build:css:main": "postcss --verbose -o dist/videojs-playlist-ui.css --config scripts/postcss.config.js src/plugin.css",
+    "build:css": "npm-run-all build:css:sass build:css:copy-vertical build:css:copy-no-prefix",
+    "build:css:sass": "node-sass src/plugin.scss dist/videojs-playlist-ui.css --output-style=compressed --linefeed=lf",
     "build:css:copy-no-prefix": "cp dist/videojs-playlist-ui.css dist/videojs-playlist-ui.vertical.no-prefix.css",
     "build:css:copy-vertical": "cp dist/videojs-playlist-ui.css dist/videojs-playlist-ui.vertical.css",
     "build:js": "rollup -c scripts/rollup.config.js",
