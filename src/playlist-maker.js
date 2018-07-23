@@ -3,6 +3,58 @@ import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
 /**
+ * Add a unique id to a playlist item object. This id will be used to determine
+ * index of an item in the playlist in cases when there are duplicate sources
+ * in the playlist.
+ *
+ * @private
+ *
+ * @param {Array}
+ *         An array of playlist items
+ *
+ * @return {Array}
+ *          The list of playlist items with unique ids
+ */
+const addPlaylistItemId = (arr) => {
+  const list = [];
+
+  for (let i = 0; i < arr.length; i++) {
+    const uuid = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+
+    arr[i].playlistItemId = uuid;
+    list.push(arr[i]);
+  }
+
+  return list;
+};
+
+/**
+ * Look through an array of playlist items for a specific playlist item id.
+ *
+ * @private
+ * @param   {Array}
+ *           An array of playlist items to look through
+ *
+ * @param   {Player}
+ *           The player containing a playlist
+ *
+ * @return  {Number}
+ *           The index of the playlist item or -1 if not found
+ */
+const indexInPlaylistItemIds = (arr, player) => {
+  if (!player.playlist.currentPlaylistItemId_) {
+    return;
+  }
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i].playlistItemId === player.playlist.currentPlaylistItemId_) {
+      return i;
+    }
+  }
+
+  return -1;
+};
+
+/**
  * Given two sources, check to see whether the two sources are equal.
  * If both source urls have a protocol, the protocols must match, otherwise, protocols
  * are ignored.
@@ -50,10 +102,13 @@ const sourceEquals = (source1, source2) => {
  * @param   {string} src
  *          The source to look for
  *
- * @return  {number}
- *          The index of that source or -1
+ * @return  {number|Array}
+ *          The index or array of indices if more than one instance of that source
+ *          exists in the playlist, -1 if not found.
  */
-const indexInSources = (arr, src) => {
+const indicesInSources = (arr, src) => {
+  const indices = [];
+
   for (let i = 0; i < arr.length; i++) {
     const sources = arr[i].sources;
 
@@ -62,10 +117,16 @@ const indexInSources = (arr, src) => {
         const source = sources[j];
 
         if (source && sourceEquals(source, src)) {
-          return i;
+          indices.push(i);
         }
       }
     }
+  }
+
+  if (indices.length === 1) {
+    return indices[0];
+  } else if (indices.length > 1) {
+    return indices;
   }
 
   return -1;
@@ -193,7 +254,6 @@ export default function factory(player, initialList, initialIndex = 0) {
         }, 0);
       }
     }
-
     // Always return a shallow clone of the playlist list.
     return list.slice();
   };
@@ -203,6 +263,14 @@ export default function factory(player, initialList, initialIndex = 0) {
     if (playlist.currentItem() === -1) {
       autoadvance.reset(player);
     }
+  });
+
+  player.on('duringplaylistchange', () => {
+    addPlaylistItemId(list);
+  });
+
+  player.on('playlistitem', (event, hash) => {
+    playlist.currentPlaylistItemId_ = hash.playlistItemId;
   });
 
   playlist.currentIndex_ = -1;
@@ -222,7 +290,6 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The current item index.
    */
   playlist.currentItem = (index) => {
-
     // If the playlist is changing, only act as a getter.
     if (changing) {
       return playlist.currentIndex_;
@@ -240,7 +307,14 @@ export default function factory(player, initialList, initialIndex = 0) {
         list[playlist.currentIndex_]
       );
     } else {
-      playlist.currentIndex_ = playlist.indexOf(playlist.player_.currentSrc() || '');
+      let sourceIndex = playlist.indexOf(playlist.player_.currentSrc() || '');
+
+      // If there are than one instance of the same source in the playlist
+      // use playlist item id to determine its index
+      if (sourceIndex.length > 1) {
+        sourceIndex = indexInPlaylistItemIds(list, playlist.player_);
+      }
+      playlist.currentIndex_ = sourceIndex;
     }
 
     return playlist.currentIndex_;
@@ -270,7 +344,7 @@ export default function factory(player, initialList, initialIndex = 0) {
    */
   playlist.indexOf = (value) => {
     if (typeof value === 'string') {
-      return indexInSources(list, value);
+      return indicesInSources(list, value);
     }
 
     const sources = Array.isArray(value) ? value : value.sources;
@@ -279,9 +353,9 @@ export default function factory(player, initialList, initialIndex = 0) {
       const source = sources[i];
 
       if (typeof source === 'string') {
-        return indexInSources(list, source);
+        return indicesInSources(list, source);
       } else if (source.src) {
-        return indexInSources(list, source.src);
+        return indicesInSources(list, source.src);
       }
     }
 
