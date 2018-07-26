@@ -4,8 +4,7 @@ import * as autoadvance from './auto-advance';
 
 /**
  * Add a unique id to a playlist item object. This id will be used to determine
- * index of an item in the playlist in cases when there are duplicate sources
- * in the playlist.
+ * index of an item in the playlist in cases when there are duplicate sources.
  *
  * @private
  *
@@ -15,14 +14,16 @@ import * as autoadvance from './auto-advance';
  * @return {Array}
  *          The list of playlist items with unique ids
  */
-const addPlaylistItemId = (arr) => {
+const generatePlaylistItemId = (arr) => {
   const list = [];
 
   for (let i = 0; i < arr.length; i++) {
     const uuid = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 
-    arr[i].playlistItemId = uuid;
-    list.push(arr[i]);
+    if (typeof arr[i] === 'object') {
+      arr[i].playlistItemId = uuid;
+      list.push(arr[i]);
+    }
   }
 
   return list;
@@ -266,17 +267,22 @@ export default function factory(player, initialList, initialIndex = 0) {
   });
 
   player.on('duringplaylistchange', () => {
-    addPlaylistItemId(list);
+    if (Array.isArray(list)) {
+      generatePlaylistItemId(list);
+    }
   });
 
-  player.on('playlistitem', (event, hash) => {
-    playlist.currentPlaylistItemId_ = hash.playlistItemId;
+  player.on('playlistitem', (event, hashopt) => {
+    if (hashopt && hashopt.playlistItemId) {
+      playlist.currentPlaylistItemId_ = hashopt.playlistItemId;
+    }
   });
 
   playlist.currentIndex_ = -1;
   playlist.player_ = player;
   playlist.autoadvance_ = {};
   playlist.repeat_ = false;
+  playlist.currentPlaylistItemId_ = null;
 
   /**
    * Get or set the current item in the playlist.
@@ -309,7 +315,7 @@ export default function factory(player, initialList, initialIndex = 0) {
     } else {
       let sourceIndex = playlist.indexOf(playlist.player_.currentSrc() || '');
 
-      // If there are than one instance of the same source in the playlist
+      // If there are more than one instance of the same source in the playlist
       // use playlist item id to determine its index
       if (sourceIndex.length > 1) {
         sourceIndex = indexInPlaylistItemIds(list, playlist.player_);

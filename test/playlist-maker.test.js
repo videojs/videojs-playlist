@@ -34,6 +34,12 @@ const videoList = [{
     type: 'video/mp4'
   }],
   poster: 'http://media.w3.org/2010/05/video/poster.png'
+}, {
+  sources: [{
+    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    type: 'video/mp4'
+  }],
+  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
 }];
 
 QUnit.module('playlist-maker', {
@@ -155,6 +161,7 @@ QUnit.test('playlist.currentItem() works as expected', function(assert) {
   };
 
   src = videoList[0].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId;
 
   assert.equal(playlist.currentItem(), 0, 'begin at the first item, item 0');
 
@@ -165,7 +172,7 @@ QUnit.test('playlist.currentItem() works as expected', function(assert) {
   );
 
   assert.equal(playlist.currentItem(), 2, 'the current item is now 2');
-  assert.equal(playlist.currentItem(5), 2, 'cannot change to an out-of-bounds item');
+  assert.equal(playlist.currentItem(6), 2, 'cannot change to an out-of-bounds item');
   assert.equal(playlist.currentItem(-1), 2, 'cannot change to an out-of-bounds item');
   assert.equal(playlist.currentItem(null), 2, 'cannot change to an invalid item');
   assert.equal(playlist.currentItem(NaN), 2, 'cannot change to an invalid item');
@@ -203,6 +210,8 @@ QUnit.test('playlist.currentItem() does not change items if same index is given'
   };
 
   const playlist = playlistMaker(player, videoList);
+
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId;
 
   assert.equal(sources, 1, 'we switched to the first playlist item');
   sources = 0;
@@ -369,16 +378,16 @@ QUnit.test('playlist.indexOf() works as expected', function(assert) {
 
   player.playlist = playlist;
 
-  assert.equal(
+  assert.deepEqual(
     playlist.indexOf('http://media.w3.org/2010/05/sintel/trailer.mp4'),
-    0,
-    'sintel trailer is first item'
+    [0, 5],
+    'sintel trailer is first and fifth item'
   );
 
-  assert.equal(
+  assert.deepEqual(
     playlist.indexOf('//media.w3.org/2010/05/sintel/trailer.mp4'),
-    0,
-    'sintel trailer is first item, protocol-relative url considered equal'
+    [0, 5],
+    'sintel trailer is first and fifth item, protocol-relative url considered equal'
   );
 
   assert.equal(
@@ -547,6 +556,8 @@ QUnit.test('playlist.next() works as expected', function(assert) {
   };
 
   src = videoList[0].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId;
+
   assert.equal(playlist.currentItem(), 0, 'we start on item 0');
 
   assert.deepEqual(
@@ -566,8 +577,9 @@ QUnit.test('playlist.next() works as expected', function(assert) {
 
   src = videoList[2].sources[0].src;
   assert.equal(playlist.currentItem(), 2, 'we are now on item 2');
-  src = videoList[4].sources[0].src;
-  assert.equal(playlist.currentItem(4), 4, 'we are now on item 4');
+  src = videoList[5].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlist()[5].playlistItemId;
+  assert.equal(playlist.currentItem(5), 5, 'we are now on item 5');
 
   assert.equal(
     typeof playlist.next(),
@@ -586,6 +598,7 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
   };
 
   src = videoList[0].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId;
   assert.equal(playlist.currentItem(), 0, 'we start on item 0');
 
   assert.equal(
