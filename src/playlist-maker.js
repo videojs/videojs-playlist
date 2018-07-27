@@ -3,8 +3,9 @@ import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
 /**
- * Add a unique id to a playlist item object. This id will be used to determine
- * index of an item in the playlist in cases when there are duplicate sources.
+ * Generate a unique id for each playlist item object. This id will be used to determine
+ * index of an item in the playlist array for cases where there are multiple items with
+ * the same source set.
  *
  * @private
  *
