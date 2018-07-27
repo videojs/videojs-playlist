@@ -17,7 +17,7 @@ const StaticMiddlewareFactory = function(config) {
   };
 };
 
-/* browsers to run on teamcitycity */
+/* browsers to run on teamcity */
 const teamcityLaunchers = {};
 
 /* browsers to run on browserstack */
