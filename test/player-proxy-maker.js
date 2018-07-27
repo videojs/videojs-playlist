@@ -1,9 +1,8 @@
 import window from 'global/window';
-import extend from 'node.extend';
 import videojs from 'video.js';
 
 const proxy = (props) => {
-  const player = extend(true, {}, videojs.EventTarget.prototype, {
+  const player = Object.assign({}, videojs.EventTarget.prototype, {
     play: () => {},
     paused: () => {},
     ended: () => {},
