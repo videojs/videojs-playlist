@@ -2,7 +2,7 @@
   "generator-videojs-plugin": {
     "scope": "",
     "name": "playlist-ui",
-    "description": "A playlist video picker for video.js",
+    "description": "A user interface for the videojs-playlist API",
     "author": "Brightcove, Inc.",
     "license": "apache2",
     "pluginType": "advanced",
