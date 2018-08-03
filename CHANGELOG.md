@@ -1,3 +1,14 @@
+<a name="3.4.2"></a>
+## [3.4.2](https://github.com/brightcove/videojs-playlist-ui/compare/v3.4.1...v3.4.2) (2018-08-03)
+
+### Bug Fixes
+
+* babel the es dist, by updating the generator ([#65](https://github.com/brightcove/videojs-playlist-ui/issues/65)) ([f63f77b](https://github.com/brightcove/videojs-playlist-ui/commit/f63f77b))
+
+### Chores
+
+* **package:** update dependencies, enable greenkeeper ([#62](https://github.com/brightcove/videojs-playlist-ui/issues/62)) ([63a89a7](https://github.com/brightcove/videojs-playlist-ui/commit/63a89a7))
+
 <a name="3.4.1"></a>
 ## [3.4.1](https://github.com/brightcove/videojs-playlist-ui/compare/v3.0.7...v3.4.1) (2018-07-20)
 
