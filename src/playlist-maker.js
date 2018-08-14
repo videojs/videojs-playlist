@@ -316,7 +316,7 @@ export default function factory(player, initialList, initialIndex = 0) {
     } else {
       let sourceIndex = playlist.indexOf(playlist.player_.currentSrc() || '');
 
-      // If there are more than one instance of the same source in the playlist
+      // If there is more than one instance of the same source in the playlist
       // use playlist item id to determine its index
       if (sourceIndex.length > 1) {
         sourceIndex = indexInPlaylistItemIds(list, playlist.player_);
