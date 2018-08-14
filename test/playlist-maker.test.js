@@ -161,7 +161,7 @@ QUnit.test('playlist.currentItem() works as expected', function(assert) {
   };
 
   src = videoList[0].sources[0].src;
-  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId;
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
 
   assert.equal(playlist.currentItem(), 0, 'begin at the first item, item 0');
 
@@ -211,7 +211,7 @@ QUnit.test('playlist.currentItem() does not change items if same index is given'
 
   const playlist = playlistMaker(player, videoList);
 
-  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId;
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
 
   assert.equal(sources, 1, 'we switched to the first playlist item');
   sources = 0;
@@ -556,7 +556,7 @@ QUnit.test('playlist.next() works as expected', function(assert) {
   };
 
   src = videoList[0].sources[0].src;
-  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId;
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
 
   assert.equal(playlist.currentItem(), 0, 'we start on item 0');
 
@@ -578,7 +578,7 @@ QUnit.test('playlist.next() works as expected', function(assert) {
   src = videoList[2].sources[0].src;
   assert.equal(playlist.currentItem(), 2, 'we are now on item 2');
   src = videoList[5].sources[0].src;
-  playlist.currentPlaylistItemId_ = playlist()[5].playlistItemId;
+  playlist.currentPlaylistItemId_ = playlist()[5].playlistItemId_;
   assert.equal(playlist.currentItem(5), 5, 'we are now on item 5');
 
   assert.equal(
@@ -598,7 +598,7 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
   };
 
   src = videoList[0].sources[0].src;
-  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId;
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
   assert.equal(playlist.currentItem(), 0, 'we start on item 0');
 
   assert.equal(

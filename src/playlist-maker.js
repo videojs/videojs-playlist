@@ -22,7 +22,7 @@ const generatePlaylistItemId = (arr) => {
     const uuid = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
 
     if (typeof arr[i] === 'object') {
-      arr[i].playlistItemId = uuid;
+      arr[i].playlistItemId_ = uuid;
       list.push(arr[i]);
     }
   }
@@ -48,7 +48,7 @@ const indexInPlaylistItemIds = (arr, player) => {
     return;
   }
   for (let i = 0; i < arr.length; i++) {
-    if (arr[i].playlistItemId === player.playlist.currentPlaylistItemId_) {
+    if (arr[i].playlistItemId_ === player.playlist.currentPlaylistItemId_) {
       return i;
     }
   }
@@ -274,8 +274,8 @@ export default function factory(player, initialList, initialIndex = 0) {
   });
 
   player.on('playlistitem', (event, hashopt) => {
-    if (hashopt && hashopt.playlistItemId) {
-      playlist.currentPlaylistItemId_ = hashopt.playlistItemId;
+    if (hashopt && hashopt.playlistItemId_) {
+      playlist.currentPlaylistItemId_ = hashopt.playlistItemId_;
     }
   });
 
