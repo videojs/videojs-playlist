@@ -105,8 +105,8 @@ const sourceEquals = (source1, source2) => {
  *          The source to look for
  *
  * @return  {number|Array}
- *          The index or array of indices if more than one instance of that source
- *          exists in the playlist, -1 if not found.
+ *          The index or array of indices, if more than one instance of the source
+ *          exists in the playlist, or -1 if not found.
  */
 const indicesInSources = (arr, src) => {
   const indices = [];
@@ -347,7 +347,8 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The value to find the index of
    *
    * @return {number}
-   *         The index or -1
+   *         The index or array of indices, if more than one instance of the source
+   *         exists in the playlist, or -1 if not found.
    */
   playlist.indexOf = (value) => {
     if (typeof value === 'string') {
