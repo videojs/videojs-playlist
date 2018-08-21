@@ -57,7 +57,7 @@ const setup = (player, delay) => {
 
   player.playlist.autoadvance_.delay = delay;
 
-  player.playlist.autoadvance_.trigger = function() {
+  player.playlist.autoadvance_.trigger = function () {
 
     // This calls setup again, which will reset the existing auto-advance and
     // set up another auto-advance for the next "ended" event.
@@ -72,7 +72,23 @@ const setup = (player, delay) => {
     player.playlist.autoadvance_.timeout = player.setTimeout(() => {
       reset(player);
       player.off('play', cancelOnPlay);
+
+      // HACKERY      
       player.playlist.next();
+      let n = player.nextIndex();
+
+      if (n > 0) {
+        // need to actually determine the correct source here
+        let preloadlocation = player.playlist[n].sources[0].src;
+
+        var preloadLink = document.createElement("link");
+        preloadLink.href = preloadlocation;
+        preloadLink.rel = "preload";
+        preloadLink.as = "video";
+        document.head.appendChild(preloadLink);
+      }
+      // -- END HACKERY
+
     }, delay * 1000);
   };
 
