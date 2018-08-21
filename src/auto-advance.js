@@ -1,4 +1,4 @@
-
+/* global document */
 /**
  * Validates a number of seconds to use as the auto-advance delay.
  *
@@ -57,7 +57,7 @@ const setup = (player, delay) => {
 
   player.playlist.autoadvance_.delay = delay;
 
-  player.playlist.autoadvance_.trigger = function () {
+  player.playlist.autoadvance_.trigger = function() {
 
     // This calls setup again, which will reset the existing auto-advance and
     // set up another auto-advance for the next "ended" event.
@@ -73,23 +73,20 @@ const setup = (player, delay) => {
       reset(player);
       player.off('play', cancelOnPlay);
 
-      // HACKERY      
       player.playlist.next();
-      let n = player.playlist.nextIndex();
+      const n = player.playlist.nextIndex();
 
-      // if (n > 0) {
       // determine source
-      let preloadlocation = player.playlist()[n].sources[0].src;
+      const preloadlocation = player.playlist()[n].sources[0].src;
 
       // TODO: put video in cache instead
-      var preloadLink = document.createElement("link");
+      const preloadLink = document.createElement('link');
+
       preloadLink.href = preloadlocation;
-      preloadLink.crossOrigin = "anonymous";
-      preloadLink.rel = "preload";
-      preloadLink.as = "video";
+      preloadLink.crossOrigin = 'anonymous';
+      preloadLink.rel = 'preload';
+      preloadLink.as = 'video';
       document.head.appendChild(preloadLink);
-      // }
-      // -- END HACKERY
 
     }, delay * 1000);
   };
