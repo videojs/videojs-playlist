@@ -26,7 +26,7 @@ let reset = (player) => {
   }
 
   if (aa.trigger) {
-    player.off('ended', aa.trigger);
+    player.off('play', aa.trigger);
   }
 
   aa.timeout = null;
@@ -67,7 +67,7 @@ const setup = (player, delay) => {
     // we need to cancel the auto-advance. This could mean the user seeked
     // back into the content or restarted the content. This is reproducible
     // with an auto-advance > 0.
-    player.one('play', cancelOnPlay);
+    // player.one('play', cancelOnPlay);
 
     player.playlist.autoadvance_.timeout = player.setTimeout(() => {
       reset(player);
@@ -75,18 +75,20 @@ const setup = (player, delay) => {
 
       // HACKERY      
       player.playlist.next();
-      let n = player.nextIndex();
+      let n = player.playlist.nextIndex();
 
-      if (n > 0) {
-        // need to actually determine the correct source here
-        let preloadlocation = player.playlist[n].sources[0].src;
+      // if (n > 0) {
+      // determine source
+      let preloadlocation = player.playlist()[n].sources[0].src;
 
-        var preloadLink = document.createElement("link");
-        preloadLink.href = preloadlocation;
-        preloadLink.rel = "preload";
-        preloadLink.as = "video";
-        document.head.appendChild(preloadLink);
-      }
+      // TODO: put video in cache instead
+      var preloadLink = document.createElement("link");
+      preloadLink.href = preloadlocation;
+      preloadLink.crossOrigin = "anonymous";
+      preloadLink.rel = "preload";
+      preloadLink.as = "video";
+      document.head.appendChild(preloadLink);
+      // }
       // -- END HACKERY
 
     }, delay * 1000);
