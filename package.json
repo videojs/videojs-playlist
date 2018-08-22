@@ -84,7 +84,7 @@
     "serve-static": "^1.13.2",
     "sinon": "^5.1.0",
     "uglify-es": "^3.3.9",
-    "videojs-standard": "^6.0.3"
+    "videojs-standard": "^7.0.0"
   },
   "generator-videojs-plugin": {
     "version": "6.1.4"
