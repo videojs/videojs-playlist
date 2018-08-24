@@ -1,4 +1,5 @@
 import videojs from 'video.js';
+import * as guid from './guid';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
@@ -19,15 +20,13 @@ const generatePlaylistItemId = (arr) => {
   const list = [];
 
   for (let i = 0; i < arr.length; i++) {
-    const uuid = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    const id = guid.newGUID();
 
     if (typeof arr[i] === 'object') {
-      arr[i].playlistItemId_ = uuid;
+      arr[i].playlistItemId_ = id;
       list.push(arr[i]);
     }
   }
-
-  return list;
 };
 
 /**
@@ -45,7 +44,7 @@ const generatePlaylistItemId = (arr) => {
  */
 const indexInPlaylistItemIds = (arr, player) => {
   if (!player.playlist.currentPlaylistItemId_) {
-    return;
+    return -1;
   }
   for (let i = 0; i < arr.length; i++) {
     if (arr[i].playlistItemId_ === player.playlist.currentPlaylistItemId_) {
@@ -104,13 +103,10 @@ const sourceEquals = (source1, source2) => {
  * @param   {string} src
  *          The source to look for
  *
- * @return  {number|Array}
- *          The index or array of indices, if more than one instance of the source
- *          exists in the playlist, or -1 if not found.
+ * @return  {number}
+ *          The index of that source or -1
  */
-const indicesInSources = (arr, src) => {
-  const indices = [];
-
+const indexInSources = (arr, src) => {
   for (let i = 0; i < arr.length; i++) {
     const sources = arr[i].sources;
 
@@ -119,18 +115,12 @@ const indicesInSources = (arr, src) => {
         const source = sources[j];
 
         if (source && sourceEquals(source, src)) {
-          indices.push(i);
+          return i;
         }
       }
     }
   }
-
-  if (indices.length === 1) {
-    return indices[0];
-  } else if (indices.length > 1) {
-    return indices;
-  }
-
+  
   return -1;
 };
 
@@ -255,6 +245,10 @@ export default function factory(player, initialList, initialIndex = 0) {
           player.trigger('playlistchange');
         }, 0);
       }
+      // Add unique id to each playlist item. This id will be used
+      // to determine index in cases where there are more than one
+      // identical sources in the playlist.
+      generatePlaylistItemId(list);
     }
     // Always return a shallow clone of the playlist list.
     return list.slice();
@@ -264,12 +258,6 @@ export default function factory(player, initialList, initialIndex = 0) {
   player.on('loadstart', () => {
     if (playlist.currentItem() === -1) {
       autoadvance.reset(player);
-    }
-  });
-
-  player.on('duringplaylistchange', () => {
-    if (Array.isArray(list)) {
-      generatePlaylistItemId(list);
     }
   });
 
@@ -314,14 +302,7 @@ export default function factory(player, initialList, initialIndex = 0) {
         list[playlist.currentIndex_]
       );
     } else {
-      let sourceIndex = playlist.indexOf(playlist.player_.currentSrc() || '');
-
-      // If there is more than one instance of the same source in the playlist
-      // use playlist item id to determine its index
-      if (sourceIndex.length > 1) {
-        sourceIndex = indexInPlaylistItemIds(list, playlist.player_);
-      }
-      playlist.currentIndex_ = sourceIndex;
+      playlist.currentIndex_ = indexInPlaylistItemIds(list, playlist.player_);
     }
 
     return playlist.currentIndex_;
@@ -347,12 +328,11 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The value to find the index of
    *
    * @return {number}
-   *         The index or array of indices, if more than one instance of the source
-   *         exists in the playlist, or -1 if not found.
+   *         The index or -1
    */
   playlist.indexOf = (value) => {
     if (typeof value === 'string') {
-      return indicesInSources(list, value);
+      return indexInSources(list, value);
     }
 
     const sources = Array.isArray(value) ? value : value.sources;
@@ -361,9 +341,9 @@ export default function factory(player, initialList, initialIndex = 0) {
       const source = sources[i];
 
       if (typeof source === 'string') {
-        return indicesInSources(list, source);
+        return indexInSources(list, source);
       } else if (source.src) {
-        return indicesInSources(list, source.src);
+        return indexInSources(list, source.src);
       }
     }
 

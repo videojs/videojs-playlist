@@ -142,9 +142,9 @@ player.playlist.contains({
 // true
 ```
 
-#### `player.playlist.indexOf(String|Object|Array value) -> Number|Array`
+#### `player.playlist.indexOf(String|Object|Array value) -> Number`
 
-Get index or array of indices, if more than one instance of the same source exists in the playlist.  If not found, returns `-1`.
+Get the index of a string, source object, or playlist item in the playlist. If not found, returns `-1`.
 
 Assuming the playlist used above, consider the following example:
 
@@ -165,14 +165,6 @@ player.playlist.indexOf({
   }]
 });
 // 4
-```
-
-
-Assuming there are two playlist items containing the same `http://media.w3.org/2010/05/bunny/trailer.mp4` source at index 1 and 5. Consider the following example:
-
-```js
-player.playlist.indexOf('http://media.w3.org/2010/05/bunny/trailer.mp4');
-// [1, 5]
 ```
 
 #### `player.playlist.currentIndex() -> Number`
