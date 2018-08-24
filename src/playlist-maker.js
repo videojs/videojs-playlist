@@ -42,12 +42,9 @@ const generatePlaylistItemId = (arr) => {
  * @return  {Number}
  *           The index of the playlist item or -1 if not found
  */
-const indexInPlaylistItemIds = (arr, player) => {
-  if (!player.playlist.currentPlaylistItemId_) {
-    return -1;
-  }
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i].playlistItemId_ === player.playlist.currentPlaylistItemId_) {
+const indexInPlaylistItemIds = (list, currentItemId) => {
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].playlistItemId_ === currentItemId) {
       return i;
     }
   }
@@ -120,7 +117,7 @@ const indexInSources = (arr, src) => {
       }
     }
   }
-  
+
   return -1;
 };
 
@@ -261,9 +258,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
   });
 
-  player.on('playlistitem', (event, hashopt) => {
-    if (hashopt && hashopt.playlistItemId_) {
-      playlist.currentPlaylistItemId_ = hashopt.playlistItemId_;
+  player.on('playlistitem', (event, item) => {
+    if (item && item.playlistItemId_) {
+      playlist.currentPlaylistItemId_ = item.playlistItemId_;
     }
   });
 
@@ -302,7 +299,7 @@ export default function factory(player, initialList, initialIndex = 0) {
         list[playlist.currentIndex_]
       );
     } else {
-      playlist.currentIndex_ = indexInPlaylistItemIds(list, playlist.player_);
+      playlist.currentIndex_ = indexInPlaylistItemIds(list, playlist.currentPlaylistItemId_);
     }
 
     return playlist.currentIndex_;
