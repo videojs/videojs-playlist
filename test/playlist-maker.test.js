@@ -164,12 +164,14 @@ QUnit.test('playlist.currentItem() works as expected', function(assert) {
   playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
 
   assert.equal(playlist.currentItem(), 0, 'begin at the first item, item 0');
-
+  
   assert.equal(
     playlist.currentItem(2),
     2,
     'setting to item 2 gives us back the new item index'
   );
+
+  playlist.currentPlaylistItemId_ = playlist()[2].playlistItemId_;
 
   assert.equal(playlist.currentItem(), 2, 'the current item is now 2');
   assert.equal(playlist.currentItem(6), 2, 'cannot change to an out-of-bounds item');
@@ -249,6 +251,8 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
   };
 
   const playlist = playlistMaker(player, videoList, 1);
+
+  playlist.currentPlaylistItemId_ = playlist()[1].playlistItemId_;
 
   assert.equal(
     playlist.currentItem(), 1, 'if given an initial index, load that video'
@@ -378,15 +382,15 @@ QUnit.test('playlist.indexOf() works as expected', function(assert) {
 
   player.playlist = playlist;
 
-  assert.deepEqual(
+  assert.equal(
     playlist.indexOf('http://media.w3.org/2010/05/sintel/trailer.mp4'),
-    [0, 5],
+    0,
     'sintel trailer is first and fifth item'
   );
 
-  assert.deepEqual(
+  assert.equal(
     playlist.indexOf('//media.w3.org/2010/05/sintel/trailer.mp4'),
-    [0, 5],
+    0,
     'sintel trailer is first and fifth item, protocol-relative url considered equal'
   );
 
@@ -549,6 +553,7 @@ QUnit.test('playlist.lastIndex() works as expected', function(assert) {
 QUnit.test('playlist.next() works as expected', function(assert) {
   const player = playerProxyMaker();
   const playlist = playlistMaker(player, videoList);
+  const playlistItems = playlist();
   let src;
 
   player.currentSrc = function() {
@@ -556,8 +561,7 @@ QUnit.test('playlist.next() works as expected', function(assert) {
   };
 
   src = videoList[0].sources[0].src;
-  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
-
+  playlist.currentPlaylistItemId_ = playlistItems[0].playlistItemId_;
   assert.equal(playlist.currentItem(), 0, 'we start on item 0');
 
   assert.deepEqual(
@@ -567,7 +571,10 @@ QUnit.test('playlist.next() works as expected', function(assert) {
   );
 
   src = videoList[1].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlistItems[1].playlistItemId_;
   assert.equal(playlist.currentItem(), 1, 'we are now on item 1');
+
+  playlist.currentPlaylistItemId_ = playlistItems[1].playlistItemId_;
 
   assert.deepEqual(
     playlist.next(),
@@ -576,9 +583,10 @@ QUnit.test('playlist.next() works as expected', function(assert) {
   );
 
   src = videoList[2].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlistItems[2].playlistItemId_;
   assert.equal(playlist.currentItem(), 2, 'we are now on item 2');
   src = videoList[5].sources[0].src;
-  playlist.currentPlaylistItemId_ = playlist()[5].playlistItemId_;
+  playlist.currentPlaylistItemId_ = playlistItems[5].playlistItemId_;
   assert.equal(playlist.currentItem(5), 5, 'we are now on item 5');
 
   assert.equal(
@@ -591,6 +599,7 @@ QUnit.test('playlist.next() works as expected', function(assert) {
 QUnit.test('playlist.previous() works as expected', function(assert) {
   const player = playerProxyMaker();
   const playlist = playlistMaker(player, videoList);
+  const playlistItems = playlist();
   let src;
 
   player.currentSrc = function() {
@@ -598,7 +607,7 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
   };
 
   src = videoList[0].sources[0].src;
-  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
+  playlist.currentPlaylistItemId_ = playlistItems[0].playlistItemId_;
   assert.equal(playlist.currentItem(), 0, 'we start on item 0');
 
   assert.equal(
@@ -608,6 +617,7 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
   );
 
   src = videoList[2].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlistItems[2].playlistItemId_;
   assert.equal(playlist.currentItem(), 2, 'we are on item 2');
 
   assert.deepEqual(
@@ -617,6 +627,7 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
   );
 
   src = videoList[1].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlistItems[1].playlistItemId_;
   assert.equal(playlist.currentItem(), 1, 'we are on item 1');
 
   assert.deepEqual(
@@ -626,6 +637,7 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
   );
 
   src = videoList[0].sources[0].src;
+  playlist.currentPlaylistItemId_ = playlistItems[0].playlistItemId_;
   assert.equal(playlist.currentItem(), 0, 'we are on item 0');
 
   assert.equal(
@@ -668,6 +680,8 @@ QUnit.test('loading a non-playlist video will cancel autoadvance and set index o
   player.currentSrc = function() {
     return 'http://media.w3.org/2010/05/sintel/trailer.mp4';
   };
+
+  playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
 
   autoadvance.setReset_(function() {
     assert.ok(false, 'autoadvance.reset should not be called');
