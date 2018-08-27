@@ -164,7 +164,7 @@ QUnit.test('playlist.currentItem() works as expected', function(assert) {
   playlist.currentPlaylistItemId_ = playlist()[0].playlistItemId_;
 
   assert.equal(playlist.currentItem(), 0, 'begin at the first item, item 0');
-  
+
   assert.equal(
     playlist.currentItem(2),
     2,
