@@ -22,7 +22,7 @@ const generatePlaylistItemId = (arr) => {
   for (let i = 0; i < arr.length; i++) {
     const id = guid.newGUID();
 
-    if (typeof arr[i] === 'object') {
+    if (arr[i] && typeof arr[i] === 'object') {
       arr[i].playlistItemId_ = id;
       list.push(arr[i]);
     }
