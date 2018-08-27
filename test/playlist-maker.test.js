@@ -385,13 +385,13 @@ QUnit.test('playlist.indexOf() works as expected', function(assert) {
   assert.equal(
     playlist.indexOf('http://media.w3.org/2010/05/sintel/trailer.mp4'),
     0,
-    'sintel trailer is first and fifth item'
+    'sintel trailer is first'
   );
 
   assert.equal(
     playlist.indexOf('//media.w3.org/2010/05/sintel/trailer.mp4'),
     0,
-    'sintel trailer is first and fifth item, protocol-relative url considered equal'
+    'sintel trailer is first, protocol-relative url considered equal'
   );
 
   assert.equal(
