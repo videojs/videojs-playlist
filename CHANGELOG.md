@@ -1,3 +1,12 @@
+<a name="4.2.5"></a>
+## [4.2.5](https://github.com/brightcove/videojs-playlist/compare/v4.2.4...v4.2.5) (2018-08-30)
+
+### Chores
+
+* update generator to v7.1.1 ([12c5d53](https://github.com/brightcove/videojs-playlist/commit/12c5d53))
+* **package:** Update rollup to version 0.65.0 ([#116](https://github.com/brightcove/videojs-playlist/issues/116)) ([17d6a37](https://github.com/brightcove/videojs-playlist/commit/17d6a37))
+* update to generator-videojs-plugin[@7](https://github.com/7).2.0 ([4b90483](https://github.com/brightcove/videojs-playlist/commit/4b90483))
+
 <a name="4.2.4"></a>
 ## [4.2.4](https://github.com/brightcove/videojs-playlist/compare/v4.2.3...v4.2.4) (2018-08-23)
 
