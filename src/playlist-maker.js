@@ -1,5 +1,5 @@
 import videojs from 'video.js';
-import * as guid from './guid';
+import guid from './guid';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
@@ -17,16 +17,9 @@ import * as autoadvance from './auto-advance';
  *          The list of playlist items with unique ids
  */
 const generatePlaylistItemId = (arr) => {
-  const list = [];
-
-  for (let i = 0; i < arr.length; i++) {
-    const id = guid.newGUID();
-
-    if (arr[i] && typeof arr[i] === 'object') {
-      arr[i].playlistItemId_ = id;
-      list.push(arr[i]);
-    }
-  }
+  arr.forEach(item => {
+    item.playlistItemId_ = guid();
+  });
 };
 
 /**
