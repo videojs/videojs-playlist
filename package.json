@@ -10,10 +10,10 @@
     "clean": "shx rm -rf ./dist ./test/dist",
     "postclean": "shx mkdir -p ./dist ./test/dist",
     "docs": "npm-run-all docs:*",
-    "docs:api": "jsdoc src -g plugins/markdown -r -c scripts/jsdoc.json -d docs/api",
+    "docs:api": "jsdoc src -g plugins/markdown -r -d docs/api",
     "docs:toc": "doctoc README.md",
     "lint": "vjsstandard",
-    "server": "karma start scripts/karma.conf.js --singleRun=false --auto-watch --no-browsers",
+    "server": "karma start scripts/karma.conf.js --singleRun=false --auto-watch",
     "start": "npm-run-all -p server watch",
     "pretest": "npm-run-all lint build",
     "test": "karma start scripts/karma.conf.js",
@@ -23,8 +23,7 @@
     "watch": "npm-run-all -p watch:*",
     "watch:js": "npm run build:js -- -w",
     "prepublish": "not-in-install && npm run build && pkg-ok || in-install",
-    "posttest": "shx cat test/dist/coverage/text.txt",
-    "postinstall": "shx test -d .git && npm-merge-driver install || in-install"
+    "posttest": "shx cat test/dist/coverage/text.txt"
   },
   "keywords": [
     "playlist",
@@ -64,14 +63,14 @@
     "rollup": "^0.65.0",
     "shx": "^0.3.2",
     "sinon": "^6.1.5",
-    "videojs-generate-karma-config": "~2.0.0",
-    "videojs-generate-rollup-config": "~2.0.1",
+    "videojs-generate-karma-config": "~3.0.0",
+    "videojs-generate-rollup-config": "~2.1.0",
     "videojs-standard": "^7.0.1",
-    "npm-merge-driver": "^2.3.5",
-    "pkg-ok": "^2.2.0"
+    "pkg-ok": "^2.2.0",
+    "npm-merge-driver-install": "^1.0.0"
   },
   "generator-videojs-plugin": {
-    "version": "7.2.0"
+    "version": "7.2.4"
   },
   "engines": {
     "node": ">=4.4.0"
