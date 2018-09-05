@@ -1,3 +1,10 @@
+<a name="4.2.6"></a>
+## [4.2.6](https://github.com/brightcove/videojs-playlist/compare/v4.2.5...v4.2.6) (2018-09-05)
+
+### Bug Fixes
+
+* Remove the postinstall script to prevent install issues ([#119](https://github.com/brightcove/videojs-playlist/issues/119)) ([159fafe](https://github.com/brightcove/videojs-playlist/commit/159fafe))
+
 <a name="4.2.5"></a>
 ## [4.2.5](https://github.com/brightcove/videojs-playlist/compare/v4.2.4...v4.2.5) (2018-08-30)
 
