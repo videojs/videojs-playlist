@@ -64,7 +64,7 @@
     "shx": "^0.3.2",
     "sinon": "^6.1.5",
     "videojs-generate-karma-config": "~3.0.0",
-    "videojs-generate-rollup-config": "~2.1.0",
+    "videojs-generate-rollup-config": "~2.2.0",
     "videojs-standard": "^7.0.1",
     "pkg-ok": "^2.2.0",
     "npm-merge-driver-install": "^1.0.0"
