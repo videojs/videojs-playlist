@@ -1,5 +1,4 @@
 import videojs from 'video.js';
-import guid from './guid';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
@@ -17,8 +16,10 @@ import * as autoadvance from './auto-advance';
  *          The list of playlist items with unique ids
  */
 const generatePlaylistItemId = (arr) => {
+  let guid = 1;
+
   arr.forEach(item => {
-    item.playlistItemId_ = guid();
+    item.playlistItemId_ = guid++;
   });
 };
 
@@ -198,7 +199,11 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     if (Array.isArray(newList)) {
-
+     // The plugin should error out when rceiving a list with non-object values.
+     if (newList.filter(item => !!item && typeof item === 'object').length !== newList.length) {
+       player.off('loadstart');
+       throw new Error('playlist() received a list containing one or more non-object values');
+     }
       // @todo - Simplify this to `list.slice()` for v5.
       const previousPlaylist = Array.isArray(list) ? list.slice() : null;
 
