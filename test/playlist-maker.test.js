@@ -42,9 +42,35 @@ const videoList = [{
   poster: 'http://media.w3.org/2010/05/sintel/poster.png'
 }];
 
+let mockedInputList;
+let mockedList;
+
 QUnit.module('playlist-maker', {
 
   beforeEach() {
+    mockedInputList = [{
+      item: 1
+    }, {
+      item: 2
+    }, {
+      item: 3
+    }, {
+      item: 4
+    }];
+    mockedList = [{
+      item: 1,
+      playlistItemId_: 1
+    }, {
+      item: 2,
+      playlistItemId_: 2
+    }, {
+      item: 3,
+      playlistItemId_: 3
+    }, {
+      item: 4,
+      playlistItemId_: 4
+    }];
+
     this.clock = sinon.useFakeTimers();
   },
 
@@ -91,50 +117,62 @@ QUnit.test('playlistMaker can either take nothing or an Array as its first argum
   assert.deepEqual(
     playlist3(), [], 'if given no initial array, default to an empty array'
   );
+
+  assert.throws(() => {
+    playlist1([{item: 1}, null]);
+  }, Error, 'cannot set a playlist that contains null values in the list');
+
+  assert.throws(() => {
+    playlist1([{item: 1}, 1]);
+  }, Error, 'cannot set a playlist that contains non-object values in the list');
 });
 
 QUnit.test('playlist() is a getter and setter for the list', function(assert) {
-  const playlist = playlistMaker(playerProxyMaker(), [1, 2, 3]);
+  const playlist = playlistMaker(playerProxyMaker(), mockedInputList);
 
-  assert.deepEqual(playlist(), [1, 2, 3], 'equal to input list');
+  assert.deepEqual(playlist(), mockedList, 'should contain input list with items id');
+
+  mockedInputList.push({item: 5});
+  mockedList.push({item: 5, playlistItemId_: 5});
 
   assert.deepEqual(
-    playlist([1, 2, 3, 4, 5]),
-    [1, 2, 3, 4, 5],
-    'equal to input list, arguments ignored'
+      playlist(mockedInputList),
+      mockedList,
+      'should contain input list with items id, arguments ignored'
   );
 
-  assert.deepEqual(playlist(), [1, 2, 3, 4, 5], 'equal to input list');
+  assert.deepEqual(playlist(), mockedList, 'should contain input list with items id');
 
   const list = playlist();
 
-  list.unshift(10);
+  list.unshift({item: 10});
 
   assert.deepEqual(
-    playlist(),
-    [1, 2, 3, 4, 5],
-    'changing the list did not affect the playlist'
+      playlist(),
+      mockedList,
+      'changing the list did not affect the playlist'
   );
 
+  mockedList.unshift({item: 10});
   assert.notDeepEqual(
-    playlist(),
-    [10, 1, 2, 3, 4, 5],
-    'changing the list did not affect the playlist'
+      playlist(),
+      mockedList,
+      'changing the list did not affect the playlist'
   );
 });
 
 QUnit.test('playlist() should only accept an Array as a new playlist', function(assert) {
-  const playlist = playlistMaker(playerProxyMaker(), [1, 2, 3]);
+  const playlist = playlistMaker(playerProxyMaker(), mockedInputList);
 
   assert.deepEqual(
     playlist('foo'),
-    [1, 2, 3],
+    mockedList,
     'when given "foo", it should be treated as a getter'
   );
 
   assert.deepEqual(
     playlist({foo: [1, 2, 3]}),
-    [1, 2, 3],
+    mockedList,
     'when given {foo: [1,2,3]}, it should be treated as a getter'
   );
 });
@@ -508,15 +546,15 @@ QUnit.test('playlist.nextIndex() works as expected', function(assert) {
 
   assert.equal(playlist.nextIndex(), -1, 'the next index was -1 for an empty list');
 
-  playlist([1, 2, 3]);
+  playlist(mockedInputList);
   playlist.currentItem = () => 0;
   assert.equal(playlist.nextIndex(), 1, 'the next index was 1');
 
   playlist.currentItem = () => 1;
   assert.equal(playlist.nextIndex(), 2, 'the next index was 2');
 
-  playlist.currentItem = () => 2;
-  assert.equal(playlist.nextIndex(), 2, 'the next index did not change because the playlist does not repeat');
+  playlist.currentItem = () => 3;
+  assert.equal(playlist.nextIndex(), 3, 'the next index did not change because the playlist does not repeat');
 
   playlist.repeat(true);
   assert.equal(playlist.nextIndex(), 0, 'the next index was now 0 because the playlist repeats');
@@ -527,7 +565,7 @@ QUnit.test('playlist.previousIndex() works as expected', function(assert) {
 
   assert.equal(playlist.previousIndex(), -1, 'the previous index was -1 for an empty list');
 
-  playlist([1, 2, 3]);
+  playlist(mockedInputList);
   playlist.currentItem = () => 2;
   assert.equal(playlist.previousIndex(), 1, 'the previous index was 1');
 
@@ -538,7 +576,7 @@ QUnit.test('playlist.previousIndex() works as expected', function(assert) {
   assert.equal(playlist.previousIndex(), 0, 'the previous index did not change because the playlist does not repeat');
 
   playlist.repeat(true);
-  assert.equal(playlist.previousIndex(), 2, 'the previous index was now 2 because the playlist repeats');
+  assert.equal(playlist.previousIndex(), 3, 'the previous index was now 3 because the playlist repeats');
 });
 
 QUnit.test('playlist.lastIndex() works as expected', function(assert) {
@@ -546,8 +584,8 @@ QUnit.test('playlist.lastIndex() works as expected', function(assert) {
 
   assert.equal(playlist.lastIndex(), -1, 'the last index was -1 for an empty list');
 
-  playlist([1, 2, 3]);
-  assert.equal(playlist.lastIndex(), 2, 'the last index was 2');
+  playlist(mockedInputList);
+  assert.equal(playlist.lastIndex(), 3, 'the last index was 3');
 });
 
 QUnit.test('playlist.next() works as expected', function(assert) {
@@ -693,19 +731,27 @@ QUnit.test('loading a non-playlist video will cancel autoadvance and set index o
 });
 
 QUnit.test('when loading a new playlist, trigger "duringplaylistchange" on the player', function(assert) {
+  const mockedInputList2 = [{
+    item: 4
+  }, {
+    item: 5
+  }, {
+    item: 6
+  }];
+
   const done = assert.async();
   const player = playerProxyMaker();
-  const playlist = playlistMaker(player, [1, 2, 3], 1);
+  const playlist = playlistMaker(player, mockedInputList, 1);
 
   player.on('duringplaylistchange', (e) => {
     assert.strictEqual(e.type, 'duringplaylistchange', 'the event object had the correct "type" property');
     assert.strictEqual(e.previousIndex, 1, 'the event object had the correct "previousIndex" property');
-    assert.deepEqual(e.previousPlaylist, [1, 2, 3], 'the event object had the correct "previousPlaylist" property');
+    assert.deepEqual(e.previousPlaylist, mockedList, 'the event object had the correct "previousPlaylist" property');
     assert.strictEqual(e.nextIndex, 0, 'the event object had the correct "nextIndex" property');
-    assert.deepEqual(e.nextPlaylist, [4, 5, 6], 'the event object had the correct "nextPlaylist" property');
+    assert.deepEqual(e.nextPlaylist, mockedInputList2, 'the event object had the correct "nextPlaylist" property');
 
     assert.throws(() => {
-      playlist([1, 2, 3]);
+      playlist(mockedInputList);
     }, Error, 'cannot set a new playlist during a change');
 
     const spy = sinon.spy();
@@ -733,18 +779,24 @@ QUnit.test('when loading a new playlist, trigger "duringplaylistchange" on the p
 
     done();
   });
-
-  playlist([4, 5, 6]);
+  playlist(mockedInputList2);
 });
 
 QUnit.test('when loading a new playlist, trigger "playlistchange" on the player', function(assert) {
   const spy = sinon.spy();
   const player = playerProxyMaker();
+  const mockedInputList2 = [{
+    item: 4
+  }, {
+    item: 5
+  }, {
+    item: 6
+  }];
 
   player.on('playlistchange', spy);
-  const playlist = playlistMaker(player, [1, 2, 3]);
+  const playlist = playlistMaker(player, mockedInputList);
 
-  playlist([4, 5, 6]);
+  playlist(mockedInputList2);
   this.clock.tick(1);
 
   assert.strictEqual(spy.callCount, 1);
@@ -766,13 +818,13 @@ QUnit.test('"duringplaylistchange" and "playlistchange" on first call without an
   assert.strictEqual(changeSpy.callCount, 0, 'on initial call, the "playlistchange" event did not fire');
   assert.strictEqual(duringSpy.callCount, 0, 'on initial call, the "duringplaylistchange" event did not fire');
 
-  playlist([1]);
+  playlist([{item: 1}]);
   this.clock.tick(1);
 
   assert.strictEqual(changeSpy.callCount, 1, 'on second call, the "playlistchange" event did fire');
   assert.strictEqual(duringSpy.callCount, 1, 'on second call, the "duringplaylistchange" event did fire');
 
-  playlist([2]);
+  playlist([{item: 2}]);
   this.clock.tick(1);
 
   assert.strictEqual(changeSpy.callCount, 2, 'on third call, the "playlistchange" event did fire');
@@ -787,20 +839,20 @@ QUnit.test('"duringplaylistchange" and "playlistchange" on first call with an in
   player.on('playlistchange', changeSpy);
   player.on('duringplaylistchange', duringSpy);
 
-  const playlist = playlistMaker(player, [1]);
+  const playlist = playlistMaker(player, [{item: 1}]);
 
   this.clock.tick(1);
 
   assert.strictEqual(changeSpy.callCount, 0, 'on initial call, the "playlistchange" event did not fire');
   assert.strictEqual(duringSpy.callCount, 1, 'on initial call, the "duringplaylistchange" event did fire');
 
-  playlist([2]);
+  playlist([{item: 2}]);
   this.clock.tick(1);
 
   assert.strictEqual(changeSpy.callCount, 1, 'on second call, the "playlistchange" event did fire');
   assert.strictEqual(duringSpy.callCount, 2, 'on second call, the "duringplaylistchange" event did fire');
 
-  playlist([3]);
+  playlist([{item: 3}]);
   this.clock.tick(1);
 
   assert.strictEqual(changeSpy.callCount, 2, 'on third call, the "playlistchange" event did fire');
@@ -808,6 +860,8 @@ QUnit.test('"duringplaylistchange" and "playlistchange" on first call with an in
 });
 
 QUnit.test('playlist.sort() works as expected', function(assert) {
+  const mockedSortededList = mockedList.sort((a, b) => b - a);
+
   const player = playerProxyMaker();
   const spy = sinon.spy();
 
@@ -818,18 +872,19 @@ QUnit.test('playlist.sort() works as expected', function(assert) {
   assert.deepEqual(playlist(), [], 'playlist did not change because it is empty');
   assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event did not trigger');
 
-  playlist([4, 2, 1, 3]);
+  playlist(mockedInputList);
 
   playlist.sort();
-  assert.deepEqual(playlist(), [1, 2, 3, 4], 'playlist is sorted per default sort behavior');
+  assert.deepEqual(playlist(), mockedList, 'playlist is sorted per default sort behavior');
   assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 
   playlist.sort((a, b) => b - a);
-  assert.deepEqual(playlist(), [4, 3, 2, 1], 'playlist is sorted per default sort behavior');
+  assert.deepEqual(playlist(), mockedSortededList, 'playlist is sorted per default sort behavior');
   assert.strictEqual(spy.callCount, 2, 'the "playlistsorted" event triggered');
 });
 
 QUnit.test('playlist.reverse() works as expected', function(assert) {
+  const mockeReversedList = mockedList.reverse();
   const player = playerProxyMaker();
   const spy = sinon.spy();
 
@@ -840,10 +895,10 @@ QUnit.test('playlist.reverse() works as expected', function(assert) {
   assert.deepEqual(playlist(), [], 'playlist did not change because it is empty');
   assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event did not trigger');
 
-  playlist([1, 2, 3, 4]);
+  playlist(mockedInputList);
 
   playlist.reverse();
-  assert.deepEqual(playlist(), [4, 3, 2, 1], 'playlist is reversed');
+  assert.deepEqual(playlist(), mockeReversedList, 'playlist is reversed');
   assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 });
 
@@ -858,17 +913,17 @@ QUnit.test('playlist.shuffle() works as expected', function(assert) {
   assert.deepEqual(playlist(), [], 'playlist did not change because it is empty');
   assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event did not trigger');
 
-  playlist([1, 2, 3, 4]);
+  playlist(mockedInputList);
 
   playlist.shuffle();
 
   const list = playlist();
 
   assert.strictEqual(list.length, 4, 'playlist is the correct length');
-  assert.notStrictEqual(list.indexOf(1), -1, '1 is in the list');
-  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
-  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
-  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 1), -1, '1 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 2), -1, '2 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 3), -1, '3 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 });
 
@@ -877,20 +932,20 @@ QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) 
   const spy = sinon.spy();
 
   player.on('playlistsorted', spy);
-  const playlist = playlistMaker(player, [1, 2, 3, 4]);
+  const playlist = playlistMaker(player, mockedInputList);
 
   playlist.currentIndex_ = 3;
   playlist.shuffle({rest: true});
   let list = playlist();
 
-  assert.deepEqual(list, [1, 2, 3, 4], 'playlist is unchanged because the last item is selected');
+  assert.deepEqual(list, mockedList, 'playlist is unchanged because the last item is selected');
   assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event was not triggered');
 
   playlist.currentIndex_ = 2;
   playlist.shuffle({rest: true});
   list = playlist();
 
-  assert.deepEqual(list, [1, 2, 3, 4], 'playlist is unchanged because the second-to-last item is selected');
+  assert.deepEqual(list, mockedList, 'playlist is unchanged because the second-to-last item is selected');
   assert.strictEqual(spy.callCount, 0, 'the "playlistsorted" event was not triggered');
 
   playlist.currentIndex_ = 1;
@@ -898,10 +953,10 @@ QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) 
   list = playlist();
 
   assert.strictEqual(list.length, 4, 'playlist is the correct length');
-  assert.strictEqual(list.indexOf(1), 0, '1 is the first item in the list');
-  assert.strictEqual(list.indexOf(2), 1, '2 is the second item in the list');
-  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
-  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
+  assert.strictEqual(list.findIndex(i => i.item === 1), 0, '1 is the first item in the list');
+  assert.strictEqual(list.findIndex(i => i.item === 2), 1, '2 is the second item in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 3), -1, '3 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 
   playlist.currentIndex_ = 0;
@@ -909,10 +964,10 @@ QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) 
   list = playlist();
 
   assert.strictEqual(list.length, 4, 'playlist is the correct length');
-  assert.strictEqual(list.indexOf(1), 0, '1 is the first item in the list');
-  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
-  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
-  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
+  assert.strictEqual(list.findIndex(i => i.item === 1), 0, '1 is the first item in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 2), -1, '2 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 3), -1, '3 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 2, 'the "playlistsorted" event triggered');
 
   playlist.currentIndex_ = -1;
@@ -920,9 +975,9 @@ QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) 
   list = playlist();
 
   assert.strictEqual(list.length, 4, 'playlist is the correct length');
-  assert.notStrictEqual(list.indexOf(1), -1, '1 is in the list');
-  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
-  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
-  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 1), -1, '1 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 2), -1, '2 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 3), -1, '3 is in the list');
+  assert.notStrictEqual(list.findIndex(i => i.item === 4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 3, 'the "playlistsorted" event triggered');
 });

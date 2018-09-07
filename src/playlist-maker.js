@@ -199,11 +199,11 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     if (Array.isArray(newList)) {
-     // The plugin should error out when rceiving a list with non-object values.
-     if (newList.filter(item => !!item && typeof item === 'object').length !== newList.length) {
-       player.off('loadstart');
-       throw new Error('playlist() received a list containing one or more non-object values');
-     }
+     // The plugin should error out when rceiving a list with non-object values including null.
+      if (newList.filter(item => !!item && typeof item === 'object').length !== newList.length) {
+        player.off('loadstart');
+        throw new Error('playlist() received a list containing one or more non-object values');
+      }
       // @todo - Simplify this to `list.slice()` for v5.
       const previousPlaylist = Array.isArray(list) ? list.slice() : null;
 
