@@ -860,7 +860,28 @@ QUnit.test('"duringplaylistchange" and "playlistchange" on first call with an in
 });
 
 QUnit.test('playlist.sort() works as expected', function(assert) {
-  const mockedSortededList = mockedList.sort((a, b) => b - a);
+  mockedInputList = [{
+    item: 4
+  }, {
+    item: 2
+  }, {
+    item: 3
+  }, {
+    item: 1
+  }];
+  mockedList = [{
+    item: 1,
+    playlistItemId_: 4
+  }, {
+    item: 2,
+    playlistItemId_: 2
+  }, {
+    item: 3,
+    playlistItemId_: 3
+  }, {
+    item: 4,
+    playlistItemId_: 1
+  }];
 
   const player = playerProxyMaker();
   const spy = sinon.spy();
@@ -874,12 +895,14 @@ QUnit.test('playlist.sort() works as expected', function(assert) {
 
   playlist(mockedInputList);
 
-  playlist.sort();
+  playlist.sort((a, b) => a.item - b.item);
   assert.deepEqual(playlist(), mockedList, 'playlist is sorted per default sort behavior');
   assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 
-  playlist.sort((a, b) => b - a);
-  assert.deepEqual(playlist(), mockedSortededList, 'playlist is sorted per default sort behavior');
+  playlist.sort((a, b) => b.item - a.item);
+  mockedList = mockedList.sort((a, b) => b.item - a.item);
+
+  assert.deepEqual(playlist(), mockedList, 'playlist is sorted per default sort behavior');
   assert.strictEqual(spy.callCount, 2, 'the "playlistsorted" event triggered');
 });
 
