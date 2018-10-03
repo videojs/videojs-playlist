@@ -3,6 +3,52 @@ import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
 /**
+ * Returns whether a playlist item is an object of any kind, excluding null.
+ *
+ * @private
+ *
+ * @param {Object}
+ *         value to be checked
+ *
+ * @return {boolean}
+ *          The result
+ */
+const isItemObject = (value) => {
+  return !!value && typeof value === 'object';
+};
+
+/**
+ * Look through an array of playlist items and transform any primitive
+ * as well as null values to objects. This method also adds a property
+ * to the transformed item containing original value passed in an input list.
+ *
+ * @private
+ *
+ * @param {Array}
+ *         An array of playlist items
+ *
+ * @return {Array}
+ *          A new array with transformed items
+ */
+const transformPrimitiveItems = (arr) => {
+  const list = [];
+  let tempItem;
+
+  arr.forEach(item => {
+    if (!isItemObject(item)) {
+      tempItem = Object(item);
+      tempItem.originalValue = item;
+    } else {
+      tempItem = item;
+    }
+
+    list.push(tempItem);
+  });
+
+  return list;
+};
+
+/**
  * Generate a unique id for each playlist item object. This id will be used to determine
  * index of an item in the playlist array for cases where there are multiple items with
  * the same source set.
@@ -33,7 +79,7 @@ const generatePlaylistItemId = (arr) => {
  * @param   {Player}
  *           The player containing a playlist
  *
- * @return  {Number}
+ * @return  {number}
  *           The index of the playlist item or -1 if not found
  */
 const indexInPlaylistItemIds = (list, currentItemId) => {
@@ -199,15 +245,16 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     if (Array.isArray(newList)) {
-     // The plugin should error out when rceiving a list with non-object values including null.
-      if (newList.filter(item => !!item && typeof item === 'object').length !== newList.length) {
-        player.off('loadstart');
-        throw new Error('playlist() received a list containing one or more non-object values');
-      }
+
       // @todo - Simplify this to `list.slice()` for v5.
       const previousPlaylist = Array.isArray(list) ? list.slice() : null;
 
       list = newList.slice();
+
+      // Transform any primitive and null values in an input list to objects
+      if (list.filter(item => isItemObject(item)).length !== list.length) {
+        list = transformPrimitiveItems(list);
+      }
 
       // Mark the playlist as changing during the duringplaylistchange lifecycle.
       changing = true;
@@ -423,7 +470,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     if (list.length) {
-      return list[playlist.currentItem(0)];
+      return list[playlist.currentItem(0)].originalValue ?
+        list[playlist.currentItem(0)].originalValue :
+        list[playlist.currentItem(0)];
     }
 
     playlist.currentIndex_ = -1;
@@ -441,7 +490,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     if (list.length) {
-      return list[playlist.currentItem(playlist.lastIndex())];
+      return list[playlist.currentItem(playlist.lastIndex())].originalValue ?
+        list[playlist.currentItem(playlist.lastIndex())].originalValue :
+        list[playlist.currentItem(playlist.lastIndex())];
     }
 
     playlist.currentIndex_ = -1;
@@ -461,7 +512,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     const index = playlist.nextIndex();
 
     if (index !== playlist.currentIndex_) {
-      return list[playlist.currentItem(index)];
+      return list[playlist.currentItem(index)].originalValue ?
+        list[playlist.currentItem(index)].originalValue :
+        list[playlist.currentItem(index)];
     }
   };
 
@@ -479,7 +532,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     const index = playlist.previousIndex();
 
     if (index !== playlist.currentIndex_) {
-      return list[playlist.currentItem(index)];
+      return list[playlist.currentItem(index)].originalValue ?
+        list[playlist.currentItem(index)].originalValue :
+        list[playlist.currentItem(index)];
     }
   };
 
