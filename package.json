@@ -67,7 +67,7 @@
     "videojs-standard": "~7.1.0",
     "pkg-ok": "^2.2.0",
     "npm-merge-driver-install": "^1.0.0",
-    "videojs-generator-verify": "~1.0.3"
+    "videojs-generator-verify": "~1.1.0"
   },
   "generator-videojs-plugin": {
     "version": "7.3.2"
