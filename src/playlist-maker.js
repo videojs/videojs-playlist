@@ -293,7 +293,8 @@ export default function factory(player, initialList, initialIndex = 0) {
       generatePlaylistItemId(list);
     }
     // Always return a shallow clone of the playlist list.
-    return list.slice();
+    // We also want to return originalValue if any item in the list has it.
+    return list.map((item) => item.originalValue || item).slice();
   };
 
   // On a new source, if there is no current item, disable auto-advance.
