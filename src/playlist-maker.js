@@ -469,11 +469,10 @@ export default function factory(player, initialList, initialIndex = 0) {
     if (changing) {
       return;
     }
+    const newItem = playlist.currentItem(0);
 
     if (list.length) {
-      return list[playlist.currentItem(0)].originalValue ?
-        list[playlist.currentItem(0)].originalValue :
-        list[playlist.currentItem(0)];
+      return list[newItem].originalValue || list[newItem];
     }
 
     playlist.currentIndex_ = -1;
@@ -489,11 +488,10 @@ export default function factory(player, initialList, initialIndex = 0) {
     if (changing) {
       return;
     }
+    const newItem = playlist.currentItem(playlist.lastIndex());
 
     if (list.length) {
-      return list[playlist.currentItem(playlist.lastIndex())].originalValue ?
-        list[playlist.currentItem(playlist.lastIndex())].originalValue :
-        list[playlist.currentItem(playlist.lastIndex())];
+      return list[newItem].originalValue || list[newItem];
     }
 
     playlist.currentIndex_ = -1;
@@ -513,9 +511,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     const index = playlist.nextIndex();
 
     if (index !== playlist.currentIndex_) {
-      return list[playlist.currentItem(index)].originalValue ?
-        list[playlist.currentItem(index)].originalValue :
-        list[playlist.currentItem(index)];
+      const newItem = playlist.currentItem(index);
+
+      return list[newItem].originalValue || list[newItem];
     }
   };
 
@@ -533,9 +531,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     const index = playlist.previousIndex();
 
     if (index !== playlist.currentIndex_) {
-      return list[playlist.currentItem(index)].originalValue ?
-        list[playlist.currentItem(index)].originalValue :
-        list[playlist.currentItem(index)];
+      const newItem = playlist.currentItem(index);
+
+      return list[newItem].originalValue || list[newItem];
     }
   };
 

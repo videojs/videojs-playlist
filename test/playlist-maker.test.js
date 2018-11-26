@@ -528,23 +528,23 @@ QUnit.test('playlist.next() works as expected', function(assert) {
 
   assert.equal(playlist.currentItem(), 0, 'we start on item 0');
 
-  playlist.currentPlaylistItemId_ = playlistItems[1].playlistItemId_;
-
   assert.deepEqual(
     playlist.next(),
     videoList[1],
     'we get back the value of currentItem 2'
   );
 
-  assert.equal(playlist.currentItem(), 1, 'we are now on item 1');
+  playlist.currentPlaylistItemId_ = playlistItems[1].playlistItemId_;
 
-  playlist.currentPlaylistItemId_ = playlistItems[2].playlistItemId_;
+  assert.equal(playlist.currentItem(), 1, 'we are now on item 1');
 
   assert.deepEqual(
     playlist.next(),
     videoList[2],
     'we get back the value of currentItem 3'
   );
+
+  playlist.currentPlaylistItemId_ = playlistItems[2].playlistItemId_;
 
   assert.equal(playlist.currentItem(), 2, 'we are now on item 2');
 
@@ -581,12 +581,13 @@ QUnit.test('playlist.previous() works as expected', function(assert) {
   playlist.currentPlaylistItemId_ = playlistItems[2].playlistItemId_;
   assert.equal(playlist.currentItem(), 2, 'we are on item 2');
 
-  playlist.currentPlaylistItemId_ = playlistItems[1].playlistItemId_;
   assert.deepEqual(
     playlist.previous(),
     videoList[1],
     'we get back value of currentItem 1'
   );
+
+  playlist.currentPlaylistItemId_ = playlistItems[1].playlistItemId_;
 
   assert.equal(playlist.currentItem(), 1, 'we are on item 1');
 
@@ -827,10 +828,10 @@ QUnit.test('playlist.shuffle() works as expected', function(assert) {
   const list = playlist();
 
   assert.strictEqual(list.length, 4, 'playlist is the correct length');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 1), -1, '1 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 2), -1, '2 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 3), -1, '3 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 4), -1, '4 is in the list');
+  assert.notStrictEqual(list.indexOf(1), -1, '1 is in the list');
+  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
+  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
+  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 });
 
@@ -860,10 +861,10 @@ QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) 
   list = playlist();
 
   assert.strictEqual(list.length, 4, 'playlist is the correct length');
-  assert.strictEqual(list.findIndex(i => i.originalValue === 1), 0, '1 is the first item in the list');
-  assert.strictEqual(list.findIndex(i => i.originalValue === 2), 1, '2 is the second item in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 3), -1, '3 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 4), -1, '4 is in the list');
+  assert.strictEqual(list.indexOf(1), 0, '1 is the first item in the list');
+  assert.strictEqual(list.indexOf(2), 1, '2 is the second item in the list');
+  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
+  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 1, 'the "playlistsorted" event triggered');
 
   playlist.currentIndex_ = 0;
@@ -871,10 +872,10 @@ QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) 
   list = playlist();
 
   assert.strictEqual(list.length, 4, 'playlist is the correct length');
-  assert.strictEqual(list.findIndex(i => i.originalValue === 1), 0, '1 is the first item in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 2), -1, '2 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 3), -1, '3 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 4), -1, '4 is in the list');
+  assert.strictEqual(list.indexOf(1), 0, '1 is the first item in the list');
+  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
+  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
+  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 2, 'the "playlistsorted" event triggered');
 
   playlist.currentIndex_ = -1;
@@ -882,9 +883,9 @@ QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) 
   list = playlist();
 
   assert.strictEqual(list.length, 4, 'playlist is the correct length');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 1), -1, '1 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 2), -1, '2 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 3), -1, '3 is in the list');
-  assert.notStrictEqual(list.findIndex(i => i.originalValue === 4), -1, '4 is in the list');
+  assert.notStrictEqual(list.indexOf(1), -1, '1 is in the list');
+  assert.notStrictEqual(list.indexOf(2), -1, '2 is in the list');
+  assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
+  assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 3, 'the "playlistsorted" event triggered');
 });
