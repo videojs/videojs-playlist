@@ -1,3 +1,19 @@
+<a name="4.3.0"></a>
+# [4.3.0](https://github.com/brightcove/videojs-playlist/compare/v4.2.6...v4.3.0) (2019-01-11)
+
+### Features
+
+* Return correct index of a playlist item when there are multiple items with the same source ([#115](https://github.com/brightcove/videojs-playlist/issues/115)) ([0963d58](https://github.com/brightcove/videojs-playlist/commit/0963d58))
+
+### Chores
+
+* **package:** update lint-staged to version 8.1.0 ([#134](https://github.com/brightcove/videojs-playlist/issues/134)) ([7776c14](https://github.com/brightcove/videojs-playlist/commit/7776c14))
+* **package:** update npm-run-all/videojs-generator-verify for security ([0491b47](https://github.com/brightcove/videojs-playlist/commit/0491b47))
+* **package:** update rollup to version 0.66.0 ([#122](https://github.com/brightcove/videojs-playlist/issues/122)) ([9536367](https://github.com/brightcove/videojs-playlist/commit/9536367))
+* **package:** update rollup to version 0.67.3 ([#132](https://github.com/brightcove/videojs-playlist/issues/132)) ([f3f333e](https://github.com/brightcove/videojs-playlist/commit/f3f333e))
+* **package:** update videojs-generate-karma-config to version 5.0.0 ([#133](https://github.com/brightcove/videojs-playlist/issues/133)) ([d2953f4](https://github.com/brightcove/videojs-playlist/commit/d2953f4))
+* **package:** update videojs-generate-rollup-config to version 2.3.1 ([#135](https://github.com/brightcove/videojs-playlist/issues/135)) ([ab78366](https://github.com/brightcove/videojs-playlist/commit/ab78366))
+
 <a name="4.2.6"></a>
 ## [4.2.6](https://github.com/brightcove/videojs-playlist/compare/v4.2.5...v4.2.6) (2018-09-05)
 
