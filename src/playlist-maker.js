@@ -3,96 +3,6 @@ import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
 /**
- * Returns whether a playlist item is an object of any kind, excluding null.
- *
- * @private
- *
- * @param {Object}
- *         value to be checked
- *
- * @return {boolean}
- *          The result
- */
-const isItemObject = (value) => {
-  return !!value && typeof value === 'object';
-};
-
-/**
- * Look through an array of playlist items and transform any primitive
- * as well as null values to objects. This method also adds a property
- * to the transformed item containing original value passed in an input list.
- *
- * @private
- *
- * @param {Array}
- *         An array of playlist items
- *
- * @return {Array}
- *          A new array with transformed items
- */
-const transformPrimitiveItems = (arr) => {
-  const list = [];
-  let tempItem;
-
-  arr.forEach(item => {
-    if (!isItemObject(item)) {
-      tempItem = Object(item);
-      tempItem.originalValue = item;
-    } else {
-      tempItem = item;
-    }
-
-    list.push(tempItem);
-  });
-
-  return list;
-};
-
-/**
- * Generate a unique id for each playlist item object. This id will be used to determine
- * index of an item in the playlist array for cases where there are multiple items with
- * the same source set.
- *
- * @private
- *
- * @param {Array}
- *         An array of playlist items
- *
- * @return {Array}
- *          The list of playlist items with unique ids
- */
-const generatePlaylistItemId = (arr) => {
-  let guid = 1;
-
-  arr.forEach(item => {
-    item.playlistItemId_ = guid++;
-  });
-};
-
-/**
- * Look through an array of playlist items for a specific playlist item id.
- *
- * @private
- * @param   {Array}
- *           An array of playlist items to look through
- *
- * @param   {Player}
- *           The player containing a playlist
- *
- * @return  {number}
- *           The index of the playlist item or -1 if not found
- */
-const indexInPlaylistItemIds = (list, currentItemId) => {
-  for (let i = 0; i < list.length; i++) {
-    if (list[i].playlistItemId_ === currentItemId) {
-      return i;
-    }
-  }
-
-  return -1;
-};
-
-/**
  * Given two sources, check to see whether the two sources are equal.
  * If both source urls have a protocol, the protocols must match, otherwise, protocols
  * are ignored.
@@ -251,11 +161,6 @@ export default function factory(player, initialList, initialIndex = 0) {
 
       list = newList.slice();
 
-      // Transform any primitive and null values in an input list to objects
-      if (list.filter(item => isItemObject(item)).length !== list.length) {
-        list = transformPrimitiveItems(list);
-      }
-
       // Mark the playlist as changing during the duringplaylistchange lifecycle.
       changing = true;
 
@@ -287,14 +192,10 @@ export default function factory(player, initialList, initialIndex = 0) {
           player.trigger('playlistchange');
         }, 0);
       }
-      // Add unique id to each playlist item. This id will be used
-      // to determine index in cases where there are more than one
-      // identical sources in the playlist.
-      generatePlaylistItemId(list);
     }
+
     // Always return a shallow clone of the playlist list.
-    // We also want to return originalValue if any item in the list has it.
-    return list.map((item) => item.originalValue || item).slice();
+    return list.slice();
   };
 
   // On a new source, if there is no current item, disable auto-advance.
@@ -304,17 +205,10 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
   });
 
-  player.on('playlistitem', (event, item) => {
-    if (item && item.playlistItemId_) {
-      playlist.currentPlaylistItemId_ = item.playlistItemId_;
-    }
-  });
-
   playlist.currentIndex_ = -1;
   playlist.player_ = player;
   playlist.autoadvance_ = {};
   playlist.repeat_ = false;
-  playlist.currentPlaylistItemId_ = null;
 
   /**
    * Get or set the current item in the playlist.
@@ -328,6 +222,7 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The current item index.
    */
   playlist.currentItem = (index) => {
+
     // If the playlist is changing, only act as a getter.
     if (changing) {
       return playlist.currentIndex_;
@@ -345,7 +240,7 @@ export default function factory(player, initialList, initialIndex = 0) {
         list[playlist.currentIndex_]
       );
     } else {
-      playlist.currentIndex_ = indexInPlaylistItemIds(list, playlist.currentPlaylistItemId_);
+      playlist.currentIndex_ = playlist.indexOf(playlist.player_.currentSrc() || '');
     }
 
     return playlist.currentIndex_;
@@ -469,10 +364,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     if (changing) {
       return;
     }
-    const newItem = playlist.currentItem(0);
 
     if (list.length) {
-      return list[newItem].originalValue || list[newItem];
+      return list[playlist.currentItem(0)];
     }
 
     playlist.currentIndex_ = -1;
@@ -488,10 +382,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     if (changing) {
       return;
     }
-    const newItem = playlist.currentItem(playlist.lastIndex());
 
     if (list.length) {
-      return list[newItem].originalValue || list[newItem];
+      return list[playlist.currentItem(playlist.lastIndex())];
     }
 
     playlist.currentIndex_ = -1;
@@ -511,9 +404,7 @@ export default function factory(player, initialList, initialIndex = 0) {
     const index = playlist.nextIndex();
 
     if (index !== playlist.currentIndex_) {
-      const newItem = playlist.currentItem(index);
-
-      return list[newItem].originalValue || list[newItem];
+      return list[playlist.currentItem(index)];
     }
   };
 
@@ -531,9 +422,7 @@ export default function factory(player, initialList, initialIndex = 0) {
     const index = playlist.previousIndex();
 
     if (index !== playlist.currentIndex_) {
-      const newItem = playlist.currentItem(index);
-
-      return list[newItem].originalValue || list[newItem];
+      return list[playlist.currentItem(index)];
     }
   };
 
