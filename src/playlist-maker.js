@@ -248,8 +248,9 @@ export default function factory(player, initialList, initialIndex = 0) {
 
       // @todo - Simplify this to `list.slice()` for v5.
       const previousPlaylist = Array.isArray(list) ? list.slice() : null;
+      const nextPlaylist = newList.slice();
 
-      list = newList.slice();
+      list = nextPlaylist.slice();
 
       // Transform any primitive and null values in an input list to objects
       if (list.filter(item => isItemObject(item)).length !== list.length) {
@@ -262,7 +263,7 @@ export default function factory(player, initialList, initialIndex = 0) {
       player.trigger({
         type: 'duringplaylistchange',
         nextIndex: newIndex,
-        nextPlaylist: list,
+        nextPlaylist,
         previousIndex: playlist.currentIndex_,
 
         // @todo - Simplify this to simply pass along `previousPlaylist` for v5.
@@ -292,8 +293,9 @@ export default function factory(player, initialList, initialIndex = 0) {
       // identical sources in the playlist.
       generatePlaylistItemId(list);
     }
+
     // Always return a shallow clone of the playlist list.
-    // We also want to return originalValue if any item in the list has it.
+    //  We also want to return originalValue if any item in the list has it.
     return list.map((item) => item.originalValue || item).slice();
   };
 
@@ -301,12 +303,6 @@ export default function factory(player, initialList, initialIndex = 0) {
   player.on('loadstart', () => {
     if (playlist.currentItem() === -1) {
       autoadvance.reset(player);
-    }
-  });
-
-  player.on('playlistitem', (event, item) => {
-    if (item && item.playlistItemId_) {
-      playlist.currentPlaylistItemId_ = item.playlistItemId_;
     }
   });
 

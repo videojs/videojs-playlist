@@ -32,14 +32,19 @@ const clearTracks = (player) => {
 const playItem = (player, item) => {
   const replay = !player.paused() || player.ended();
 
-  player.trigger('beforeplaylistitem', item);
+  player.trigger('beforeplaylistitem', item.originalValue || item);
   player.poster(item.poster || '');
   player.src(item.sources);
   clearTracks(player);
 
   player.ready(() => {
+
+    if (item.playlistItemId_) {
+      player.playlist().currentPlaylistItemId_ = item.playlistItemId_;
+    }
+
     (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
-    player.trigger('playlistitem', item);
+    player.trigger('playlistitem', item.originalValue || item);
 
     if (replay) {
       const playPromise = player.play();
