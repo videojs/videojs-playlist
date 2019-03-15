@@ -82,15 +82,15 @@ const generatePlaylistItemId = (arr) => {
  * @return  {number}
  *           The index of the playlist item or -1 if not found
  */
-const indexInPlaylistItemIds = (list, currentItemId) => {
-  for (let i = 0; i < list.length; i++) {
-    if (list[i].playlistItemId_ === currentItemId) {
-      return i;
-    }
-  }
+// const indexInPlaylistItemIds = (list, currentItemId) => {
+//   for (let i = 0; i < list.length; i++) {
+//     if (list[i].playlistItemId_ === currentItemId) {
+//       return i;
+//     }
+//   }
 
-  return -1;
-};
+//   return -1;
+// };
 
 /**
  * Given two sources, check to see whether the two sources are equal.
@@ -301,6 +301,7 @@ export default function factory(player, initialList, initialIndex = 0) {
 
   // On a new source, if there is no current item, disable auto-advance.
   player.on('loadstart', () => {
+    playlist.currentSourceSetByPlaylist_ = false;
     if (playlist.currentItem() === -1) {
       autoadvance.reset(player);
     }
@@ -341,7 +342,7 @@ export default function factory(player, initialList, initialIndex = 0) {
         list[playlist.currentIndex_]
       );
     } else {
-      playlist.currentIndex_ = indexInPlaylistItemIds(list, playlist.currentPlaylistItemId_);
+      playlist.currentIndex_ = playlist.indexOf(playlist.player_.currentSrc() || '');
     }
 
     return playlist.currentIndex_;
