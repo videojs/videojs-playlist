@@ -31,25 +31,18 @@ const clearTracks = (player) => {
  */
 const playItem = (player, item) => {
   const replay = !player.paused() || player.ended();
-  const playlist = player.playlist();
 
   player.trigger('beforeplaylistitem', item.originalValue || item);
+
+  if (item.playlistItemId_) {
+    player.playlist.currentPlaylistItemId_ = item.playlistItemId_;
+  }
+
   player.poster(item.poster || '');
   player.src(item.sources);
   clearTracks(player);
 
-  // Flag this source as having been set by the playlist plugin. Also set the
-  // flag when the next loadstart happens
-  playlist.currentSourceSetByPlaylist_ = true;
-  player.one('loadstart', () => {
-    playlist.currentSourceSetByPlaylist_ = true;
-  });
-
   player.ready(() => {
-
-    if (item.playlistItemId_) {
-      playlist.currentPlaylistItemId_ = item.playlistItemId_;
-    }
 
     (item.textTracks || []).forEach(player.addRemoteTextTrack.bind(player));
     player.trigger('playlistitem', item.originalValue || item);
