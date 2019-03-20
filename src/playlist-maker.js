@@ -24,11 +24,11 @@ const isItemObject = (value) => {
  *
  * @private
  *
- * @param {Array}
+ * @param  {Array} arr
  *         An array of playlist items
  *
  * @return {Array}
- *          A new array with transformed items
+ *         A new array with transformed items
  */
 const transformPrimitiveItems = (arr) => {
   const list = [];
@@ -55,11 +55,8 @@ const transformPrimitiveItems = (arr) => {
  *
  * @private
  *
- * @param {Array}
+ * @param  {Array} arr
  *         An array of playlist items
- *
- * @return {Array}
- *          The list of playlist items with unique ids
  */
 const generatePlaylistItemId = (arr) => {
   let guid = 1;
@@ -73,14 +70,14 @@ const generatePlaylistItemId = (arr) => {
  * Look through an array of playlist items for a specific playlist item id.
  *
  * @private
- * @param   {Array}
- *           An array of playlist items to look through
+ * @param   {Array} list
+ *          An array of playlist items to look through
  *
- * @param   {Player}
- *           The player containing a playlist
+ * @param   {number} currentItemId
+ *          The current item ID.
  *
  * @return  {number}
- *           The index of the playlist item or -1 if not found
+ *          The index of the playlist item or -1 if not found
  */
 const indexInPlaylistItemIds = (list, currentItemId) => {
   for (let i = 0; i < list.length; i++) {
@@ -248,13 +245,19 @@ export default function factory(player, initialList, initialIndex = 0) {
 
       // @todo - Simplify this to `list.slice()` for v5.
       const previousPlaylist = Array.isArray(list) ? list.slice() : null;
+      const nextPlaylist = newList.slice();
 
-      list = newList.slice();
+      list = nextPlaylist.slice();
 
       // Transform any primitive and null values in an input list to objects
       if (list.filter(item => isItemObject(item)).length !== list.length) {
         list = transformPrimitiveItems(list);
       }
+
+      // Add unique id to each playlist item. This id will be used
+      // to determine index in cases where there are more than one
+      // identical sources in the playlist.
+      generatePlaylistItemId(list);
 
       // Mark the playlist as changing during the duringplaylistchange lifecycle.
       changing = true;
@@ -262,7 +265,7 @@ export default function factory(player, initialList, initialIndex = 0) {
       player.trigger({
         type: 'duringplaylistchange',
         nextIndex: newIndex,
-        nextPlaylist: list,
+        nextPlaylist,
         previousIndex: playlist.currentIndex_,
 
         // @todo - Simplify this to simply pass along `previousPlaylist` for v5.
@@ -287,13 +290,10 @@ export default function factory(player, initialList, initialIndex = 0) {
           player.trigger('playlistchange');
         }, 0);
       }
-      // Add unique id to each playlist item. This id will be used
-      // to determine index in cases where there are more than one
-      // identical sources in the playlist.
-      generatePlaylistItemId(list);
     }
+
     // Always return a shallow clone of the playlist list.
-    // We also want to return originalValue if any item in the list has it.
+    //  We also want to return originalValue if any item in the list has it.
     return list.map((item) => item.originalValue || item).slice();
   };
 
@@ -301,12 +301,6 @@ export default function factory(player, initialList, initialIndex = 0) {
   player.on('loadstart', () => {
     if (playlist.currentItem() === -1) {
       autoadvance.reset(player);
-    }
-  });
-
-  player.on('playlistitem', (event, item) => {
-    if (item && item.playlistItemId_) {
-      playlist.currentPlaylistItemId_ = item.playlistItemId_;
     }
   });
 
@@ -333,6 +327,7 @@ export default function factory(player, initialList, initialIndex = 0) {
       return playlist.currentIndex_;
     }
 
+    // Act as a setter when the index is given and is a valid number.
     if (
       typeof index === 'number' &&
       playlist.currentIndex_ !== index &&
@@ -344,9 +339,35 @@ export default function factory(player, initialList, initialIndex = 0) {
         playlist.player_,
         list[playlist.currentIndex_]
       );
-    } else {
-      playlist.currentIndex_ = indexInPlaylistItemIds(list, playlist.currentPlaylistItemId_);
+
+      return playlist.currentIndex_;
     }
+
+    const src = playlist.player_.currentSrc() || '';
+
+    // If there is a currentPlaylistItemId_, validate that it matches the
+    // current source URL returned by the player. This is sufficient evidence
+    // to suggest that the source was set by the playlist plugin. This code
+    // exists primarily to deal with playlists where multiple items have the
+    // same source.
+    if (playlist.currentPlaylistItemId_) {
+      const indexInItemIds = indexInPlaylistItemIds(list, playlist.currentPlaylistItemId_);
+      const item = list[indexInItemIds];
+
+      // Found a match, this is our current index!
+      if (item && Array.isArray(item.sources) && indexInSources([item], src) > -1) {
+        playlist.currentIndex_ = indexInItemIds;
+        return playlist.currentIndex_;
+      }
+
+      // If this does not match the current source, null it out so subsequent
+      // calls can skip this step.
+      playlist.currentPlaylistItemId_ = null;
+    }
+
+    // Finally, if we don't have a valid, current playlist item ID, we can
+    // auto-detect it based on the player's current source URL.
+    playlist.currentIndex_ = playlist.indexOf(src);
 
     return playlist.currentIndex_;
   };
