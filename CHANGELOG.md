@@ -1,3 +1,16 @@
+<a name="4.3.1"></a>
+## [4.3.1](https://github.com/brightcove/videojs-playlist/compare/v4.3.0...v4.3.1) (2019-03-20)
+
+### Bug Fixes
+
+* Fix regression(s) introduced by changes to the currentItem function in 4.3.0 ([#145](https://github.com/brightcove/videojs-playlist/issues/145)) ([d49b929](https://github.com/brightcove/videojs-playlist/commit/d49b929))
+
+### Chores
+
+* **package:** update package-lock.json ([#149](https://github.com/brightcove/videojs-playlist/issues/149)) ([4915847](https://github.com/brightcove/videojs-playlist/commit/4915847))
+* **package:** update rollup to version 1.7.0 ([#148](https://github.com/brightcove/videojs-playlist/issues/148)) ([4bf51d4](https://github.com/brightcove/videojs-playlist/commit/4bf51d4))
+* **package:** update sinon to version 7.3.0 ([#147](https://github.com/brightcove/videojs-playlist/issues/147)) ([74c3f33](https://github.com/brightcove/videojs-playlist/commit/74c3f33))
+
 <a name="4.3.0"></a>
 # [4.3.0](https://github.com/brightcove/videojs-playlist/compare/v4.2.6...v4.3.0) (2019-01-11)
 
