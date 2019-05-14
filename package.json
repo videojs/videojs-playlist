@@ -1,5 +1,5 @@
 {
-  "name": "videojs-playlist",
+  "name": "@straas/videojs-playlist",
   "version": "4.3.1",
   "description": "Playlist plugin for Video.js",
   "main": "dist/videojs-playlist.cjs.js",
@@ -34,7 +34,7 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/brightcove/videojs-playlist"
+    "url": "git@github.com:StraaS/videojs-playlist.git"
   },
   "files": [
     "CONTRIBUTING.md",
