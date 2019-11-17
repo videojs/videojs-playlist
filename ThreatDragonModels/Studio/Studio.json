@@ -1,0 +1,16 @@
+{
+  "summary": {
+    "title": "Studio",
+    "owner": "Josh Carlson",
+    "description": "Studio is the primary webapp Brightcove users use for accessing our service modules."
+  },
+  "detail": {
+    "contributors": [
+      {
+        "name": "Tim McCormack"
+      }
+    ],
+    "diagrams": [],
+    "reviewer": "Eric Kelson"
+  }
+}
