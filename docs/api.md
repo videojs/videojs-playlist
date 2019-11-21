@@ -218,7 +218,7 @@ player.playlist(samplePlaylist);
 player.nextIndex();
 // 1
 
-player.next();
+player.playlist.next();
 player.nextIndex();
 // 1
 
@@ -259,7 +259,7 @@ player.playlist(samplePlaylist, 1);
 player.previousIndex();
 // 0
 
-player.previous();
+player.playlist.previous();
 player.previousIndex();
 // 0
 
