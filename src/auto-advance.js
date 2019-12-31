@@ -85,7 +85,7 @@ const setup = (player, delay) => {
       preloadLink.href = preloadlocation;
       preloadLink.crossOrigin = 'anonymous';
       preloadLink.rel = 'preload';
-      preloadLink.as = 'video';
+      preloadLink.as = 'object';
       document.head.appendChild(preloadLink);
 
     }, delay * 1000);
