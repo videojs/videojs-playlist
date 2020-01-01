@@ -3,6 +3,93 @@ import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
 /**
+ * Returns whether a playlist item is an object of any kind, excluding null.
+ *
+ * @private
+ *
+ * @param {Object}
+ *         value to be checked
+ *
+ * @return {boolean}
+ *          The result
+ */
+const isItemObject = (value) => {
+  return !!value && typeof value === 'object';
+};
+
+/**
+ * Look through an array of playlist items and transform any primitive
+ * as well as null values to objects. This method also adds a property
+ * to the transformed item containing original value passed in an input list.
+ *
+ * @private
+ *
+ * @param  {Array} arr
+ *         An array of playlist items
+ *
+ * @return {Array}
+ *         A new array with transformed items
+ */
+const transformPrimitiveItems = (arr) => {
+  const list = [];
+  let tempItem;
+
+  arr.forEach(item => {
+    if (!isItemObject(item)) {
+      tempItem = Object(item);
+      tempItem.originalValue = item;
+    } else {
+      tempItem = item;
+    }
+
+    list.push(tempItem);
+  });
+
+  return list;
+};
+
+/**
+ * Generate a unique id for each playlist item object. This id will be used to determine
+ * index of an item in the playlist array for cases where there are multiple items with
+ * the same source set.
+ *
+ * @private
+ *
+ * @param  {Array} arr
+ *         An array of playlist items
+ */
+const generatePlaylistItemId = (arr) => {
+  let guid = 1;
+
+  arr.forEach(item => {
+    item.playlistItemId_ = guid++;
+  });
+};
+
+/**
+ * Look through an array of playlist items for a specific playlist item id.
+ *
+ * @private
+ * @param   {Array} list
+ *          An array of playlist items to look through
+ *
+ * @param   {number} currentItemId
+ *          The current item ID.
+ *
+ * @return  {number}
+ *          The index of the playlist item or -1 if not found
+ */
+const indexInPlaylistItemIds = (list, currentItemId) => {
+  for (let i = 0; i < list.length; i++) {
+    if (list[i].playlistItemId_ === currentItemId) {
+      return i;
+    }
+  }
+
+  return -1;
+};
+
+/**
  * Given two sources, check to see whether the two sources are equal.
  * If both source urls have a protocol, the protocols must match, otherwise, protocols
  * are ignored.
@@ -158,8 +245,19 @@ export default function factory(player, initialList, initialIndex = 0) {
 
       // @todo - Simplify this to `list.slice()` for v5.
       const previousPlaylist = Array.isArray(list) ? list.slice() : null;
+      const nextPlaylist = newList.slice();
 
-      list = newList.slice();
+      list = nextPlaylist.slice();
+
+      // Transform any primitive and null values in an input list to objects
+      if (list.filter(item => isItemObject(item)).length !== list.length) {
+        list = transformPrimitiveItems(list);
+      }
+
+      // Add unique id to each playlist item. This id will be used
+      // to determine index in cases where there are more than one
+      // identical sources in the playlist.
+      generatePlaylistItemId(list);
 
       // Mark the playlist as changing during the duringplaylistchange lifecycle.
       changing = true;
@@ -167,7 +265,7 @@ export default function factory(player, initialList, initialIndex = 0) {
       player.trigger({
         type: 'duringplaylistchange',
         nextIndex: newIndex,
-        nextPlaylist: list,
+        nextPlaylist,
         previousIndex: playlist.currentIndex_,
 
         // @todo - Simplify this to simply pass along `previousPlaylist` for v5.
@@ -195,7 +293,8 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     // Always return a shallow clone of the playlist list.
-    return list.slice();
+    //  We also want to return originalValue if any item in the list has it.
+    return list.map((item) => item.originalValue || item).slice();
   };
 
   // On a new source, if there is no current item, disable auto-advance.
@@ -209,6 +308,7 @@ export default function factory(player, initialList, initialIndex = 0) {
   playlist.player_ = player;
   playlist.autoadvance_ = {};
   playlist.repeat_ = false;
+  playlist.currentPlaylistItemId_ = null;
 
   /**
    * Get or set the current item in the playlist.
@@ -222,12 +322,12 @@ export default function factory(player, initialList, initialIndex = 0) {
    *         The current item index.
    */
   playlist.currentItem = (index) => {
-
     // If the playlist is changing, only act as a getter.
     if (changing) {
       return playlist.currentIndex_;
     }
 
+    // Act as a setter when the index is given and is a valid number.
     if (
       typeof index === 'number' &&
       playlist.currentIndex_ !== index &&
@@ -239,9 +339,35 @@ export default function factory(player, initialList, initialIndex = 0) {
         playlist.player_,
         list[playlist.currentIndex_]
       );
-    } else {
-      playlist.currentIndex_ = playlist.indexOf(playlist.player_.currentSrc() || '');
+
+      return playlist.currentIndex_;
     }
+
+    const src = playlist.player_.currentSrc() || '';
+
+    // If there is a currentPlaylistItemId_, validate that it matches the
+    // current source URL returned by the player. This is sufficient evidence
+    // to suggest that the source was set by the playlist plugin. This code
+    // exists primarily to deal with playlists where multiple items have the
+    // same source.
+    if (playlist.currentPlaylistItemId_) {
+      const indexInItemIds = indexInPlaylistItemIds(list, playlist.currentPlaylistItemId_);
+      const item = list[indexInItemIds];
+
+      // Found a match, this is our current index!
+      if (item && Array.isArray(item.sources) && indexInSources([item], src) > -1) {
+        playlist.currentIndex_ = indexInItemIds;
+        return playlist.currentIndex_;
+      }
+
+      // If this does not match the current source, null it out so subsequent
+      // calls can skip this step.
+      playlist.currentPlaylistItemId_ = null;
+    }
+
+    // Finally, if we don't have a valid, current playlist item ID, we can
+    // auto-detect it based on the player's current source URL.
+    playlist.currentIndex_ = playlist.indexOf(src);
 
     return playlist.currentIndex_;
   };
@@ -364,9 +490,10 @@ export default function factory(player, initialList, initialIndex = 0) {
     if (changing) {
       return;
     }
+    const newItem = playlist.currentItem(0);
 
     if (list.length) {
-      return list[playlist.currentItem(0)];
+      return list[newItem].originalValue || list[newItem];
     }
 
     playlist.currentIndex_ = -1;
@@ -382,9 +509,10 @@ export default function factory(player, initialList, initialIndex = 0) {
     if (changing) {
       return;
     }
+    const newItem = playlist.currentItem(playlist.lastIndex());
 
     if (list.length) {
-      return list[playlist.currentItem(playlist.lastIndex())];
+      return list[newItem].originalValue || list[newItem];
     }
 
     playlist.currentIndex_ = -1;
@@ -404,7 +532,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     const index = playlist.nextIndex();
 
     if (index !== playlist.currentIndex_) {
-      return list[playlist.currentItem(index)];
+      const newItem = playlist.currentItem(index);
+
+      return list[newItem].originalValue || list[newItem];
     }
   };
 
@@ -422,7 +552,9 @@ export default function factory(player, initialList, initialIndex = 0) {
     const index = playlist.previousIndex();
 
     if (index !== playlist.currentIndex_) {
-      return list[playlist.currentItem(index)];
+      const newItem = playlist.currentItem(index);
+
+      return list[newItem].originalValue || list[newItem];
     }
   };
 

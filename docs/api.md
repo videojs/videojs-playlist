@@ -152,13 +152,13 @@ Assuming the playlist used above, consider the following example:
 player.playlist.indexOf('http://media.w3.org/2010/05/bunny/trailer.mp4');
 // 1
 
-player.playlist.contains([{
+player.playlist.indexOf([{
   src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
   type: 'video/mp4'
 }]);
 // 3
 
-player.playlist.contains({
+player.playlist.indexOf({
   sources: [{
     src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
     type: 'video/mp4'

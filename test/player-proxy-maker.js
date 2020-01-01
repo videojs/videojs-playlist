@@ -12,17 +12,7 @@ const proxy = (props) => {
     addRemoteTextTrack: () => {},
     removeRemoteTextTrack: () => {},
     remoteTextTracks: () => {},
-    playlist: {
-      autoadvance_: {},
-      currentIndex_: -1,
-      autoadvance: () => {},
-      contains: () => {},
-      currentItem: () => {},
-      first: () => {},
-      indexOf: () => {},
-      next: () => {},
-      previous: () => {}
-    },
+    playlist: () => [],
     ready: (cb) => cb(),
     setTimeout: (cb, wait) => window.setTimeout(cb, wait),
     clearTimeout: (id) => window.clearTimeout(id)
@@ -30,6 +20,16 @@ const proxy = (props) => {
 
   player.constructor = videojs.getComponent('Player');
   player.playlist.player_ = player;
+
+  player.playlist.autoadvance_ = {};
+  player.playlist.currentIndex_ = -1;
+  player.playlist.autoadvance = () => {};
+  player.playlist.contains = () => {};
+  player.playlist.currentItem = () => {};
+  player.playlist.first = () => {};
+  player.playlist.indexOf = () => {};
+  player.playlist.next = () => {};
+  player.playlist.previous = () => {};
 
   return player;
 };
