@@ -67,7 +67,7 @@ const setup = (player, delay) => {
     // we need to cancel the auto-advance. This could mean the user seeked
     // back into the content or restarted the content. This is reproducible
     // with an auto-advance > 0.
-    player.one('play', cancelOnPlay);
+    player.one('ended', cancelOnPlay);
 
     player.playlist.autoadvance_.timeout = player.setTimeout(() => {
       reset(player);
