@@ -79,8 +79,6 @@ const setup = (player, delay) => {
       if (n >= 0) {
         // determine source
         const preloadlocation = player.playlist()[n].sources[0].src;
-
-        // TODO: put video in cache instead
         const preloadLink = document.createElement('link');
 
         preloadLink.href = preloadlocation;
