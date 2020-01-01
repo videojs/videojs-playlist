@@ -29,6 +29,7 @@ const proxy = (props) => {
   player.playlist.first = () => {};
   player.playlist.indexOf = () => {};
   player.playlist.next = () => {};
+  player.playlist.nextIndex = () => {};
   player.playlist.previous = () => {};
 
   return player;
