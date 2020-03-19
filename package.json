@@ -46,7 +46,7 @@
     "test/"
   ],
   "dependencies": {
-    "global": "^4.3.2",
+    "global": "^4.4.0",
     "video.js": "^6 || ^7"
   },
   "devDependencies": {
