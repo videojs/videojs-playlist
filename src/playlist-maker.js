@@ -308,6 +308,7 @@ export default function factory(player, initialList, initialIndex = 0) {
   playlist.player_ = player;
   playlist.autoadvance_ = {};
   playlist.repeat_ = false;
+  playlist.repeatOne_ = false;
   playlist.currentPlaylistItemId_ = null;
 
   /**
@@ -330,7 +331,7 @@ export default function factory(player, initialList, initialIndex = 0) {
     // Act as a setter when the index is given and is a valid number.
     if (
       typeof index === 'number' &&
-      playlist.currentIndex_ !== index &&
+      (playlist.currentIndex_ !== index || playlist.repeatOne_) &&
       index >= 0 &&
       index < list.length
     ) {
@@ -446,6 +447,10 @@ export default function factory(player, initialList, initialIndex = 0) {
       return -1;
     }
 
+    if (playlist.repeatOne_) {
+      return current;
+    }
+
     const lastIndex = playlist.lastIndex();
 
     // When repeating, loop back to the beginning on the last item.
@@ -469,6 +474,10 @@ export default function factory(player, initialList, initialIndex = 0) {
 
     if (current === -1) {
       return -1;
+    }
+
+    if (playlist.repeatOne_) {
+      return current;
     }
 
     // When repeating, loop back to the end of the playlist.
@@ -531,7 +540,7 @@ export default function factory(player, initialList, initialIndex = 0) {
 
     const index = playlist.nextIndex();
 
-    if (index !== playlist.currentIndex_) {
+    if (index !== playlist.currentIndex_ || playlist.repeatOne_) {
       const newItem = playlist.currentItem(index);
 
       return list[newItem].originalValue || list[newItem];
@@ -551,7 +560,7 @@ export default function factory(player, initialList, initialIndex = 0) {
 
     const index = playlist.previousIndex();
 
-    if (index !== playlist.currentIndex_) {
+    if (index !== playlist.currentIndex_ || playlist.repeatOne_) {
       const newItem = playlist.currentItem(index);
 
       return list[newItem].originalValue || list[newItem];
@@ -590,6 +599,29 @@ export default function factory(player, initialList, initialIndex = 0) {
 
     playlist.repeat_ = !!val;
     return playlist.repeat_;
+  };
+
+  /**
+   * Sets `repeatOne` option, which makes the "next" video same video as playing
+   *
+   * @param  {boolean} [val]
+   *         The value to set repeatOne to
+   *
+   * @return {boolean}
+   *         The current value of repeatOne
+   */
+  playlist.repeatOne = (val) => {
+    if (val === undefined) {
+      return playlist.repeatOne_;
+    }
+
+    if (typeof val !== 'boolean') {
+      videojs.log.error('videojs-playlist: Invalid value for repeat', val);
+      return;
+    }
+
+    playlist.repeatOne_ = !!val;
+    return playlist.repeatOne_;
   };
 
   /**

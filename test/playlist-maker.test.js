@@ -502,6 +502,10 @@ QUnit.test('playlist.nextIndex() works as expected', function(assert) {
   playlist.currentItem = () => 1;
   assert.equal(playlist.nextIndex(), 2, 'the next index was 2');
 
+  playlist.repeatOne(true);
+  assert.equal(playlist.nextIndex(), 1, 'the next index was now 1 because the repeat one option is on');
+  playlist.repeatOne(false);
+
   playlist.currentItem = () => 2;
   assert.equal(playlist.nextIndex(), 2, 'the next index did not change because the playlist does not repeat');
 
@@ -520,6 +524,10 @@ QUnit.test('playlist.previousIndex() works as expected', function(assert) {
 
   playlist.currentItem = () => 1;
   assert.equal(playlist.previousIndex(), 0, 'the previous index was 0');
+
+  playlist.repeatOne(true);
+  assert.equal(playlist.nextIndex(), 1, 'the next index was now 1 because the repeat one option is on');
+  playlist.repeatOne(false);
 
   playlist.currentItem = () => 0;
   assert.equal(playlist.previousIndex(), 0, 'the previous index did not change because the playlist does not repeat');
