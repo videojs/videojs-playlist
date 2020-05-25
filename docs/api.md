@@ -404,6 +404,29 @@ player.playlist.repeat();
 
 ```
 
+#### `player.playlist.repeatOne([Boolean val]) -> Boolean`
+
+Enable or disable repeat one (current) item by passing true or false as the argument.
+
+When repeatOne is enabled, the "next" video after the current video in the playlist is the same video. This affects the behavior of calling `next()`, of autoadvance, and so on.
+
+This method returns the current value. Call with no argument to use as a getter.
+
+Examples:
+
+```js
+
+player.playlist.repeatOne(true);
+
+player.playlist.repeatOne();
+// true
+
+player.playlist.repeatOne(false);
+player.playlist.repeatOne();
+// false
+
+```
+
 #### `player.playlist.sort([Function compare]) -> undefined`
 
 Sort the playlist in a manner identical to [`Array#sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort).
