@@ -1,3 +1,5 @@
+/* eslint-disable function-paren-newline */
+
 import QUnit from 'qunit';
 import sinon from 'sinon';
 import playlistMaker from '../src/playlist-maker';
