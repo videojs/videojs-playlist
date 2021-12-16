@@ -74,17 +74,11 @@ QUnit.test('playlistMaker can either take nothing or an Array as its first argum
   const playlist2 = playlistMaker(playerProxyMaker(), 'foo');
   const playlist3 = playlistMaker(playerProxyMaker(), {foo: [1, 2, 3]});
 
-  assert.deepEqual(
-    playlist1(), [], 'if given no initial array, default to an empty array'
-  );
+  assert.deepEqual(playlist1(), [], 'if given no initial array, default to an empty array');
 
-  assert.deepEqual(
-    playlist2(), [], 'if given no initial array, default to an empty array'
-  );
+  assert.deepEqual(playlist2(), [], 'if given no initial array, default to an empty array');
 
-  assert.deepEqual(
-    playlist3(), [], 'if given no initial array, default to an empty array'
-  );
+  assert.deepEqual(playlist3(), [], 'if given no initial array, default to an empty array');
 });
 
 QUnit.test('playlist() is a getter and setter for the list', function(assert) {
@@ -241,9 +235,7 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
 
   const playlist = playlistMaker(player, videoList, 1);
 
-  assert.equal(
-    playlist.currentItem(), 1, 'if given an initial index, load that video'
-  );
+  assert.equal(playlist.currentItem(), 1, 'if given an initial index, load that video');
 });
 
 QUnit.test('playlistMaker accepts a starting index', function(assert) {
@@ -268,9 +260,7 @@ QUnit.test('playlistMaker accepts a starting index', function(assert) {
 
   const playlist = playlistMaker(player, videoList, -1);
 
-  assert.equal(
-    playlist.currentItem(), -1, 'if given -1 as initial index, load no video'
-  );
+  assert.equal(playlist.currentItem(), -1, 'if given -1 as initial index, load no video');
 });
 
 QUnit.test('playlist.contains() works as expected', function(assert) {
