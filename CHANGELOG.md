@@ -1,3 +1,16 @@
+<a name="5.0.0"></a>
+# [5.0.0](https://github.com/brightcove/videojs-playlist/compare/v4.3.1...v5.0.0) (2021-12-17)
+
+### Chores
+
+* skip vjsverify es check ([#199](https://github.com/brightcove/videojs-playlist/issues/199)) ([78ee118](https://github.com/brightcove/videojs-playlist/commit/78ee118))
+* Update generate-rollup-config to drop older browser support ([#198](https://github.com/brightcove/videojs-playlist/issues/198)) ([b85db66](https://github.com/brightcove/videojs-playlist/commit/b85db66))
+
+
+### BREAKING CHANGES
+
+* This removes support for some older browsers like IE 11
+
 <a name="4.3.1"></a>
 ## [4.3.1](https://github.com/brightcove/videojs-playlist/compare/v4.3.0...v4.3.1) (2019-03-20)
 
