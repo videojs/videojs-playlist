@@ -2,25 +2,45 @@ import videojs from 'video.js';
 import playItem from './play-item';
 import * as autoadvance from './auto-advance';
 
+// Shared incrementing GUID for playlist items.
+let guid = 1;
+
 /**
- * Returns whether a playlist item is an object of any kind, excluding null.
+ * Transform any primitive playlist item value into an object.
  *
- * @private
+ * For non-object values, adds a property to the transformed item containing
+ * original value passed.
  *
- * @param {Object}
- *         value to be checked
+ * For all items, add a unique ID to each playlist item object. This id is
+ * used to determine the index of an item in the playlist array in cases where
+ * there are multiple otherwise identical items.
  *
- * @return {boolean}
- *          The result
+ * Also adds
+ *
+ * @param  {Object} newItem
+ *         An playlist item object, but accepts any value.
+ *
+ * @return {Object}
  */
-const isItemObject = (value) => {
-  return !!value && typeof value === 'object';
+const preparePlaylistItem = (newItem) => {
+  let item = newItem;
+
+  if (!newItem || typeof newItem !== 'object') {
+
+    // Casting to an Object in this way allows primitives to retain their
+    // primitiveness (i.e. they will be cast back to primitives as needed).
+    item = Object(newItem);
+    item.originalValue = newItem;
+  }
+
+  item.playlistItemId_ = guid++;
+
+  return item;
 };
 
 /**
- * Look through an array of playlist items and transform any primitive
- * as well as null values to objects. This method also adds a property
- * to the transformed item containing original value passed in an input list.
+ * Look through an array of playlist items and passes them to
+ * preparePlaylistItem.
  *
  * @private
  *
@@ -30,41 +50,7 @@ const isItemObject = (value) => {
  * @return {Array}
  *         A new array with transformed items
  */
-const transformPrimitiveItems = (arr) => {
-  const list = [];
-  let tempItem;
-
-  arr.forEach(item => {
-    if (!isItemObject(item)) {
-      tempItem = Object(item);
-      tempItem.originalValue = item;
-    } else {
-      tempItem = item;
-    }
-
-    list.push(tempItem);
-  });
-
-  return list;
-};
-
-/**
- * Generate a unique id for each playlist item object. This id will be used to determine
- * index of an item in the playlist array for cases where there are multiple items with
- * the same source set.
- *
- * @private
- *
- * @param  {Array} arr
- *         An array of playlist items
- */
-const generatePlaylistItemId = (arr) => {
-  let guid = 1;
-
-  arr.forEach(item => {
-    item.playlistItemId_ = guid++;
-  });
-};
+const preparePlaylistItems = (arr) => arr.map(preparePlaylistItem);
 
 /**
  * Look through an array of playlist items for a specific playlist item id.
@@ -236,28 +222,17 @@ export default function factory(player, initialList, initialIndex = 0) {
    * @return {Array}
    *         The playlist
    */
-  const playlist = player.playlist = (newList, newIndex = 0) => {
+  const playlist = player.playlist = (nextPlaylist, newIndex = 0) => {
     if (changing) {
       throw new Error('do not call playlist() during a playlist change');
     }
 
-    if (Array.isArray(newList)) {
+    if (Array.isArray(nextPlaylist)) {
 
       // @todo - Simplify this to `list.slice()` for v5.
       const previousPlaylist = Array.isArray(list) ? list.slice() : null;
-      const nextPlaylist = newList.slice();
 
-      list = nextPlaylist.slice();
-
-      // Transform any primitive and null values in an input list to objects
-      if (list.filter(item => isItemObject(item)).length !== list.length) {
-        list = transformPrimitiveItems(list);
-      }
-
-      // Add unique id to each playlist item. This id will be used
-      // to determine index in cases where there are more than one
-      // identical sources in the playlist.
-      generatePlaylistItemId(list);
+      list = preparePlaylistItems(nextPlaylist);
 
       // Mark the playlist as changing during the duringplaylistchange lifecycle.
       changing = true;
@@ -293,8 +268,8 @@ export default function factory(player, initialList, initialIndex = 0) {
     }
 
     // Always return a shallow clone of the playlist list.
-    //  We also want to return originalValue if any item in the list has it.
-    return list.map((item) => item.originalValue || item).slice();
+    // We also want to return originalValue if any item in the list has it.
+    return list.map((item) => item.originalValue || item);
   };
 
   // On a new source, if there is no current item, disable auto-advance.
@@ -370,6 +345,55 @@ export default function factory(player, initialList, initialIndex = 0) {
     playlist.currentIndex_ = playlist.indexOf(src);
 
     return playlist.currentIndex_;
+  };
+
+  /**
+   * Add an item to the playlist.
+   *
+   * During the duringplaylistchange event, throws an error.
+   *
+   * Fires playlistchange and playlistitemremoved events.
+   *
+   * @param  {Mixed}  item
+   *         An item to be added to the playlist. Primitive values will be
+   *         converted to objects internally.
+   *
+   * @param  {number} [index]
+   *         If given as a valid value, injects the new playlist item at that
+   *         index. Otherwise, the item is appended.
+   */
+  playlist.addItem = (newItem, index) => {
+    if (changing) {
+      throw new Error('addItem failed: playlist is currently changing');
+    }
+    if (typeof index !== 'number' || index < 0 || index > list.length) {
+      index = list.length;
+    }
+    list.splice(index, 0, preparePlaylistItem(newItem));
+    player.trigger('playlistchange');
+    player.trigger({type: 'playlistitemadded', index});
+  };
+
+  /**
+   * Remove an item from the playlist.
+   *
+   * During the duringplaylistchange event, throws an error.
+   *
+   * Fires playlistchange and playlistitemremoved events.
+   *
+   * @param  {number} index
+   *         If a valid index in the current playlist, removes the item at that
+   *         index from the playlist.
+   */
+  playlist.removeItem = (index) => {
+    if (changing) {
+      throw new Error('removeItem failed: playlist is currently changing');
+    }
+    if (index >= 0 && index < list.length) {
+      list.splice(index, 1);
+      player.trigger('playlistchange');
+      player.trigger({type: 'playlistitemremoved', index});
+    }
   };
 
   /**
@@ -711,7 +735,7 @@ export default function factory(player, initialList, initialIndex = 0) {
 
   // If an initial list was given, populate the playlist with it.
   if (Array.isArray(initialList)) {
-    playlist(initialList.slice(), initialIndex);
+    playlist(initialList, initialIndex);
 
   // If there is no initial list given, silently set an empty array.
   } else {
