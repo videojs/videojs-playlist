@@ -15,8 +15,6 @@ let guid = 1;
  * used to determine the index of an item in the playlist array in cases where
  * there are multiple otherwise identical items.
  *
- * Also adds
- *
  * @param  {Object} newItem
  *         An playlist item object, but accepts any value.
  *
