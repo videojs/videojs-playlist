@@ -348,52 +348,95 @@ export default function factory(player, initialList, initialIndex = 0) {
   };
 
   /**
-   * Add an item to the playlist.
+   * A custom DOM event that is fired when new item(s) are added to the current
+   * playlist (rather than replacing the entire playlist).
    *
-   * During the duringplaylistchange event, throws an error.
+   * Unlike playlistchange, this is fired synchronously as it does not
+   * affect playback.
    *
-   * Fires playlistchange and playlistitemremoved events.
+   * @typedef  {Object} PlaylistAddEvent
+   * @see      [CustomEvent Properties]{@link https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent}
+   * @property {string} type
+   *           Always "playlistadd"
    *
-   * @param  {Mixed}  item
-   *         An item to be added to the playlist. Primitive values will be
-   *         converted to objects internally.
+   * @property {number} count
+   *           The number of items that were added.
+   *
+   * @property {number} index
+   *           The starting index where item(s) were added.
+   */
+
+  /**
+   * A custom DOM event that is fired when new item(s) are removed from the
+   * current playlist (rather than replacing the entire playlist).
+   *
+   * This is fired synchronously as it does not affect playback.
+   *
+   * @typedef  {Object} PlaylistRemoveEvent
+   * @see      [CustomEvent Properties]{@link https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent}
+   * @property {string} type
+   *           Always "playlistremove"
+   *
+   * @property {number} count
+   *           The number of items that were removed.
+   *
+   * @property {number} index
+   *           The starting index where item(s) were removed.
+   */
+
+  /**
+   * Add one or more items to the playlist.
+   *
+   * @fires  {PlaylistAddEvent}
+   * @throws {Error}
+   *         If called during the duringplaylistchange event, throws an error.
+   *
+   * @param  {string|Object|Array}  item
+   *         An item - or array of items - to be added to the playlist.
    *
    * @param  {number} [index]
-   *         If given as a valid value, injects the new playlist item at that
-   *         index. Otherwise, the item is appended.
+   *         If given as a valid value, injects the new playlist item(s)
+   *         starting from that index. Otherwise, the item(s) are appended.
    */
-  playlist.addItem = (newItem, index) => {
+  playlist.add = (items, index) => {
     if (changing) {
-      throw new Error('addItem failed: playlist is currently changing');
+      throw new Error('cannot modify a playlist that is currently changing');
     }
     if (typeof index !== 'number' || index < 0 || index > list.length) {
       index = list.length;
     }
-    list.splice(index, 0, preparePlaylistItem(newItem));
-    player.trigger('playlistchange');
-    player.trigger({type: 'playlistitemadded', index});
+    if (!Array.isArray(items)) {
+      items = [items];
+    }
+    list.splice(index, 0, ...preparePlaylistItems(items));
+    player.trigger({type: 'playlistadd', count: items.length, index});
   };
 
   /**
-   * Remove an item from the playlist.
+   * Remove one or more items from the playlist.
    *
-   * During the duringplaylistchange event, throws an error.
-   *
-   * Fires playlistchange and playlistitemremoved events.
+   * @fires  {PlaylistRemoveEvent}
+   * @throws {Error}
+   *         If called during the duringplaylistchange event, throws an error.
    *
    * @param  {number} index
    *         If a valid index in the current playlist, removes the item at that
    *         index from the playlist.
+   *
+   *         If no valid index is given, nothing is removed from the playlist.
+   *
+   * @param  {number} [count=1]
+   *         The number of items to remove from the playlist.
    */
-  playlist.removeItem = (index) => {
+  playlist.remove = (index, count = 1) => {
     if (changing) {
-      throw new Error('removeItem failed: playlist is currently changing');
+      throw new Error('cannot modify a playlist that is currently changing');
     }
-    if (index >= 0 && index < list.length) {
-      list.splice(index, 1);
-      player.trigger('playlistchange');
-      player.trigger({type: 'playlistitemremoved', index});
+    if (typeof index !== 'number' || index < 0 || index > list.length) {
+      return;
     }
+    list.splice(index, count);
+    player.trigger({type: 'playlistremove', count, index});
   };
 
   /**

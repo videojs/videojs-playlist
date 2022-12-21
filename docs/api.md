@@ -111,61 +111,84 @@ player.playlist.currentItem();
 // -1
 ```
 
-#### `player.playlist.addItem(String|Object newItem, [Number index])`
+#### `player.playlist.add(String|Object|Array items, [Number index])`
 
 Adds an item to the current playlist without replacing the playlist.
 
-Fires the `playlistitemadded` event.
+Fires the `playlistadded` event.
 
 Calling this method during the `duringplaylistchange` event throws an error.
 
 ```js
 var samplePlaylist = [{
   sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
+    src: 'sintel.mp4',
     type: 'video/mp4'
   }]
 }];
 
 player.playlist(samplePlaylist);
 
-player.addItem({
+// Playlist will contain two items after this call: sintel.mp4, bbb.mp4
+player.add({
   sources: [{
-    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
+    src: 'bbb.mp4',
     type: 'video/mp4'
   }]
 });
 
-// Playlist will contain 2 items now.
+// Playlist will contain four items after this call: sintel.mp4, tears.mp4, test.mp4, and bbb.mp4
+player.add([{
+  sources: [{
+    src: 'tears.mp4',
+    type: 'video/mp4'
+  }]
+}, {
+  sources: [{
+    src: 'test.mp4',
+    type: 'video/mp4'
+  }]
+}], 1);
 ```
 
+#### `player.playlist.remove(Number index, [Number count=1])`
 
-#### `player.playlist.addItem(String|Object newItem, [Number index])`
+Removes one or more items from the current playlist without replacing the playlist. By default, if `count` is not provided, one item will be removed.
 
-Adds an item to the current playlist without replacing the playlist.
-
-Fires the `playlistitemadded` event.
+Fires the `playlistremoved` event.
 
 Calling this method during the `duringplaylistchange` event throws an error.
 
 ```js
 var samplePlaylist = [{
   sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
+    src: 'sintel.mp4',
     type: 'video/mp4'
   }]
 }, {
   sources: [{
-    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
+    src: 'bbb.mp4',
+    type: 'video/mp4'
+  }]
+}, {
+  sources: [{
+    src: 'tears.mp4',
+    type: 'video/mp4'
+  }]
+}, {
+  sources: [{
+    src: 'test.mp4',
     type: 'video/mp4'
   }]
 }];
 
 player.playlist(samplePlaylist);
 
-player.removeItem(1);
+// Playlist will contain three items after this call: bbb.mp4, tears.mp4, and test.mp4
+player.remove(0);
 
-// Playlist will only contain 1 item now.
+// Playlist will contain one item after this call: bbb.mp4
+player.remove(1, 2);
 ```
 
 #### `player.playlist.contains(String|Object|Array value) -> Boolean`
