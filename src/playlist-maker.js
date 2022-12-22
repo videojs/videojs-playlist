@@ -407,6 +407,10 @@ export default function factory(player, initialList, initialIndex = 0) {
       items = [items];
     }
     list.splice(index, 0, ...preparePlaylistItems(items));
+
+    // playlistchange is triggered synchronously in this case because it does
+    // not change the current media source
+    player.trigger('playlistchange');
     player.trigger({type: 'playlistadd', count: items.length, index});
   };
 
@@ -434,6 +438,10 @@ export default function factory(player, initialList, initialIndex = 0) {
       return;
     }
     list.splice(index, count);
+
+    // playlistchange is triggered synchronously in this case because it does
+    // not change the current media source
+    player.trigger('playlistchange');
     player.trigger({type: 'playlistremove', count, index});
   };
 

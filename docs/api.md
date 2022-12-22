@@ -113,9 +113,9 @@ player.playlist.currentItem();
 
 #### `player.playlist.add(String|Object|Array items, [Number index])`
 
-Adds an item to the current playlist without replacing the playlist.
+Adds one or more items to the current playlist without replacing the playlist.
 
-Fires the `playlistadded` event.
+Fires the `playlistadd` event.
 
 Calling this method during the `duringplaylistchange` event throws an error.
 
@@ -155,7 +155,7 @@ player.add([{
 
 Removes one or more items from the current playlist without replacing the playlist. By default, if `count` is not provided, one item will be removed.
 
-Fires the `playlistremoved` event.
+Fires the `playlistremove` event.
 
 Calling this method during the `duringplaylistchange` event throws an error.
 
