@@ -1,0 +1,29 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Read node version from .nvmrc
+      run: echo "nvmrc=$(cat .nvmrc)" >> $GITHUB_OUTPUT
+      shell: bash
+      id: nvm
+
+    - name: Setup node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '${{steps.nvm.outputs.nvmrc}}'
+
+    - name: Install
+      run: npm ci
+
+    - name: Lint
+      run:  npm run lint
+
+    - name: Test
+      run:  npm run test
