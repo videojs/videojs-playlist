@@ -2,11 +2,16 @@ import window from 'global/window';
 import videojs from 'video.js';
 
 const proxy = (props) => {
+  let poster_ = '';
   const player = Object.assign({}, videojs.EventTarget.prototype, {
     play: () => {},
     paused: () => {},
     ended: () => {},
-    poster: () => {},
+    poster: (src) => {
+      if (src !== undefined) {
+        poster_ = src;
+      } return poster_;
+    },
     src: () => {},
     currentSrc: () => {},
     addRemoteTextTrack: () => {},
