@@ -340,6 +340,16 @@ export default function factory(player, initialList, initialIndex = 0) {
         list[playlist.currentIndex_]
       );
 
+      // When playing multiple videos in a playlist the videojs PosterImage
+      // will be hidden using CSS. However, in some browsers the native poster
+      // attribute will briefly appear while the new source loads. Prevent
+      // this by hiding every poster after the first play list item. This
+      // doesn't cover every use case for showing/hiding the poster, but
+      // it will significantly improve the user experience.
+      if (index > 0) {
+        player.poster('');
+      }
+
       return playlist.currentIndex_;
     }
 

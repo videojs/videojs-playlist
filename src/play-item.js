@@ -38,11 +38,7 @@ const playItem = (player, item) => {
     player.playlist.currentPlaylistItemId_ = item.playlistItemId_;
   }
 
-  // When playing multiple videos in a playlist the videojs PosterImage will
-  // be hidden using CSS. However, the native poster attribute will briefly
-  // appear while the new source loads. Manually set the poster to prevent
-  // this happening.
-  player.poster('');
+  player.poster(item.poster || '');
   player.src(item.sources);
   clearTracks(player);
 
