@@ -58,7 +58,7 @@ jobs:
     - run: echo "::remove-matcher owner=tsc::"
 
     - name: npm install
-      run: npm i --prefer-offline --no-audit
+      run: npm ci
 
     - name: run npm test
       uses: GabrielBB/xvfb-action@v1.6
