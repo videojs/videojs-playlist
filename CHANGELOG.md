@@ -1,3 +1,10 @@
+<a name="5.0.1"></a>
+## [5.0.1](https://github.com/brightcove/videojs-playlist/compare/v5.0.0...v5.0.1) (2023-03-15)
+
+### Bug Fixes
+
+* posters flash between videos in playlist ([#243](https://github.com/brightcove/videojs-playlist/issues/243)) ([80dde66](https://github.com/brightcove/videojs-playlist/commit/80dde66))
+
 <a name="5.0.0"></a>
 # [5.0.0](https://github.com/brightcove/videojs-playlist/compare/v4.3.1...v5.0.0) (2021-12-17)
 
