@@ -167,6 +167,24 @@ QUnit.test('playlist.currentItem() works as expected', function(assert) {
   assert.equal(playlist.currentItem(-Infinity), 2, 'cannot change to an invalid item');
 });
 
+QUnit.test('playlist.currentItem() shows the poster for the first video', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, videoList);
+
+  playlist.currentItem(0);
+  assert.notEqual(player.poster(), '', 'poster is shown for playlist index 0');
+});
+
+QUnit.test('playlist.currentItem() hides the poster for all videos after the first', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, videoList);
+
+  for (let i = 1; i <= playlist.lastIndex(); i++) {
+    playlist.currentItem(i);
+    assert.equal(player.poster(), '', 'poster is hidden for playlist index ' + i);
+  }
+});
+
 QUnit.test('playlist.currentItem() returns -1 with an empty playlist', function(assert) {
   const playlist = playlistMaker(playerProxyMaker(), []);
 
