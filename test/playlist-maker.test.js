@@ -712,6 +712,7 @@ QUnit.test('when loading a new playlist, trigger "playlistchange" on the player'
 
   assert.strictEqual(spy.callCount, 1);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'change');
 });
 
 QUnit.test('"duringplaylistchange" and "playlistchange" on first call without an initial list', function(assert) {
@@ -901,6 +902,7 @@ QUnit.test('playlist.add will append an item by default', function(assert) {
   assert.deepEqual(playlist(), [1, 2, 3, 4]);
   assert.strictEqual(spy.callCount, 2);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
   assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
   assert.strictEqual(spy.secondCall.args[0].index, 3);
   assert.strictEqual(spy.secondCall.args[0].count, 1);
@@ -917,6 +919,7 @@ QUnit.test('playlist.add can insert an item at a specific index', function(asser
   assert.deepEqual(playlist(), [1, 4, 2, 3]);
   assert.strictEqual(spy.callCount, 2);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
   assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
   assert.strictEqual(spy.secondCall.args[0].index, 1);
   assert.strictEqual(spy.secondCall.args[0].count, 1);
@@ -933,6 +936,7 @@ QUnit.test('playlist.add appends when specified index is out of bounds', functio
   assert.deepEqual(playlist(), [1, 2, 3, 4]);
   assert.strictEqual(spy.callCount, 2);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
   assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
   assert.strictEqual(spy.secondCall.args[0].index, 3);
   assert.strictEqual(spy.secondCall.args[0].count, 1);
@@ -949,6 +953,7 @@ QUnit.test('playlist.add can append multiple items', function(assert) {
   assert.deepEqual(playlist(), [1, 2, 3, 4, 5, 6]);
   assert.strictEqual(spy.callCount, 2);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
   assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
   assert.strictEqual(spy.secondCall.args[0].index, 3);
   assert.strictEqual(spy.secondCall.args[0].count, 3);
@@ -965,6 +970,7 @@ QUnit.test('playlist.add can insert multiple items at a specific index', functio
   assert.deepEqual(playlist(), [1, 4, 5, 6, 7, 2, 3]);
   assert.strictEqual(spy.callCount, 2);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
   assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
   assert.strictEqual(spy.secondCall.args[0].index, 1);
   assert.strictEqual(spy.secondCall.args[0].count, 4);
@@ -994,6 +1000,7 @@ QUnit.test('playlist.remove can remove an item at an index', function(assert) {
   assert.deepEqual(playlist(), [1, 3]);
   assert.strictEqual(spy.callCount, 2);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'remove');
   assert.strictEqual(spy.secondCall.args[0].type, 'playlistremove');
   assert.strictEqual(spy.secondCall.args[0].index, 1);
   assert.strictEqual(spy.secondCall.args[0].count, 1);
@@ -1022,6 +1029,7 @@ QUnit.test('playlist.remove can remove multiple items at an index', function(ass
   assert.deepEqual(playlist(), [1]);
   assert.strictEqual(spy.callCount, 2);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'remove');
   assert.strictEqual(spy.secondCall.args[0].type, 'playlistremove');
   assert.strictEqual(spy.secondCall.args[0].index, 1);
   assert.strictEqual(spy.secondCall.args[0].count, 2);

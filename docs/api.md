@@ -538,9 +538,9 @@ player.on('playlistchange', function() {
 
 ### `playlistchange`
 
-This event is fired _asynchronously_ whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument) - except the first time.
+This event is fired whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument) - except the first time. Additionally, it is fired when item(s) are added or removed from the playlist.
 
-It is fired asynchronously to let the browser start loading the first video in the new playlist.
+In cases where a change to the playlist may result in a new video source being loaded, it is fired asynchronously to let the browser start loading the first video in the new playlist.
 
 ```js
 player.on('playlistchange', function() {
@@ -553,6 +553,16 @@ player.playlist([]);
 player.playlist([]);
 // [ ... ]
 ```
+
+#### `action`
+
+Each `playlistchange` event object has an additional `action` property. This can help you identify the action that caused the `playlistchange` event to be triggered. It will be one of:
+
+* `add`: One or more items were added to the playlist
+* `change`: The entire playlist was replaced
+* `remove`: One or more items were removed from the playlist
+
+This is considered temporary/deprecated behavior because future implementations should only fire the `playlistadd` and `playlistremove` events.
 
 #### Backward Compatibility
 
@@ -567,6 +577,14 @@ player.playlist([...]);
 ```
 
 This behavior will be removed in v5.0.0 and the event will fire in all cases.
+
+### `playlistadd`
+
+One or more items were added to the playlist via the `playlist.add()` method.
+
+### `playlistremove`
+
+One or more items were removed from the playlist via the `playlist.remove()` method.
 
 ### `beforeplaylistitem`
 

@@ -260,7 +260,7 @@ export default function factory(player, initialList, initialIndex = 0) {
       // @todo - Remove this condition in preparation for v5.
       if (previousPlaylist) {
         player.setTimeout(() => {
-          player.trigger('playlistchange');
+          player.trigger({type: 'playlistchange', action: 'change'});
         }, 0);
       }
     }
@@ -410,7 +410,7 @@ export default function factory(player, initialList, initialIndex = 0) {
 
     // playlistchange is triggered synchronously in this case because it does
     // not change the current media source
-    player.trigger('playlistchange');
+    player.trigger({type: 'playlistchange', action: 'add'});
     player.trigger({type: 'playlistadd', count: items.length, index});
   };
 
@@ -441,7 +441,7 @@ export default function factory(player, initialList, initialIndex = 0) {
 
     // playlistchange is triggered synchronously in this case because it does
     // not change the current media source
-    player.trigger('playlistchange');
+    player.trigger({type: 'playlistchange', action: 'remove'});
     player.trigger({type: 'playlistremove', count, index});
   };
 
