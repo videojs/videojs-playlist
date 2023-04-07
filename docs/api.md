@@ -2,13 +2,7 @@
 
 ## Playlist Item Object
 
-A playlist is an array of playlist items. A playlist item is an object with the following properties:
-
-| Property     | Type   | Optional | Description                                        |
-| ------------ | ------ | -------- | -------------------------------------------------- |
-| `sources`    | Array  |          | An array of sources that video.js understands.     |
-| `poster`     | String | ✓        | A poster image to display for these sources.       |
-| `textTracks` | Array  | ✓        | An array of text tracks that Video.js understands. |
+A playlist is an array of playlist items. Usually, a playlist item is an object with an array of `sources`, but it could also be a primitive value like a string.
 
 ## Methods
 ### `player.playlist([Array newList], [Number newIndex]) -> Array`
@@ -20,43 +14,43 @@ If called without arguments, it is a getter. With an argument, it is a setter.
 ```js
 player.playlist([{
   sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  poster: '//media.w3.org/2010/05/sintel/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  poster: '//media.w3.org/2010/05/bunny/poster.png'
 }, {
   sources: [{
-    src: 'http://vjs.zencdn.net/v/oceans.mp4',
+    src: '//vjs.zencdn.net/v/oceans.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://www.videojs.com/img/poster.jpg'
+  poster: '//www.videojs.com/img/poster.jpg'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
+    src: '//media.w3.org/2010/05/bunny/movie.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  poster: '//media.w3.org/2010/05/bunny/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+    src: '//media.w3.org/2010/05/video/movie_300.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/video/poster.png'
+  poster: '//media.w3.org/2010/05/video/poster.png'
 }]);
 // [{ ... }, ... ]
 
 player.playlist([{
   sources: [{
-    src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+    src: '//media.w3.org/2010/05/video/movie_300.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/video/poster.png'
+  poster: '//media.w3.org/2010/05/video/poster.png'
 }]);
 // [{ ... }]
 ```
@@ -67,16 +61,16 @@ first video is loaded. If `-1`, no video is loaded.
 ```js
 player.playlist([{
   sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  poster: '//media.w3.org/2010/05/sintel/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  poster: '//media.w3.org/2010/05/bunny/poster.png'
 }], 1);
 // [{ ... }]
 ```
@@ -92,16 +86,16 @@ If the player is currently playing a non-playlist video, it will return `-1`.
 ```js
 var samplePlaylist = [{
   sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  poster: '//media.w3.org/2010/05/sintel/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  poster: '//media.w3.org/2010/05/bunny/poster.png'
 }];
 
 player.playlist(samplePlaylist);
@@ -112,9 +106,89 @@ player.currentItem();
 player.currentItem(2);
 // 2
 
-player.src('http://example.com/video.mp4');
+player.src('//example.com/video.mp4');
 player.playlist.currentItem();
 // -1
+```
+
+#### `player.playlist.add(String|Object|Array items, [Number index])`
+
+Adds one or more items to the current playlist without replacing the playlist.
+
+Fires the `playlistadd` event.
+
+Calling this method during the `duringplaylistchange` event throws an error.
+
+```js
+var samplePlaylist = [{
+  sources: [{
+    src: 'sintel.mp4',
+    type: 'video/mp4'
+  }]
+}];
+
+player.playlist(samplePlaylist);
+
+// Playlist will contain two items after this call: sintel.mp4, bbb.mp4
+player.add({
+  sources: [{
+    src: 'bbb.mp4',
+    type: 'video/mp4'
+  }]
+});
+
+// Playlist will contain four items after this call: sintel.mp4, tears.mp4, test.mp4, and bbb.mp4
+player.add([{
+  sources: [{
+    src: 'tears.mp4',
+    type: 'video/mp4'
+  }]
+}, {
+  sources: [{
+    src: 'test.mp4',
+    type: 'video/mp4'
+  }]
+}], 1);
+```
+
+#### `player.playlist.remove(Number index, [Number count=1])`
+
+Removes one or more items from the current playlist without replacing the playlist. By default, if `count` is not provided, one item will be removed.
+
+Fires the `playlistremove` event.
+
+Calling this method during the `duringplaylistchange` event throws an error.
+
+```js
+var samplePlaylist = [{
+  sources: [{
+    src: 'sintel.mp4',
+    type: 'video/mp4'
+  }]
+}, {
+  sources: [{
+    src: 'bbb.mp4',
+    type: 'video/mp4'
+  }]
+}, {
+  sources: [{
+    src: 'tears.mp4',
+    type: 'video/mp4'
+  }]
+}, {
+  sources: [{
+    src: 'test.mp4',
+    type: 'video/mp4'
+  }]
+}];
+
+player.playlist(samplePlaylist);
+
+// Playlist will contain three items after this call: bbb.mp4, tears.mp4, and test.mp4
+player.remove(0);
+
+// Playlist will contain one item after this call: bbb.mp4
+player.remove(1, 2);
 ```
 
 #### `player.playlist.contains(String|Object|Array value) -> Boolean`
@@ -124,18 +198,18 @@ Determine whether a string, source object, or playlist item is contained within 
 Assuming the playlist used above, consider the following example:
 
 ```js
-player.playlist.contains('http://media.w3.org/2010/05/sintel/trailer.mp4');
+player.playlist.contains('//media.w3.org/2010/05/sintel/trailer.mp4');
 // true
 
 player.playlist.contains([{
-  src: 'http://media.w3.org/2010/05/sintel/poster.png',
+  src: '//media.w3.org/2010/05/sintel/poster.png',
   type: 'image/png'
 }]);
 // false
 
 player.playlist.contains({
   sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }]
 });
@@ -149,18 +223,18 @@ Get the index of a string, source object, or playlist item in the playlist. If n
 Assuming the playlist used above, consider the following example:
 
 ```js
-player.playlist.indexOf('http://media.w3.org/2010/05/bunny/trailer.mp4');
+player.playlist.indexOf('//media.w3.org/2010/05/bunny/trailer.mp4');
 // 1
 
 player.playlist.indexOf([{
-  src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
+  src: '//media.w3.org/2010/05/bunny/movie.mp4',
   type: 'video/mp4'
 }]);
 // 3
 
 player.playlist.indexOf({
   sources: [{
-    src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
+    src: '//media.w3.org/2010/05/video/movie_300.mp4',
     type: 'video/mp4'
   }]
 });
@@ -174,16 +248,16 @@ Get the index of the current item in the playlist. This is identical to calling 
 ```js
 var samplePlaylist = [{
   sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  poster: '//media.w3.org/2010/05/sintel/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  poster: '//media.w3.org/2010/05/bunny/poster.png'
 }];
 
 player.currentIndex();
@@ -201,16 +275,16 @@ If the player is currently playing a non-playlist video, it will return `-1`.
 ```js
 var samplePlaylist = [{
   sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  poster: '//media.w3.org/2010/05/sintel/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  poster: '//media.w3.org/2010/05/bunny/poster.png'
 }];
 
 player.playlist(samplePlaylist);
@@ -226,7 +300,7 @@ player.repeat(true);
 player.nextIndex();
 // 0
 
-player.src('http://example.com/video.mp4');
+player.src('//example.com/video.mp4');
 player.playlist.nextIndex();
 // -1
 ```
@@ -242,16 +316,16 @@ If the player is currently playing a non-playlist video, it will return `-1`.
 ```js
 var samplePlaylist = [{
   sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  poster: '//media.w3.org/2010/05/sintel/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  poster: '//media.w3.org/2010/05/bunny/poster.png'
 }];
 
 player.playlist(samplePlaylist, 1);
@@ -267,7 +341,7 @@ player.repeat(true);
 player.previousIndex();
 // 1
 
-player.src('http://example.com/video.mp4');
+player.src('//example.com/video.mp4');
 player.playlist.previousIndex();
 // -1
 ```
@@ -279,16 +353,16 @@ Get the index of the last item in the playlist.
 ```js
 var samplePlaylist = [{
   sources: [{
-    src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
+    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/sintel/poster.png'
+  poster: '//media.w3.org/2010/05/sintel/poster.png'
 }, {
   sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/trailer.mp4',
+    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
+  poster: '//media.w3.org/2010/05/bunny/poster.png'
 }];
 
 player.lastIndex();
@@ -464,9 +538,9 @@ player.on('playlistchange', function() {
 
 ### `playlistchange`
 
-This event is fired _asynchronously_ whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument) - except the first time.
+This event is fired whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument) - except the first time. Additionally, it is fired when item(s) are added or removed from the playlist.
 
-It is fired asynchronously to let the browser start loading the first video in the new playlist.
+In cases where a change to the playlist may result in a new video source being loaded, it is fired asynchronously to let the browser start loading the first video in the new playlist.
 
 ```js
 player.on('playlistchange', function() {
@@ -479,6 +553,16 @@ player.playlist([]);
 player.playlist([]);
 // [ ... ]
 ```
+
+#### `action`
+
+Each `playlistchange` event object has an additional `action` property. This can help you identify the action that caused the `playlistchange` event to be triggered. It will be one of:
+
+* `add`: One or more items were added to the playlist
+* `change`: The entire playlist was replaced
+* `remove`: One or more items were removed from the playlist
+
+This is considered temporary/deprecated behavior because future implementations should only fire the `playlistadd` and `playlistremove` events.
 
 #### Backward Compatibility
 
@@ -493,6 +577,14 @@ player.playlist([...]);
 ```
 
 This behavior will be removed in v5.0.0 and the event will fire in all cases.
+
+### `playlistadd`
+
+One or more items were added to the playlist via the `playlist.add()` method.
+
+### `playlistremove`
+
+One or more items were removed from the playlist via the `playlist.remove()` method.
 
 ### `beforeplaylistitem`
 

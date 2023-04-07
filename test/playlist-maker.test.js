@@ -730,6 +730,7 @@ QUnit.test('when loading a new playlist, trigger "playlistchange" on the player'
 
   assert.strictEqual(spy.callCount, 1);
   assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'change');
 });
 
 QUnit.test('"duringplaylistchange" and "playlistchange" on first call without an initial list', function(assert) {
@@ -906,4 +907,161 @@ QUnit.test('playlist.shuffle({rest: true}) works as expected', function(assert) 
   assert.notStrictEqual(list.indexOf(3), -1, '3 is in the list');
   assert.notStrictEqual(list.indexOf(4), -1, '4 is in the list');
   assert.strictEqual(spy.callCount, 3, 'the "playlistsorted" event triggered');
+});
+
+QUnit.test('playlist.add will append an item by default', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+  const spy = sinon.spy();
+
+  this.clock.tick(1);
+  player.on(['playlistchange', 'playlistadd'], spy);
+  playlist.add(4);
+  assert.deepEqual(playlist(), [1, 2, 3, 4]);
+  assert.strictEqual(spy.callCount, 2);
+  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
+  assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
+  assert.strictEqual(spy.secondCall.args[0].index, 3);
+  assert.strictEqual(spy.secondCall.args[0].count, 1);
+});
+
+QUnit.test('playlist.add can insert an item at a specific index', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+  const spy = sinon.spy();
+
+  this.clock.tick(1);
+  player.on(['playlistchange', 'playlistadd'], spy);
+  playlist.add(4, 1);
+  assert.deepEqual(playlist(), [1, 4, 2, 3]);
+  assert.strictEqual(spy.callCount, 2);
+  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
+  assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
+  assert.strictEqual(spy.secondCall.args[0].index, 1);
+  assert.strictEqual(spy.secondCall.args[0].count, 1);
+});
+
+QUnit.test('playlist.add appends when specified index is out of bounds', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+  const spy = sinon.spy();
+
+  this.clock.tick(1);
+  player.on(['playlistchange', 'playlistadd'], spy);
+  playlist.add(4, 10);
+  assert.deepEqual(playlist(), [1, 2, 3, 4]);
+  assert.strictEqual(spy.callCount, 2);
+  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
+  assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
+  assert.strictEqual(spy.secondCall.args[0].index, 3);
+  assert.strictEqual(spy.secondCall.args[0].count, 1);
+});
+
+QUnit.test('playlist.add can append multiple items', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+  const spy = sinon.spy();
+
+  this.clock.tick(1);
+  player.on(['playlistchange', 'playlistadd'], spy);
+  playlist.add([4, 5, 6]);
+  assert.deepEqual(playlist(), [1, 2, 3, 4, 5, 6]);
+  assert.strictEqual(spy.callCount, 2);
+  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
+  assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
+  assert.strictEqual(spy.secondCall.args[0].index, 3);
+  assert.strictEqual(spy.secondCall.args[0].count, 3);
+});
+
+QUnit.test('playlist.add can insert multiple items at a specific index', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+  const spy = sinon.spy();
+
+  this.clock.tick(1);
+  player.on(['playlistchange', 'playlistadd'], spy);
+  playlist.add([4, 5, 6, 7], 1);
+  assert.deepEqual(playlist(), [1, 4, 5, 6, 7, 2, 3]);
+  assert.strictEqual(spy.callCount, 2);
+  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'add');
+  assert.strictEqual(spy.secondCall.args[0].type, 'playlistadd');
+  assert.strictEqual(spy.secondCall.args[0].index, 1);
+  assert.strictEqual(spy.secondCall.args[0].count, 4);
+});
+
+QUnit.test('playlist.add throws an error duringplaylistchange', function(assert) {
+  const done = assert.async();
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+
+  player.on('duringplaylistchange', (e) => {
+    assert.throws(() => playlist.add(4));
+    done();
+  });
+
+  playlist([4, 5, 6]);
+});
+
+QUnit.test('playlist.remove can remove an item at an index', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+  const spy = sinon.spy();
+
+  this.clock.tick(1);
+  player.on(['playlistchange', 'playlistremove'], spy);
+  playlist.remove(1);
+  assert.deepEqual(playlist(), [1, 3]);
+  assert.strictEqual(spy.callCount, 2);
+  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'remove');
+  assert.strictEqual(spy.secondCall.args[0].type, 'playlistremove');
+  assert.strictEqual(spy.secondCall.args[0].index, 1);
+  assert.strictEqual(spy.secondCall.args[0].count, 1);
+});
+
+QUnit.test('playlist.remove does nothing when index is out of range', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+  const spy = sinon.spy();
+
+  this.clock.tick(1);
+  player.on(['playlistchange', 'playlistremove'], spy);
+  playlist.remove(4);
+  assert.deepEqual(playlist(), [1, 2, 3]);
+  assert.strictEqual(spy.callCount, 0);
+});
+
+QUnit.test('playlist.remove can remove multiple items at an index', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+  const spy = sinon.spy();
+
+  this.clock.tick(1);
+  player.on(['playlistchange', 'playlistremove'], spy);
+  playlist.remove(1, 2);
+  assert.deepEqual(playlist(), [1]);
+  assert.strictEqual(spy.callCount, 2);
+  assert.strictEqual(spy.firstCall.args[0].type, 'playlistchange');
+  assert.strictEqual(spy.firstCall.args[0].action, 'remove');
+  assert.strictEqual(spy.secondCall.args[0].type, 'playlistremove');
+  assert.strictEqual(spy.secondCall.args[0].index, 1);
+  assert.strictEqual(spy.secondCall.args[0].count, 2);
+});
+
+QUnit.test('playlist.remove throws an error duringplaylistchange', function(assert) {
+  const done = assert.async();
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, [1, 2, 3]);
+
+  player.on('duringplaylistchange', (e) => {
+    assert.throws(() => playlist.remove(0));
+    done();
+  });
+
+  playlist([4, 5, 6]);
 });
