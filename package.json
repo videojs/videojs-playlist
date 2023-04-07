@@ -45,7 +45,7 @@
   ],
   "dependencies": {
     "global": "^4.3.2",
-    "video.js": "^6 || ^7"
+    "video.js": "^6 || ^7 || ^8"
   },
   "devDependencies": {
     "conventional-changelog-cli": "^2.0.1",
