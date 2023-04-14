@@ -1,3 +1,14 @@
+<a name="5.1.0"></a>
+# [5.1.0](https://github.com/brightcove/videojs-playlist/compare/v5.0.1...v5.1.0) (2023-04-14)
+
+### Features
+
+* add `add` and `remove` methods to modify the playlist dynamically ([#240](https://github.com/brightcove/videojs-playlist/issues/240)) ([bd4aabb](https://github.com/brightcove/videojs-playlist/commit/bd4aabb))
+
+### Chores
+
+* add v8 to dependencies list ([#250](https://github.com/brightcove/videojs-playlist/issues/250)) ([5c2f9f3](https://github.com/brightcove/videojs-playlist/commit/5c2f9f3))
+
 <a name="5.0.1"></a>
 ## [5.0.1](https://github.com/brightcove/videojs-playlist/compare/v5.0.0...v5.0.1) (2023-03-15)
 
