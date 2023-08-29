@@ -3,6 +3,7 @@ import videojs from 'video.js';
 
 const proxy = (props) => {
   let poster_ = '';
+  let audio_ = false;
   const player = Object.assign({}, videojs.EventTarget.prototype, {
     play: () => {},
     paused: () => {},
@@ -15,6 +16,11 @@ const proxy = (props) => {
     src: () => {},
     currentSrc: () => {},
     addRemoteTextTrack: () => {},
+    isAudio: (audio) => {
+      if (audio !== undefined) {
+        audio_ = audio;
+      } return audio_;
+    },
     removeRemoteTextTrack: () => {},
     remoteTextTracks: () => {},
     playlist: () => [],

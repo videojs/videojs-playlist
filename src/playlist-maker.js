@@ -319,7 +319,7 @@ export default function factory(player, initialList, initialIndex = 0) {
       // this by hiding every poster after the first play list item. This
       // doesn't cover every use case for showing/hiding the poster, but
       // it will significantly improve the user experience.
-      if (index > 0) {
+      if (index > 0 && !player.isAudio()) {
         player.poster('');
       }
 

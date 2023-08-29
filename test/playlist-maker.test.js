@@ -185,6 +185,17 @@ QUnit.test('playlist.currentItem() hides the poster for all videos after the fir
   }
 });
 
+QUnit.test('playlist.currentItem() always shows the poster for audio players', function(assert) {
+  const player = playerProxyMaker();
+  const playlist = playlistMaker(player, videoList);
+
+  player.isAudio(true);
+  for (let i = 1; i <= playlist.lastIndex(); i++) {
+    playlist.currentItem(i);
+    assert.notEqual(player.poster(), '', 'poster is shown for audio playlist index ' + i);
+  }
+});
+
 QUnit.test('playlist.currentItem() returns -1 with an empty playlist', function(assert) {
   const playlist = playlistMaker(playerProxyMaker(), []);
 
