@@ -1,97 +1,93 @@
-
 /**
- * Validates a number of seconds to use as the auto-advance delay.
- *
- * @private
- * @param   {number} s
- *          The number to check
- *
- * @return  {boolean}
- *          Whether this is a valid second or not
+ * Manages the auto-advance functionality in a media player.
+ * Auto-advance automatically moves to the next item after a specified delay.
  */
-const validSeconds = s =>
-  typeof s === 'number' && !isNaN(s) && s >= 0 && s < Infinity;
+export default class AutoAdvance {
 
-/**
- * Resets the auto-advance behavior of a player.
- *
- * @param {Player} player
- *        The player to reset the behavior on
- */
-let reset = (player) => {
-  const aa = player.playlist.autoadvance_;
-
-  if (aa.timeout) {
-    player.clearTimeout(aa.timeout);
+  /**
+   * Creates an instance of the AutoAdvance class.
+   *
+   * @param {Object} player
+   *        The media player instance.
+   * @param {Function} advanceCallback
+   *        The callback function to execute when advancing to the next item.
+   */
+  constructor(player, advanceCallback) {
+    this.player_ = player;
+    this.advanceCallback_ = advanceCallback;
+    this.delay_ = null;
+    this.timeoutId_ = null;
+    this.startTimeout_ = this.startTimeout_.bind(this);
   }
 
-  if (aa.trigger) {
-    player.off('ended', aa.trigger);
+  /**
+   * Sets the delay for auto-advance.
+   * If the delay is invalid or not a positive number, auto-advance is cancelled.
+   *
+   * @param {number} seconds
+   *        The delay in seconds before auto-advancing.
+   */
+  setDelay(seconds) {
+    // Cancel any existing auto-advance behavior and start fresh
+    this.fullReset();
+
+    // If delay is invalid or undefined, do nothing further (auto-advance already cancelled)
+    if (typeof seconds !== 'number' || seconds < 0 || !isFinite(seconds)) {
+      return;
+    }
+
+    // Set the new delay and start listening for 'ended' to trigger auto-advance
+    this.delay_ = seconds;
+    this.player_.on('ended', this.startTimeout_);
   }
 
-  aa.timeout = null;
-  aa.trigger = null;
-};
-
-/**
- * Sets up auto-advance behavior on a player.
- *
- * @param  {Player} player
- *         the current player
- *
- * @param  {number} delay
- *         The number of seconds to wait before each auto-advance.
- *
- * @return {undefined}
- *         Used to short circuit function logic
- */
-const setup = (player, delay) => {
-  reset(player);
-
-  // Before queuing up new auto-advance behavior, check if `seconds` was
-  // called with a valid value.
-  if (!validSeconds(delay)) {
-    player.playlist.autoadvance_.delay = null;
-    return;
+  /**
+   * Gets the delay for auto-advance.
+   */
+  getDelay() {
+    return this.delay_;
   }
 
-  player.playlist.autoadvance_.delay = delay;
+  /**
+   * Starts the auto-advance timeout.
+   */
+  startTimeout_() {
+    // Ensure we don't stack timeouts
+    this.clearTimeout_();
 
-  player.playlist.autoadvance_.trigger = function() {
+    // Set a new timeout for auto-advancing
+    if (this.delay_ !== null) {
+      // Listen for a play event to cancel auto-advance if it occurs before the timeout completes
+      this.clearTimeoutOnPlay = () => this.clearTimeout_();
+      this.player_.one('play', this.clearTimeoutOnPlay);
 
-    // This calls setup again, which will reset the existing auto-advance and
-    // set up another auto-advance for the next "ended" event.
-    const cancelOnPlay = () => setup(player, delay);
+      this.timeoutId_ = setTimeout(() => {
+        this.advanceCallback_();
 
-    // If there is a "play" event while we're waiting for an auto-advance,
-    // we need to cancel the auto-advance. This could mean the user seeked
-    // back into the content or restarted the content. This is reproducible
-    // with an auto-advance > 0.
-    player.one('play', cancelOnPlay);
+        // Clean up the listener for the play event when the auto-advance triggers
+        this.player_.off('play', this.clearTimeoutOnPlay);
+      }, this.delay_ * 1000);
+    }
+  }
 
-    player.playlist.autoadvance_.timeout = player.setTimeout(() => {
-      reset(player);
-      player.off('play', cancelOnPlay);
-      player.playlist.next();
-    }, delay * 1000);
-  };
+  /**
+   * Clears the current auto-advance timeout and removes the 'play' event listener.
+   */
+  clearTimeout_() {
+    if (this.timeoutId_) {
+      clearTimeout(this.timeoutId_);
+      this.timeoutId_ = null;
+      this.player_.off('play', this.clearTimeoutOnPlay);
+    }
+  }
 
-  player.one('ended', player.playlist.autoadvance_.trigger);
-};
+  /**
+   * Cancels and resets all auto-advance behavior
+   */
+  fullReset() {
+    this.clearTimeout_();
 
-/**
- * Used to change the reset function in this module at runtime
- * This should only be used in tests.
- *
- * @param {Function} fn
- *        The function to se the reset to
- */
-const setReset_ = (fn) => {
-  reset = fn;
-};
-
-export {
-  setReset_,
-  reset,
-  setup
-};
+    this.player_.off('ended', this.startTimeout_);
+    this.delay_ = null;
+  }
+}
