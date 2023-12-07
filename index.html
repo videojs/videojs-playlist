@@ -189,7 +189,7 @@
       document.getElementById('lastIndex').textContent = playlist.getLastIndex();
       document.getElementById('nextIndex').textContent = playlist.getNextIndex();
       document.getElementById('prevIndex').textContent = playlist.getPreviousIndex();
-      document.getElementById('repeat').textContent = playlist.getRepeat();
+      document.getElementById('repeat').textContent = playlist.isRepeatEnabled();
       document.getElementById('autoadvance').textContent = playlist.getAutoadvance();
     }
 
@@ -227,7 +227,7 @@
     updatePlaylistDisplay();
     updatePlaylistInfo();
 
-    player.on(['playlistchange', 'playlistsorted', 'playlistadd', 'playlistremove'], () => {
+    player.on(['playlistchange', 'playlistsorted', 'playlistadd', 'playlistremove', 'playlistitem'], () => {
       updatePlaylistDisplay();
       updatePlaylistInfo();
     });
