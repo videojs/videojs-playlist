@@ -59,31 +59,31 @@ QUnit.test('validateSources - handles different source formats correctly', funct
   const singleSource = { src: 'video.mp4', type: 'video/mp4' };
   const multipleSources = [{ src: 'video.mp4', type: 'video/mp4' }, { src: 'video.webm', type: 'video/webm' }];
 
-  assert.deepEqual(this.playlistItem.validateSources([singleSource]), [singleSource], 'Single source is valid');
-  assert.deepEqual(this.playlistItem.validateSources(multipleSources), multipleSources, 'Multiple sources are valid');
+  assert.deepEqual(PlaylistItem.validateSources([singleSource]), [singleSource], 'Single source is valid');
+  assert.deepEqual(PlaylistItem.validateSources(multipleSources), multipleSources, 'Multiple sources are valid');
 });
 
 QUnit.test('validateSources - throws error for invalid sources', function(assert) {
   assert.throws(
-    () => this.playlistItem.validateSources({}),
+    () => PlaylistItem.validateSources({}),
     /Sources must be an array/,
     'Throws error for non-array sources'
   );
 
   assert.throws(
-    () => this.playlistItem.validateSources([{}]),
+    () => PlaylistItem.validateSources([{}]),
     /No valid sources found/,
     'Throws error for sources without required properties'
   );
 
   assert.throws(
-    () => this.playlistItem.validateSources([{ src: 'video.mp4' }]),
+    () => PlaylistItem.validateSources([{ src: 'video.mp4' }]),
     /No valid sources found/,
     'Throws error for sources without required properties'
   );
 
   assert.throws(
-    () => this.playlistItem.validateSources([{ type: 'video/mp4' }]),
+    () => PlaylistItem.validateSources([{ type: 'video/mp4' }]),
     /No valid sources found/,
     'Throws error for sources without required properties'
   );

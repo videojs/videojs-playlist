@@ -4,29 +4,6 @@ import { silencePromise } from './utils.js';
  * Represents a single item in a video playlist.
  */
 export default class PlaylistItem {
-
-  /**
-   * Creates an instance of the PlaylistItem class.
-   *
-   * @param {Object} videoProperties
-   *        The video properties for the playlist item, including sources, poster, and text tracks.
-   */
-  constructor(videoProperties) {
-    // Default values for known properties
-    const { sources, poster = '', textTracks = [] } = videoProperties;
-
-    this.sources = this.validateSources(sources);
-    this.poster = poster;
-    this.textTracks = textTracks;
-
-    // Assign additional properties directly to this instance
-    for (const key in videoProperties) {
-      if (videoProperties.hasOwnProperty(key) && !['sources', 'poster', 'textTracks'].includes(key)) {
-        this[key] = videoProperties[key];
-      }
-    }
-  }
-
   /**
    * Validates the given sources array, ensuring each source object contains 'src' and 'type' properties.
    * Throws an error if sources are not an array or no valid sources are found.
@@ -38,7 +15,7 @@ export default class PlaylistItem {
    * @throws {Error}
    *         If sources are not an array or no valid sources are found.
    */
-  validateSources(sources) {
+  static validateSources(sources) {
     if (!Array.isArray(sources)) {
       throw new Error('Sources must be an array');
     }
@@ -52,6 +29,28 @@ export default class PlaylistItem {
     }
 
     return validSources;
+  }
+
+  /**
+   * Creates an instance of the PlaylistItem class.
+   *
+   * @param {Object} videoProperties
+   *        The video properties for the playlist item, including sources, poster, and text tracks.
+   */
+  constructor(videoProperties) {
+    // Default values for known properties
+    const { sources, poster = '', textTracks = [] } = videoProperties;
+
+    this.sources = PlaylistItem.validateSources(sources);
+    this.poster = poster;
+    this.textTracks = textTracks;
+
+    // Assign additional properties directly to this instance
+    for (const key in videoProperties) {
+      if (videoProperties.hasOwnProperty(key) && !['sources', 'poster', 'textTracks'].includes(key)) {
+        this[key] = videoProperties[key];
+      }
+    }
   }
 
   /**
