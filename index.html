@@ -123,7 +123,10 @@
     <input id="removeIndexInput" type="number" value="0" min="0">
 
     <label for="removeCountInput">Number of items to remove:</label>
-    <input id="removeCountInput" type="number" value="1" min="1">
+    <input id="removeCountInput" type="number" value="0" min="0">
+
+    <label for="addIndexInput">Index to add item:</label>
+    <input id="addIndexInput" type="number" value="0" min="0">
   </div>
 
   <!-- Playlist Information -->
@@ -252,11 +255,13 @@
           playlist.last();
           break;
         case 'addBtn':
+          const addIndex = parseInt(document.getElementById('addIndexInput').value, 10);
+
           // Add the same source URL but with a different poster so it is possible to differentiate
           const added = playlist.add({
             sources: [{ src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' }],
             poster: `https://image.mux.com/5g1hMA6dKAe8DCgBB901DYB200U65ev2y00/thumbnail.jpg?time=${Math.floor(Math.random() * 30) + 1}`
-          });
+          }, addIndex);
           videojs.log('added items:', added);
           break;
         case 'removeBtn':

@@ -383,26 +383,26 @@ export default class Playlist extends Plugin {
         items = [items];
       } else {
         log.error('Provided items must be an object or an array of objects.');
-        return;
+        return [];
       }
     }
 
-    const addedItems = [];
     const resolvedIndex = (typeof index !== 'number' || index < 0 || index > this.list_.length) ? this.list_.length : index;
+    const beforeChunk = this.list_.slice(0, resolvedIndex);
+    const afterChunk = this.list_.slice(resolvedIndex);
+    const newChunk = [];
 
     items.forEach(item => {
-      let spliceIndex = resolvedIndex;
-
       try {
         const playlistItem = new PlaylistItem(item);
 
-        this.list_.splice(spliceIndex++, 0, playlistItem);
-
-        addedItems.push(playlistItem);
+        newChunk.push(playlistItem);
       } catch (error) {
         log.error('Error adding item to playlist:', error);
       }
     });
+
+    this.list_ = [...beforeChunk, ...newChunk, ...afterChunk];
 
     // Update currentIndex if inserting new elements earlier in the array than the current item
     if (resolvedIndex <= this.currentIndex_) {
@@ -411,11 +411,11 @@ export default class Playlist extends Plugin {
 
     this.player.trigger({
       type: 'playlistadd',
-      count: addedItems.length,
+      count: newChunk.length,
       index: resolvedIndex
     });
 
-    return addedItems;
+    return [...newChunk];
   }
 
   /**
@@ -457,12 +457,12 @@ export default class Playlist extends Plugin {
 
     if (!isIndexInBounds(this.list_, index)) {
       log.error('Index is out of bounds.');
-      return;
+      return [];
     }
 
     if (typeof count !== 'number' || count < 0) {
       log.error('Invalid count for removal.');
-      return;
+      return [];
     }
 
     // Constrain the removal count to the number of items that are actually available to remove starting at that index
@@ -477,7 +477,7 @@ export default class Playlist extends Plugin {
       index
     });
 
-    return removedItems;
+    return [...removedItems];
   }
 
   /**
