@@ -31,7 +31,6 @@ export default class Playlist extends Plugin {
 
     this.options_ = videojs.obj.merge(defaults, options);
     this.list_ = [];
-    this.changing_ = false;
     this.currentIndex_ = null;
     this.autoAdvance_ = new AutoAdvance(this.player, () => this.next());
     this.repeat_ = this.options_.repeat;
@@ -69,10 +68,6 @@ export default class Playlist extends Plugin {
    *        This is triggered asynchronously as to not interrupt the loading of the first video.
    */
   setPlaylist(items, index = 0) {
-    if (this.changing_) {
-      throw new Error('do not call setPlaylist() during a playlist change');
-    }
-
     if (!Array.isArray(items)) {
       log.error('The playlist must be an array.');
       return;
@@ -101,21 +96,8 @@ export default class Playlist extends Plugin {
       return;
     }
 
-    const previousPlaylist = this.list_;
-
     // If we have valid items, proceed to set the new playlist
     this.list_ = validItems;
-    this.changing_ = true;
-
-    this.player.trigger({
-      type: 'duringplaylistchange',
-      nextIndex: index,
-      nextPlaylist: [...this.list_],
-      previousIndex: this.currentIndex_,
-      previousPlaylist: [...previousPlaylist]
-    });
-
-    this.changing_ = false;
 
     // Load the item unless it is not desired
     if (index !== -1) {
@@ -134,10 +116,6 @@ export default class Playlist extends Plugin {
    *         The current list of playlist items.
    */
   getPlaylist() {
-    if (this.changing_) {
-      throw new Error('do not call getPlaylist() during a playlist change');
-    }
-
     // Return shallow clone of playlist array
     return [...this.list_];
   }
@@ -197,10 +175,6 @@ export default class Playlist extends Plugin {
    *         Returns true if the current item is set, and false otherwise
    */
   setCurrentItem(index) {
-    if (this.changing_) {
-      return false;
-    }
-
     if (!isIndexInBounds(this.list_, index)) {
       log.error('Index is out of bounds.');
       return false;
@@ -367,14 +341,8 @@ export default class Playlist extends Plugin {
    *         The array of added playlist items.
    * @fires playlistadd
    *        Triggered when items are successfully added.
-   * @throws {Error}
-   *         If the playlist is currently changing.
    */
   add(items, index) {
-    if (this.changing_) {
-      throw new Error('cannot modify a playlist that is currently changing');
-    }
-
     if (!Array.isArray(items)) {
       if (typeof items === 'object' && items !== null) {
         items = [items];
@@ -444,14 +412,8 @@ export default class Playlist extends Plugin {
    *         An array of the removed playlist items.
    * @fires playlistremove
    *        Triggered when items are successfully removed.
-   * @throws {Error}
-   *         If the playlist is currently changing.
    */
   remove(index, count = 1) {
-    if (this.changing_) {
-      throw new Error('cannot modify a playlist that is currently changing');
-    }
-
     if (!isIndexInBounds(this.list_, index)) {
       log.error('Index is out of bounds.');
       return [];
@@ -543,11 +505,6 @@ export default class Playlist extends Plugin {
     // Update the current index after sorting
     this.currentIndex_ = this.list_.indexOf(currentItem);
 
-    // If the playlist is changing, don't trigger events.
-    if (this.changing_) {
-      return;
-    }
-
     this.player.trigger('playlistsorted');
   }
 
@@ -566,11 +523,6 @@ export default class Playlist extends Plugin {
 
     // Invert the current index
     this.currentIndex_ = this.list_.length - 1 - this.currentIndex_;
-
-    // If the playlist is changing, don't trigger events.
-    if (this.changing_) {
-      return;
-    }
 
     this.player.trigger('playlistsorted');
   }
@@ -605,11 +557,6 @@ export default class Playlist extends Plugin {
 
     // Set the new index of the current item
     this.currentIndex_ = this.list_.indexOf(currentItem);
-
-    // If the playlist is changing, don't trigger events.
-    if (this.changing_) {
-      return;
-    }
 
     this.player.trigger('playlistsorted');
   }
