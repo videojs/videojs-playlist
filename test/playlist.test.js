@@ -224,28 +224,20 @@ QUnit.test('getAutoadvance - gets delay correctly', function(assert) {
   assert.strictEqual(this.playlist.getAutoadvance(), null, 'Delay should be set to 0 seconds');
 });
 
-QUnit.test('setRepeat - sets repeat mode correctly', function(assert) {
-  this.playlist.setRepeat(true);
+QUnit.test('enableRepeat/disableRepeat - set repeat mode correctly', function(assert) {
+  this.playlist.enableRepeat();
   assert.strictEqual(this.playlist.repeat_, true, 'Repeat mode should be enabled');
 
-  this.playlist.setRepeat(false);
+  this.playlist.disableRepeat();
   assert.strictEqual(this.playlist.repeat_, false, 'Repeat mode should be disabled');
 });
 
-QUnit.test('setRepeat - does nothing on invalid input', function(assert) {
-  this.playlist.setRepeat(true);
-  assert.strictEqual(this.playlist.repeat_, true, 'Repeat mode should should be true initially');
+QUnit.test('isRepeatEnabled - retrieves the current repeat mode status', function(assert) {
+  this.playlist.enableRepeat();
+  assert.strictEqual(this.playlist.isRepeatEnabled(), true, 'Should return true when repeat mode is enabled');
 
-  this.playlist.setRepeat('invalid');
-  assert.strictEqual(this.playlist.repeat_, true, 'Repeat mode should remain unchanged on invalid input');
-});
-
-QUnit.test('getRepeat - retrieves the current repeat mode status', function(assert) {
-  this.playlist.setRepeat(true);
-  assert.strictEqual(this.playlist.getRepeat(), true, 'Should return true when repeat mode is enabled');
-
-  this.playlist.setRepeat(false);
-  assert.strictEqual(this.playlist.getRepeat(), false, 'Should return false when repeat mode is disabled');
+  this.playlist.disableRepeat();
+  assert.strictEqual(this.playlist.isRepeatEnabled(), false, 'Should return false when repeat mode is disabled');
 });
 
 QUnit.test('setCurrentItem - sets the current item correctly', function(assert) {
@@ -308,7 +300,7 @@ QUnit.test('getNextIndex - returns the correct next index', function(assert) {
   this.playlist.setCurrentItem(this.testItems.length - 1);
   assert.equal(this.playlist.getNextIndex(), -1, 'Should return -1 if at the end and repeat is not enabled');
 
-  this.playlist.setRepeat(true);
+  this.playlist.enableRepeat();
   assert.equal(this.playlist.getNextIndex(), 0, 'Should return 0 if at the end and repeat is enabled');
 });
 
@@ -325,7 +317,7 @@ QUnit.test('getPreviousIndex - returns the correct previous index', function(ass
   this.playlist.setCurrentItem(0);
   assert.equal(this.playlist.getPreviousIndex(), -1, 'Should return -1 if at the beginning and repeat is not enabled');
 
-  this.playlist.setRepeat(true);
+  this.playlist.enableRepeat();
   assert.equal(this.playlist.getPreviousIndex(), this.testItems.length - 1, 'Should return the last index if at the beginning and repeat is enabled');
 });
 
@@ -391,7 +383,7 @@ QUnit.test('next - advances to the next item', function(assert) {
 
 QUnit.test('next - loops to the first item when repeat is enabled', function(assert) {
   this.playlist.setPlaylist(this.testItems);
-  this.playlist.setRepeat(true);
+  this.playlist.enableRepeat();
   this.playlist.setCurrentItem(this.testItems.length - 1);
 
   assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'The initial index should be at the last item');
@@ -404,7 +396,7 @@ QUnit.test('next - loops to the first item when repeat is enabled', function(ass
 QUnit.test('next - does nothing at the end of the playlist without repeat', function(assert) {
   this.playlist.setPlaylist(this.testItems);
   this.playlist.setCurrentItem(this.testItems.length - 1);
-  this.playlist.setRepeat(false);
+  this.playlist.disableRepeat();
 
   assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'The initial index should be at the last item');
 
@@ -437,7 +429,7 @@ QUnit.test('previous - goes back to the previous item', function(assert) {
 
 QUnit.test('previous - loops to the last item when repeat is enabled', function(assert) {
   this.playlist.setPlaylist(this.testItems);
-  this.playlist.setRepeat(true);
+  this.playlist.enableRepeat();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0');
 
@@ -448,7 +440,7 @@ QUnit.test('previous - loops to the last item when repeat is enabled', function(
 
 QUnit.test('previous - does nothing at the start of the playlist without repeat', function(assert) {
   this.playlist.setPlaylist(this.testItems);
-  this.playlist.setRepeat(false);
+  this.playlist.disableRepeat();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0');
 

@@ -168,17 +168,17 @@ export default class Playlist extends Plugin {
   }
 
   /**
-   * Sets the repeat mode of the playlist.
-   *
-   * @param {boolean} bool
-   *        True to enable repeat mode, false to disable it.
+   * Enables repeat mode. When enabled, the playlist will loop back to the first item after the last item.
    */
-  setRepeat(bool) {
-    if (typeof bool !== 'boolean') {
-      return;
-    }
+  enableRepeat() {
+    this.repeat_ = true;
+  }
 
-    this.repeat_ = bool;
+  /**
+   * Disables repeat mode. When enabled, the playlist will not loop back to the first item after the last item..
+   */
+  disableRepeat() {
+    this.repeat_ = false;
   }
 
   /**
@@ -187,7 +187,7 @@ export default class Playlist extends Plugin {
    * @return {boolean}
    *         True if repeat mode is enabled, false otherwise.
    */
-  getRepeat() {
+  isRepeatEnabled() {
     return this.repeat_;
   }
 
