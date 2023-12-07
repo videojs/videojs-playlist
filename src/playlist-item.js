@@ -5,43 +5,16 @@ import { silencePromise } from './utils.js';
  */
 export default class PlaylistItem {
   /**
-   * Validates the given sources array, ensuring each source object contains 'src' and 'type' properties.
-   * Throws an error if sources are not an array or no valid sources are found.
-   *
-   * @param {Object[]} sources
-   *        The array of source objects to validate.
-   * @return {Object[]}
-   *         An array of valid source objects.
-   * @throws {Error}
-   *         If sources are not an array or no valid sources are found.
-   */
-  static validateSources(sources) {
-    if (!Array.isArray(sources)) {
-      throw new Error('Sources must be an array');
-    }
-
-    // Filter out invalid source objects
-    const validSources = sources.filter(source => typeof source === 'object' && typeof source.src === 'string' && typeof source.type === 'string');
-
-    // If no valid source objects are present, throw an error
-    if (validSources.length === 0) {
-      throw new Error('No valid sources found. Each source should be an object with "src" and "type" string properties.');
-    }
-
-    return validSources;
-  }
-
-  /**
    * Creates an instance of the PlaylistItem class.
    *
    * @param {Object} videoProperties
    *        The video properties for the playlist item, including sources, poster, and text tracks.
    */
   constructor(videoProperties) {
-    // Default values for known properties
+    // Default values for known properties.
     const { sources, poster = '', textTracks = [] } = videoProperties;
 
-    this.sources = PlaylistItem.validateSources(sources);
+    this.sources = sources;
     this.poster = poster;
     this.textTracks = textTracks;
 

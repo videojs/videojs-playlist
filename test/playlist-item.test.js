@@ -55,40 +55,6 @@ QUnit.test('constructor initializes all properties correctly, including addition
   assert.equal(this.playlistItem.description, additionalSourceProps.description, 'Additional description property is set correctly');
 });
 
-QUnit.test('validateSources - handles different source formats correctly', function(assert) {
-  const singleSource = { src: 'video.mp4', type: 'video/mp4' };
-  const multipleSources = [{ src: 'video.mp4', type: 'video/mp4' }, { src: 'video.webm', type: 'video/webm' }];
-
-  assert.deepEqual(PlaylistItem.validateSources([singleSource]), [singleSource], 'Single source is valid');
-  assert.deepEqual(PlaylistItem.validateSources(multipleSources), multipleSources, 'Multiple sources are valid');
-});
-
-QUnit.test('validateSources - throws error for invalid sources', function(assert) {
-  assert.throws(
-    () => PlaylistItem.validateSources({}),
-    /Sources must be an array/,
-    'Throws error for non-array sources'
-  );
-
-  assert.throws(
-    () => PlaylistItem.validateSources([{}]),
-    /No valid sources found/,
-    'Throws error for sources without required properties'
-  );
-
-  assert.throws(
-    () => PlaylistItem.validateSources([{ src: 'video.mp4' }]),
-    /No valid sources found/,
-    'Throws error for sources without required properties'
-  );
-
-  assert.throws(
-    () => PlaylistItem.validateSources([{ type: 'video/mp4' }]),
-    /No valid sources found/,
-    'Throws error for sources without required properties'
-  );
-});
-
 QUnit.test('loadOrPlay - calls play() and loads poster conditional on player state', function(assert) {
   this.player.paused = sinon.stub().returns(true);
   this.player.ended = sinon.stub().returns(true);

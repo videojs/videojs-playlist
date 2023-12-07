@@ -16,6 +16,38 @@ const defaults = {
  */
 export default class Playlist extends Plugin {
   /**
+   * Processes a single playlist item by validating its structure and sources.
+   *
+   * @param {Object} item
+   *        The playlist item to be processed. It should be an object with a `sources` array.
+   * @return {PlaylistItem|null}
+   *          A PlaylistItem object with valid sources, or null if the item is invalid.
+   */
+  static processPlaylistItem(item) {
+    if (!item || typeof item !== 'object' || !Array.isArray(item.sources)) {
+      log.error('Invalid playlist item: Must be an object with a `sources` array.');
+      return null;
+    }
+
+    const validSources = item.sources.filter(source =>
+      source &&
+      typeof source === 'object' &&
+      typeof source.src === 'string' &&
+      typeof source.type === 'string');
+
+    if (validSources.length === 0) {
+      log.error('Invalid playlist item: No valid sources were found.');
+      return null;
+    }
+
+    if (validSources.length < item.sources.length) {
+      log.warn('Some invalid playlist item sources were disregarded.');
+    }
+
+    return new PlaylistItem(Object.assign({}, item, { sources: validSources }));
+  }
+
+  /**
      * Create a Playlist plugin instance.
      *
      * @param {Player} player
@@ -78,26 +110,15 @@ export default class Playlist extends Plugin {
       return;
     }
 
-    const validItems = [];
+    const playlistItems = items.map(Playlist.processPlaylistItem).filter(item => item !== null);
 
-    for (const item of items) {
-      try {
-        const playlistItem = new PlaylistItem(item);
-
-        validItems.push(playlistItem);
-      } catch (error) {
-        // Log the error but do not throw; continue processing the next items
-        log.error('Error adding item to playlist:', error);
-      }
-    }
-
-    if (items.length && validItems.length === 0) {
+    if (playlistItems.length === 0) {
       log.error('Cannot set the playlist as none of the provided playlist items were valid.');
       return;
     }
 
     // If we have valid items, proceed to set the new playlist
-    this.list_ = validItems;
+    this.list_ = playlistItems;
 
     // Load the item unless it is not desired
     if (index !== -1) {
@@ -353,21 +374,16 @@ export default class Playlist extends Plugin {
     }
 
     const resolvedIndex = (typeof index !== 'number' || index < 0 || index > this.list_.length) ? this.list_.length : index;
-    const beforeChunk = this.list_.slice(0, resolvedIndex);
-    const afterChunk = this.list_.slice(resolvedIndex);
-    const newChunk = [];
+    const beforeItems = this.list_.slice(0, resolvedIndex);
+    const afterItems = this.list_.slice(resolvedIndex);
+    const newItems = items.map(Playlist.processPlaylistItem).filter(item => item !== null);
 
-    items.forEach(item => {
-      try {
-        const playlistItem = new PlaylistItem(item);
+    if (newItems.length === 0) {
+      log.error('Cannot add items to the playlist as none were valid.');
+      return [];
+    }
 
-        newChunk.push(playlistItem);
-      } catch (error) {
-        log.error('Error adding item to playlist:', error);
-      }
-    });
-
-    this.list_ = [...beforeChunk, ...newChunk, ...afterChunk];
+    this.list_ = [...beforeItems, ...newItems, ...afterItems];
 
     // Update currentIndex if inserting new elements earlier in the array than the current item
     if (resolvedIndex <= this.currentIndex_) {
@@ -376,11 +392,11 @@ export default class Playlist extends Plugin {
 
     this.player.trigger({
       type: 'playlistadd',
-      count: newChunk.length,
+      count: newItems.length,
       index: resolvedIndex
     });
 
-    return [...newChunk];
+    return [...newItems];
   }
 
   /**

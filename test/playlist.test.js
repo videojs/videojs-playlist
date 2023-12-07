@@ -16,6 +16,7 @@ QUnit.module('Playlist', {
     this.player = videojs(this.video);
 
     log.error = sinon.spy();
+    log.warn = sinon.spy();
 
     // Test data
     this.testItems = [
@@ -30,6 +31,80 @@ QUnit.module('Playlist', {
     this.player.dispose();
     this.clock.restore();
   }
+});
+
+QUnit.test('processPlaylistItem - with valid item', function(assert) {
+  const validItem = {
+    sources: [
+      { src: 'http://example.com/video.mp4', type: 'video/mp4' }
+    ],
+    title: 'Valid Video'
+  };
+
+  const result = Playlist.processPlaylistItem(validItem);
+
+  assert.ok(result instanceof PlaylistItem, 'Returns a PlaylistItem for a valid item');
+  assert.deepEqual(result.sources, validItem.sources, 'Sources of the returned PlaylistItem match the input');
+});
+
+QUnit.test('processPlaylistItem - with some invalid sources', function(assert) {
+  const itemWithInvalidSources = {
+    sources: [
+      { src: 'http://example.com/video.mp4', type: 'video/mp4' },
+      { src: 'http://example.com/audio.mp3' }
+    ],
+    title: 'Mixed Sources'
+  };
+
+  const result = Playlist.processPlaylistItem(itemWithInvalidSources);
+
+  assert.ok(result instanceof PlaylistItem, 'Returns a PlaylistItem even with some invalid sources');
+  assert.equal(result.sources.length, 1, 'Only includes valid sources');
+  assert.deepEqual(result.sources[0], itemWithInvalidSources.sources[0], 'Includes the correct valid source');
+  assert.ok(log.warn.calledOnce, 'Logs a warning for disregarded invalid sources');
+});
+
+QUnit.test('processPlaylistItem - with all invalid sources', function(assert) {
+  const itemWithAllInvalidSources = {
+    sources: [
+      { src: 'video.mp4' },
+      { type: 'video/mp4' }
+    ],
+    title: 'Invalid Sources'
+  };
+
+  const result = Playlist.processPlaylistItem(itemWithAllInvalidSources);
+
+  assert.strictEqual(result, null, 'Returns null for an item with all invalid sources');
+  assert.ok(log.error.calledWith('Invalid playlist item: No valid sources were found.'), 'Logs an error for an item with no valid sources');
+});
+
+QUnit.test('processPlaylistItem - with incorrect item structure', function(assert) {
+  // missing 'sources' array
+  const invalidItem = {
+    title: 'No Sources'
+  };
+
+  const result = Playlist.processPlaylistItem(invalidItem);
+
+  assert.strictEqual(result, null, 'Returns null for an item with incorrect structure');
+  assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Logs an error for incorrect item structure');
+});
+
+QUnit.test('processPlaylistItem - retains properties of the original item', function(assert) {
+  const itemWithAdditionalProps = {
+    sources: [{ src: 'http://example.com/video.mp4', type: 'video/mp4' }],
+    title: 'Video with Additional Properties',
+    description: 'A test video',
+    customProperty: 'Custom Value'
+  };
+
+  const result = Playlist.processPlaylistItem(itemWithAdditionalProps);
+
+  assert.ok(result instanceof PlaylistItem, 'Returns a PlaylistItem for a valid item');
+  assert.strictEqual(result.title, itemWithAdditionalProps.title, 'Retains the title property');
+  assert.strictEqual(result.description, itemWithAdditionalProps.description, 'Retains the description property');
+  assert.strictEqual(result.customProperty, itemWithAdditionalProps.customProperty, 'Retains custom properties');
 });
 
 QUnit.test('constructor initializes properties correctly', function(assert) {
@@ -80,7 +155,7 @@ QUnit.test('setPlaylist - should handle invalid item by logging error and contin
 
   this.playlist.setPlaylist(combinedItems);
 
-  assert.ok(log.error.calledWith('Error adding item to playlist:'), 'Should log error for invalid item');
+  assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Should log error for invalid item');
   assert.equal(this.playlist.list_.length, 2, 'Should only add valid items to playlist');
 });
 
@@ -257,11 +332,11 @@ QUnit.test('getCurrentIndex - returns -1 if no current item is set', function(as
 });
 
 QUnit.test('getLastIndex - returns the index of the last item', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  assert.equal(this.playlist.getLastIndex(), this.testItems.length - 1, 'Should return the index of the last item');
-
   this.playlist.setPlaylist([]);
   assert.equal(this.playlist.getLastIndex(), -1, 'Should return -1 if the playlist is empty');
+
+  this.playlist.setPlaylist(this.testItems);
+  assert.equal(this.playlist.getLastIndex(), this.testItems.length - 1, 'Should return the index of the last item');
 });
 
 QUnit.test('getNextIndex - returns the correct next index', function(assert) {
@@ -422,17 +497,19 @@ QUnit.test('previous - does nothing if no playlist is set', function(assert) {
 });
 
 QUnit.test('add - adds a single item to the playlist', function(assert) {
-  this.playlist.add(this.testItems[0]);
+  const added = this.playlist.add(this.testItems[0]);
 
   assert.equal(this.playlist.list_.length, 1, 'Playlist should have one item');
   assert.ok(this.playlist.list_[0] instanceof PlaylistItem, 'Added item should be an instance of PlaylistItem');
+  assert.ok(added[0] instanceof PlaylistItem, 'Should return an array with added PlaylistItem');
 });
 
 QUnit.test('add - adds multiple items to the playlist', function(assert) {
-  this.playlist.add(this.testItems);
+  const added = this.playlist.add(this.testItems);
 
   assert.equal(this.playlist.list_.length, 2, 'Playlist should have two items');
   assert.ok(this.playlist.list_[1] instanceof PlaylistItem, 'Items should be a instances of PlaylistItem');
+  assert.equal(added.length, 2, 'Should return an array with two items');
 });
 
 QUnit.test('add - adds items at specified index', function(assert) {
@@ -457,34 +534,38 @@ QUnit.test('add - adds items at the end for invalid index', function(assert) {
   assert.deepEqual(this.playlist.list_[2].sources.src, newItem.sources.src, 'New item should be added at the end for invalid index');
 });
 
-QUnit.test('add - handles invalid inputs correctly', function(assert) {
+QUnit.test('add - handles invalid items correctly', function(assert) {
   // Invalid item with incorrect sources structure
   const invalidItem1 = { sources: 'invalid' };
 
-  this.playlist.add(invalidItem1);
+  const added = this.playlist.add(invalidItem1);
 
   assert.equal(this.playlist.list_.length, 0, 'Playlist should not add an item with invalid sources');
-  assert.ok(log.error.calledWith('Error adding item to playlist:'), 'Error should be logged for item with invalid sources');
+  assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Error should be logged for item with invalid sources');
+  assert.ok(log.error.calledWith('Cannot add items to the playlist as none were valid.'), 'Error should be logged for item with invalid sources');
+  assert.equal(added.length, 0, 'Should return an empty array');
 
   log.error.resetHistory();
 
   // Invalid item of non-object type
   const invalidItem2 = 'not an object';
 
-  this.playlist.add(invalidItem2);
+  const added2 = this.playlist.add(invalidItem2);
 
   assert.equal(this.playlist.list_.length, 0, 'Playlist should not add non-object items');
   assert.ok(log.error.calledWith('Provided items must be an object or an array of objects.'), 'Error should be logged for non-object item');
+  assert.equal(added2.length, 0, 'Should return an empty array');
 
   log.error.resetHistory();
 
   // Invalid item as null
   const invalidItem3 = null;
 
-  this.playlist.add(invalidItem3);
+  const added3 = this.playlist.add(invalidItem3);
 
   assert.equal(this.playlist.list_.length, 0, 'Playlist should not add null as an item');
   assert.ok(log.error.calledWith('Provided items must be an object or an array of objects.'), 'Error should be logged for null item');
+  assert.equal(added3.length, 0, 'Should return an empty array');
 });
 
 QUnit.test('add - updates currentIndex_ correctly when adding items', function(assert) {
@@ -527,8 +608,10 @@ QUnit.test('add - updates currentIndex_ correctly when adding items', function(a
     this.playlist.setPlaylist(this.testItems, scenario.currentIndex);
     assert.equal(this.playlist.getCurrentIndex(), scenario.currentIndex, `currentIndex_ set to ${scenario.currentIndex} before adding`);
 
-    this.playlist.add(scenario.addItems, scenario.addIndex);
+    const added = this.playlist.add(scenario.addItems, scenario.addIndex);
+
     assert.equal(this.playlist.getCurrentIndex(), scenario.expectedIndex, scenario.description);
+    assert.ok(Array.isArray(added), 'Returns array');
   });
 });
 
@@ -638,8 +721,10 @@ QUnit.test('remove - updates currentIndex_ correctly when removing items in diff
     this.playlist.setPlaylist(this.testItems, scenario.currentIndex);
     assert.equal(this.playlist.getCurrentIndex(), scenario.currentIndex, `currentIndex_ set to ${scenario.currentIndex}`);
 
-    this.playlist.remove(scenario.removeIndex, scenario.removeCount);
+    const removed = this.playlist.remove(scenario.removeIndex, scenario.removeCount);
+
     assert.equal(this.playlist.getCurrentIndex(), scenario.expectedIndex, scenario.description);
+    assert.equal(removed.length, scenario.removeCount || 1, 'Returns array of correct length');
   });
 });
 
@@ -648,12 +733,16 @@ QUnit.test('remove - handles invalid inputs correctly', function(assert) {
   this.playlist.setPlaylist(this.testItems);
 
   // Invalid index
-  this.playlist.remove(-1);
+  const removed1 = this.playlist.remove(-1);
+
   assert.ok(log.error.calledWith('Index is out of bounds.'), 'Error logged for invalid index');
+  assert.equal(removed1.length, 0, 'Should return an empty array');
 
   // Invalid count
-  this.playlist.remove(0, -1);
+  const removed2 = this.playlist.remove(0, -1);
+
   assert.ok(log.error.calledWith('Invalid count for removal.'), 'Error logged for invalid count');
+  assert.equal(removed2.length, 0, 'Should return an empty array');
 });
 
 QUnit.test('remove - triggers playlistremove event with correct properties', function(assert) {
