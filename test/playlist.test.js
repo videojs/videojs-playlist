@@ -101,13 +101,13 @@ QUnit.test('setPlaylist - should log error when all provided items are invalid',
 
   // Set a valid playlist initially
   this.playlist.setPlaylist(this.testItems);
-  assert.notOk(log.error.calledWith('Playlist is empty as none of the provided playlist items were valid.'), 'Should not log error if valid items are passed');
+  assert.notOk(log.error.calledWith('Cannot set the playlist as none of the provided playlist items were valid.'), 'Should not log error if valid items are passed');
   assert.equal(this.playlist.list_.length, this.testItems.length, 'Playlist should have the correct number of items');
 
   // Now set an invalid playlist
   this.playlist.setPlaylist(invalidItems);
-  assert.ok(log.error.calledWith('Playlist is empty as none of the provided playlist items were valid.'), 'Should log error when all items invalid');
-  assert.strictEqual(this.playlist.list_.length, 0, 'Playlist should be set to empty array when no valid items passed');
+  assert.ok(log.error.calledWith('Cannot set the playlist as none of the provided playlist items were valid.'), 'Should log error when all items invalid');
+  assert.strictEqual(this.playlist.list_.length, this.testItems.length, 'Playlist should be unchanged');
 });
 
 QUnit.test('setPlaylist - should trigger duringplaylistchange and playlistchange events with correct properties', function(assert) {

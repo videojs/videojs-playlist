@@ -97,7 +97,11 @@ export default class Playlist extends Plugin {
     }
 
     if (items.length && validItems.length === 0) {
-      log.error('Playlist is empty as none of the provided playlist items were valid.');
+      log.error('Cannot set the playlist as none of the provided playlist items were valid.');
+
+      // Return shallow clone of the playlist in its current state. This could be another playlist
+      // or an empty array if none has been set yet.
+      return [...this.list_];
     }
 
     const previousPlaylist = this.list_;
