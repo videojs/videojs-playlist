@@ -44,7 +44,9 @@
     "test/"
   ],
   "dependencies": {
-    "global": "^4.3.2",
+    "global": "^4.3.2"
+  },
+  "peerDependencies": {
     "video.js": "^8"
   },
   "devDependencies": {
@@ -61,6 +63,7 @@
     "rollup": "^2.61.1",
     "shx": "^0.3.2",
     "sinon": "^11.1.1",
+    "video.js": "^8.0.0",
     "videojs-generate-karma-config": "^8.0.1",
     "videojs-generate-rollup-config": "^7.0.1",
     "videojs-generator-verify": "^4.0.1",

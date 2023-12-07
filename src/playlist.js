@@ -197,6 +197,10 @@ export default class Playlist extends Plugin {
    *        The index of the item to play.
    */
   setCurrentItem(index) {
+    if (this.changing_) {
+      return;
+    }
+
     if (!isIndexInBounds(this.list_, index)) {
       log.error('Index is out of bounds.');
       return;
