@@ -136,16 +136,6 @@ QUnit.test('setPlaylist - should trigger duringplaylistchange and playlistchange
   assert.ok(spy2.calledOnce, 'playlistchange event should be triggered asynchronously');
 });
 
-QUnit.test('setPlaylist - returns shallow clone of playlist array', function(assert) {
-  const returnedPlaylist = this.playlist.setPlaylist(this.testItems);
-
-  assert.notStrictEqual(returnedPlaylist, this.playlist.list_, 'Returned playlist should not be the original array');
-
-  // Modify the returned array and check if the original playlist is unaffected
-  returnedPlaylist.push({ sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }] });
-  assert.strictEqual(this.playlist.list_.length, this.testItems.length, 'Original playlist should remain unchanged');
-});
-
 QUnit.test('getPlaylist - returns an empty array for a new playlist', function(assert) {
   const playlistItems = this.playlist.getPlaylist();
 

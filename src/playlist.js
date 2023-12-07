@@ -75,12 +75,12 @@ export default class Playlist extends Plugin {
 
     if (!Array.isArray(items)) {
       log.error('The playlist must be an array.');
-      return [...this.list_];
+      return;
     }
 
     if (typeof index !== 'number') {
       log.error('The index must be a number.');
-      return [...this.list_];
+      return;
     }
 
     const validItems = [];
@@ -98,7 +98,7 @@ export default class Playlist extends Plugin {
 
     if (items.length && validItems.length === 0) {
       log.error('Cannot set the playlist as none of the provided playlist items were valid.');
-      return [...this.list_];
+      return;
     }
 
     const previousPlaylist = this.list_;
@@ -125,9 +125,6 @@ export default class Playlist extends Plugin {
     this.player.setTimeout(() => {
       this.player.trigger('playlistchange');
     }, 0);
-
-    // Return shallow clone of playlist array
-    return [...this.list_];
   }
 
   /**
