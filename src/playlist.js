@@ -196,19 +196,23 @@ export default class Playlist extends Plugin {
    *
    * @param {number} index
    *        The index of the item to play.
+   * @return {boolean}
+   *         Returns true if the current item is set, and false otherwise
    */
   setCurrentItem(index) {
     if (this.changing_) {
-      return;
+      return false;
     }
 
     if (!isIndexInBounds(this.list_, index)) {
       log.error('Index is out of bounds.');
-      return;
+      return false;
     }
 
     this.list_[index].loadOrPlay(this.player);
     this.currentIndex_ = index;
+
+    return true;
   }
 
   /**
@@ -282,62 +286,58 @@ export default class Playlist extends Plugin {
 
   /**
    * Sets the first item in the playlist as the current item.
+   *
+   * @return {boolean}
+   *         Returns true if the first item is set, and false otherwise
    */
   first() {
-    if (this.changing_) {
-      return;
-    }
-
-    this.setCurrentItem(0);
+    return this.setCurrentItem(0);
   }
 
   /**
    * Sets the last item in the playlist as the current item.
+   *
+   * @return {boolean}
+   *         Returns true if the last item is set, and false otherwise
    */
   last() {
-    if (this.changing_) {
-      return;
-    }
-
     const lastIndex = this.getLastIndex();
 
-    this.setCurrentItem(lastIndex);
+    return this.setCurrentItem(lastIndex);
   }
 
   /**
    * Advance to the next item in the playlist.
+   *
+   * @return {boolean}
+   *         Returns true if the next item is set, and false otherwise
    */
   next() {
-    if (this.changing_) {
-      return;
-    }
-
     const nextIndex = this.getNextIndex();
 
     // Check if we've reached the end of the playlist without repeating
     if (nextIndex === -1) {
-      return;
+      return false;
     }
 
-    this.setCurrentItem(nextIndex);
+    return this.setCurrentItem(nextIndex);
   }
 
   /**
    * Go back to the previous item in the playlist.
+   *
+   * @return {boolean}
+   *         Returns true if the previous item is set, and false otherwise
    */
   previous() {
-    if (this.changing_) {
-      return;
-    }
-
     const previousIndex = this.getPreviousIndex();
 
     // Check if we are on the first item and there is no previous index unless we are repeating
     if (previousIndex === -1) {
-      return;
+      return false;
     }
 
-    this.setCurrentItem(previousIndex);
+    return this.setCurrentItem(previousIndex);
   }
 
   /**

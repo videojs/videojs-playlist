@@ -181,7 +181,7 @@
     playlist.setPlaylist(videoList, 0);
 
     // Set autoadvance delay to 0 seconds
-    playlist.setAutoadvance(0);
+    playlist.setAutoadvanceDelay(0);
 
     // Update Playlist Information
     function updatePlaylistInfo() {
@@ -190,7 +190,7 @@
       document.getElementById('nextIndex').textContent = playlist.getNextIndex();
       document.getElementById('prevIndex').textContent = playlist.getPreviousIndex();
       document.getElementById('repeat').textContent = playlist.isRepeatEnabled();
-      document.getElementById('autoadvance').textContent = playlist.getAutoadvance();
+      document.getElementById('autoadvance').textContent = playlist.getAutoadvanceDelay();
     }
 
     // Update the Playlist Display UI

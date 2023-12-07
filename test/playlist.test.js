@@ -242,17 +242,20 @@ QUnit.test('isRepeatEnabled - retrieves the current repeat mode status', functio
 
 QUnit.test('setCurrentItem - sets the current item correctly', function(assert) {
   this.playlist.setPlaylist(this.testItems);
-  this.playlist.setCurrentItem(1);
+
+  const status = this.playlist.setCurrentItem(1);
 
   assert.strictEqual(this.playlist.currentIndex_, 1, 'Current index should be set correctly');
+  assert.ok(status, 'Returns true if the item is not set');
 });
 
 QUnit.test('setCurrentItem - logs error on invalid index', function(assert) {
   this.playlist.setPlaylist(this.testItems);
-  this.playlist.setCurrentItem(5);
+  const status = this.playlist.setCurrentItem(5);
 
   assert.ok(log.error.calledWith('Index is out of bounds.'), 'Should log error for out-of-bounds index');
   assert.strictEqual(this.playlist.currentIndex_, 0, 'Current index should remain unchanged on invalid input');
+  assert.notOk(status, 'Returns false if the item is not set');
 });
 
 QUnit.test('getCurrentItem - retrieves the correct PlaylistItem', function(assert) {
@@ -331,9 +334,10 @@ QUnit.test('first - sets the first item as current', function(assert) {
 
   assert.equal(this.playlist.getCurrentIndex(), 1, 'The initial index is correct');
 
-  this.playlist.first();
+  const status = this.playlist.first();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The first index should be set');
+  assert.ok(status, 'Returns true if the item is set');
 });
 
 QUnit.test('first - does nothing if changing_', function(assert) {
@@ -344,9 +348,10 @@ QUnit.test('first - does nothing if changing_', function(assert) {
 
   this.playlist.changing_ = true;
 
-  this.playlist.first();
+  const status = this.playlist.first();
 
   assert.equal(this.playlist.getCurrentIndex(), 1, 'The initial index should still be set');
+  assert.notOk(status, 'Returns false if the item is not set');
 });
 
 QUnit.test('last - sets the last item as current', function(assert) {
@@ -354,9 +359,10 @@ QUnit.test('last - sets the last item as current', function(assert) {
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index is correct');
 
-  this.playlist.last();
+  const status = this.playlist.last();
 
   assert.equal(this.playlist.getCurrentIndex(), 1, 'The initial index should still be set');
+  assert.ok(status, 'Returns true if the item is set');
 });
 
 QUnit.test('last - does nothing if changing_', function(assert) {
@@ -366,9 +372,10 @@ QUnit.test('last - does nothing if changing_', function(assert) {
 
   this.playlist.changing_ = true;
 
-  this.playlist.last();
+  const status = this.playlist.last();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should still be set');
+  assert.notOk(status, 'Returns false if the item is not set');
 });
 
 QUnit.test('next - advances to the next item', function(assert) {
@@ -376,9 +383,10 @@ QUnit.test('next - advances to the next item', function(assert) {
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0');
 
-  this.playlist.next();
+  const status = this.playlist.next();
 
   assert.equal(this.playlist.getCurrentIndex(), 1, 'The next item index should be 1');
+  assert.ok(status, 'Returns true if the item is set');
 });
 
 QUnit.test('next - loops to the first item when repeat is enabled', function(assert) {
@@ -388,9 +396,10 @@ QUnit.test('next - loops to the first item when repeat is enabled', function(ass
 
   assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'The initial index should be at the last item');
 
-  this.playlist.next();
+  const status = this.playlist.next();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'Should loop back to the first item with repeat enabled');
+  assert.ok(status, 'Returns true if the item is set');
 });
 
 QUnit.test('next - does nothing at the end of the playlist without repeat', function(assert) {
@@ -400,9 +409,10 @@ QUnit.test('next - does nothing at the end of the playlist without repeat', func
 
   assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'The initial index should be at the last item');
 
-  this.playlist.next();
+  const status = this.playlist.next();
 
   assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'The last item index should remain unchanged without repeat');
+  assert.notOk(status, 'Returns false if the item is not set');
 });
 
 QUnit.test('next - does nothing if changing_ is true', function(assert) {
@@ -412,9 +422,10 @@ QUnit.test('next - does nothing if changing_ is true', function(assert) {
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0 with changing_ true');
 
-  this.playlist.next();
+  const status = this.playlist.next();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'next should not advance if changing_');
+  assert.notOk(status, 'Returns false if the item is not set');
 });
 
 QUnit.test('previous - goes back to the previous item', function(assert) {
@@ -422,9 +433,10 @@ QUnit.test('previous - goes back to the previous item', function(assert) {
 
   assert.equal(this.playlist.getCurrentIndex(), 1, 'The initial index should be 1');
 
-  this.playlist.previous();
+  const status = this.playlist.previous();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The previous item index should be 0');
+  assert.ok(status, 'Returns true if the item is set');
 });
 
 QUnit.test('previous - loops to the last item when repeat is enabled', function(assert) {
@@ -433,9 +445,10 @@ QUnit.test('previous - loops to the last item when repeat is enabled', function(
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0');
 
-  this.playlist.previous();
+  const status = this.playlist.previous();
 
   assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'Should loop back to the last item with repeat enabled');
+  assert.ok(status, 'Returns true if the item is set');
 });
 
 QUnit.test('previous - does nothing at the start of the playlist without repeat', function(assert) {
@@ -444,9 +457,10 @@ QUnit.test('previous - does nothing at the start of the playlist without repeat'
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0');
 
-  this.playlist.previous();
+  const status = this.playlist.previous();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The first item index should remain unchanged without repeat');
+  assert.notOk(status, 'Returns false if the item is not set');
 });
 
 QUnit.test('previous - does nothing if changing_ is true', function(assert) {
@@ -455,9 +469,10 @@ QUnit.test('previous - does nothing if changing_ is true', function(assert) {
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0 with changing_ true');
 
-  this.playlist.previous();
+  const status = this.playlist.previous();
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'previous should not go back if changing_');
+  assert.notOk(status, 'Returns false if the item is not set');
 });
 
 QUnit.test('add - adds a single item to the playlist', function(assert) {
