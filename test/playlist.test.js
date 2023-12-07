@@ -175,53 +175,53 @@ QUnit.test('getPlaylist - returns a shallow clone of the playlist', function(ass
   assert.strictEqual(this.playlist.list_.length, this.testItems.length, 'Original playlist should remain unchanged');
 });
 
-QUnit.test('setAutoadvance - sets delay correctly', function(assert) {
-  this.playlist.setAutoadvance(5);
+QUnit.test('setAutoadvanceDelay - sets delay correctly', function(assert) {
+  this.playlist.setAutoadvanceDelay(5);
   assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be set to 5 seconds');
 
-  this.playlist.setAutoadvance(0);
+  this.playlist.setAutoadvanceDelay(0);
   assert.strictEqual(this.playlist.autoAdvance_.delay_, 0, 'Delay should be set to 0 seconds (immediate advance)');
 });
 
-QUnit.test('setAutoadvance - cancels auto-advance on invalid input', function(assert) {
+QUnit.test('setAutoadvanceDelay - cancels auto-advance on invalid input', function(assert) {
   // Set valid value initially
-  this.playlist.setAutoadvance(5);
+  this.playlist.setAutoadvanceDelay(5);
   assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be set to 5 seconds initially');
 
-  this.playlist.setAutoadvance(-1);
+  this.playlist.setAutoadvanceDelay(-1);
   assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'Negative delay should cancel auto-advance');
 
   // Reset to valid value
-  this.playlist.setAutoadvance(5);
+  this.playlist.setAutoadvanceDelay(5);
   assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be reset to 5 seconds');
 
-  this.playlist.setAutoadvance('invalid');
+  this.playlist.setAutoadvanceDelay('invalid');
   assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'Non-numeric delay should cancel auto-advance');
 
   // Reset to valid value
-  this.playlist.setAutoadvance(5);
+  this.playlist.setAutoadvanceDelay(5);
   assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be reset to 5 seconds');
 
-  this.playlist.setAutoadvance(null);
+  this.playlist.setAutoadvanceDelay(null);
   assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'Null delay should cancel auto-advance');
 
   // Reset to valid value
-  this.playlist.setAutoadvance(5);
+  this.playlist.setAutoadvanceDelay(5);
   assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be reset to 5 seconds');
 
-  this.playlist.setAutoadvance();
+  this.playlist.setAutoadvanceDelay();
   assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'Undefined delay should cancel auto-advance');
 });
 
-QUnit.test('getAutoadvance - gets delay correctly', function(assert) {
-  this.playlist.setAutoadvance(5);
-  assert.strictEqual(this.playlist.getAutoadvance(), 5, 'Delay should be set to 5 seconds');
+QUnit.test('getAutoadvanceDelay - gets delay correctly', function(assert) {
+  this.playlist.setAutoadvanceDelay(5);
+  assert.strictEqual(this.playlist.getAutoadvanceDelay(), 5, 'Delay should be set to 5 seconds');
 
-  this.playlist.setAutoadvance(0);
-  assert.strictEqual(this.playlist.getAutoadvance(), 0, 'Delay should be set to 0 seconds');
+  this.playlist.setAutoadvanceDelay(0);
+  assert.strictEqual(this.playlist.getAutoadvanceDelay(), 0, 'Delay should be set to 0 seconds');
 
-  this.playlist.setAutoadvance(null);
-  assert.strictEqual(this.playlist.getAutoadvance(), null, 'Delay should be set to 0 seconds');
+  this.playlist.setAutoadvanceDelay(null);
+  assert.strictEqual(this.playlist.getAutoadvanceDelay(), null, 'Delay should be set to 0 seconds');
 });
 
 QUnit.test('enableRepeat/disableRepeat - set repeat mode correctly', function(assert) {

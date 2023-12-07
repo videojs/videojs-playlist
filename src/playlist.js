@@ -36,7 +36,7 @@ export default class Playlist extends Plugin {
     this.autoAdvance_ = new AutoAdvance(this.player, () => this.next());
     this.repeat_ = this.options_.repeat;
 
-    this.setAutoadvance(this.options_.autoadvance);
+    this.setAutoadvanceDelay(this.options_.autoadvance);
 
     this.player.on('loadstart', this.handleSourceChange_.bind(this));
   }
@@ -153,17 +153,17 @@ export default class Playlist extends Plugin {
    *        The delay in seconds before advancing to the next item.
    *        If not a positive number, auto-advance is canceled.
    */
-  setAutoadvance(delay) {
+  setAutoadvanceDelay(delay) {
     this.autoAdvance_.setDelay(delay);
   }
 
   /**
-    * Gets the auto-advance delay for the playlist.
-    *
-    * @return {number|null}
-    *         The delay in seconds before advancing to the next item, or null if auto-advance is disabled.
-    */
-  getAutoadvance() {
+   * Gets the auto-advance delay for the playlist.
+   *
+   * @return {number|null}
+   *         The delay in seconds before advancing to the next item, or null if auto-advance is disabled.
+   */
+  getAutoadvanceDelay() {
     return this.autoAdvance_.getDelay();
   }
 
