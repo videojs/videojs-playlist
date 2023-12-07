@@ -124,10 +124,11 @@ QUnit.test('setPlaylist - should trigger duringplaylistchange and playlistchange
 
   assert.ok(spy1.calledOnce, 'duringplaylistchange event should be triggered');
   assert.equal(spy1.args[0][0].nextIndex, indexToSet, 'nextIndex should be set correctly in duringplaylistchange event');
-  assert.deepEqual(spy1.args[0][0].nextPlaylist, this.playlist.list_, 'nextPlaylist should be set correctly in duringplaylistchange event');
+  assert.notStrictEqual(spy1.args[0][0].nextPlaylist, this.playlist.list_, 'nextPlaylist should not be the same reference as current playlist');
+  assert.deepEqual(spy1.args[0][0].nextPlaylist, this.playlist.list_, 'nextPlaylist should have the same elements as current playlist');
   assert.equal(spy1.args[0][0].previousIndex, previousIndex, 'previousIndex should be set correctly in duringplaylistchange event');
-  assert.deepEqual(spy1.args[0][0].previousPlaylist, previousPlaylist, 'previousPlaylist should be a shallow clone of the current playlist');
-
+  assert.notStrictEqual(spy1.args[0][0].previousPlaylist, previousPlaylist, 'previousPlaylist should not be the same reference as previous playlist');
+  assert.deepEqual(spy1.args[0][0].previousPlaylist, previousPlaylist, 'previousPlaylist should have the same elements as previous playlist');
   assert.notOk(spy2.calledOnce, 'playlistchange event should not be triggered yet');
 
   this.clock.tick(1);
