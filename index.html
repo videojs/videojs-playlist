@@ -157,8 +157,8 @@
 
     // Player Event Listeners
     player.on([
-      'duringplaylistchange', 'playlistchange',
-      'beforeplaylistitem', 'playlistitem', 'playlistsorted',
+      'playlistchange', 'playlistsorted',
+      'beforeplaylistitem', 'playlistitem',
       'playlistadd', 'playlistremove'
     ], (e, data) => {
       videojs.log('player saw "' + e.type + '"', e);

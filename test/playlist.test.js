@@ -177,7 +177,7 @@ QUnit.test('setPlaylist - should log error when all provided items are invalid',
   assert.strictEqual(this.playlist.list_.length, this.testItems.length, 'Playlist should be unchanged');
 });
 
-QUnit.test('setPlaylist - should trigger duringplaylistchange and playlistchange events with correct properties', function(assert) {
+QUnit.test('setPlaylist - should trigger playlistchange events with correct properties', function(assert) {
   const spy = sinon.spy();
 
   this.player.on('playlistchange', spy);
