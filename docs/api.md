@@ -1,599 +1,352 @@
-# video.js Playlist API
+# Video.js Playlist API
 
-## Playlist Item Object
+## PlaylistItem Structure
 
-A playlist is an array of playlist items. Usually, a playlist item is an object with an array of `sources`, but it could also be a primitive value like a string.
+A playlist is an array of `PlaylistItem` objects that conform to the following structure:
 
-## Methods
-### `player.playlist([Array newList], [Number newIndex]) -> Array`
+```ts
+interface PlaylistItem {
+  /**
+   * An array of source objects representing the media sources for the video.
+   * Each source object includes the URL and MIME type of the video source.
+   */
+  sources: Array<{
+    src: string;
+    type: string;
+  }>;
 
-Get or set the current playlist for a player.
+  /**
+   * The URL of the poster image displayed before the video plays.
+   * This property is optional.
+   */
+  poster?: string;
 
-If called without arguments, it is a getter. With an argument, it is a setter.
+  /**
+   * An optional array of text track objects for subtitles, captions, etc.
+   * Each object in this array follows the structure of the Video.js TextTrack object.
+   */
+  textTracks?: Array<{
+    kind?: string;
+    label?: string;
+    language?: string;
+    src?: string;
+    srcLang?: string;
+    default?: boolean;
+  }>;
 
+  /**
+   * Additional dynamic properties that may be specific to the video
+   * or required by the playlist system.
+   */
+  [key: string]: any;
+}
+```
+
+## Plugin Methods
+### `setPlaylist(items: Array<Object>, index?: number)`
+
+Sets the current playlist for a player.
+
+#### Parameters
+* `items` (`Array<Object>`): An array of object literals conforming to the `PlaylistItem` structure. These objects are used to create instances of the `PlaylistItem` class. Each object in the array represents a video and should include:
+  * `sources` (`Array<{ src: string, type: string }>`): Required. An array of source objects for the video. Each source object must include:
+    * `src` (`string`): The URL of the video.
+    * `type` (`string`): The MIME type of the video.
+  * `poster` (`string`, optional): An optional URL string pointing to the image displayed before the video plays.
+  * `textTracks` (`Array<Object>`, optional): An optional array of text track objects that follow the structure of the Video.js [TextTrack](https://docs.videojs.com/texttrack) object.
+  * Additional properties (like `title` or `description`) can be included, but note that the plugin will not utilize these properties. They can be used for custom implementations or metadata storage.
+* `index` (`number`, optional): The starting index in the playlist from which playback should begin. If omitted, the first video is loaded. If `-1`, no video is loaded.
+
+#### Events
+* Fires a `playlistchange` event after the contents of the playlist are changed and the current playlist item is set. This is triggered asynchronously as to not interrupt the loading of the first video.
+
+#### Example
 ```js
-player.playlist([{
+playlistPlugin.setPlaylist([{
   sources: [{
     src: '//media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
   }],
-  poster: '//media.w3.org/2010/05/sintel/poster.png'
+  poster: '//media.w3.org/2010/05/sintel/poster.png',
+  textTracks: [
+    {
+      kind: 'subtitles',
+      src: '//example.com/subtitles.vtt',
+      language: 'en',
+      label: 'English'
+    }
+  ],
+  title: 'Sintel Trailer',
+  description: 'A short animated film'
 }, {
   sources: [{
     src: '//media.w3.org/2010/05/bunny/trailer.mp4',
     type: 'video/mp4'
   }],
   poster: '//media.w3.org/2010/05/bunny/poster.png'
-}, {
-  sources: [{
-    src: '//vjs.zencdn.net/v/oceans.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//www.videojs.com/img/poster.jpg'
-}, {
-  sources: [{
-    src: '//media.w3.org/2010/05/bunny/movie.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/bunny/poster.png'
-}, {
-  sources: [{
-    src: '//media.w3.org/2010/05/video/movie_300.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/video/poster.png'
 }]);
-// [{ ... }, ... ]
-
-player.playlist([{
-  sources: [{
-    src: '//media.w3.org/2010/05/video/movie_300.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/video/poster.png'
-}]);
-// [{ ... }]
 ```
 
-If a setter, a second argument sets the video to be loaded. If omitted, the
-first video is loaded. If `-1`, no video is loaded.
+### `getPlaylist() -> Array<PlaylistItem>`
+Retrieves the current playlist from the player.
 
+#### Returns
+* Returns an array of `PlaylistItem` objects currently loaded in the player. Each object in the array represents a video and includes the video properties as the `items` listed above
+
+### `setAutoadvanceDelay(delay?: number | null)`
+Sets the auto-advance delay for the playlist or disables auto-advance. When a video ends, the playlist will automatically advance to the next video after the specified delay. Calling this method with null or without any argument cancels auto-advance.
+
+#### Parameters
+* `delay` (`number | null`, optional): The delay in seconds before advancing to the next item in the playlist. If this argument is `null`, not a positive number, or omitted, auto-advance is disabled.
+
+### `getAutoadvanceDelay() -> number|null`
+Retrieves the current auto-advance delay for the playlist. This method returns the delay in seconds before the playlist advances to the next video automatically.
+
+#### Returns
+* Returns a number representing the delay in seconds, or `null` if auto-advance is disabled.
+
+### `enableRepeat()`
+Enables repeat mode for the playlist. When repeat mode is enabled, the playlist will automatically loop back to the first item after the last item finishes playing.
+
+### `disableRepeat()`
+Disables repeat mode for the playlist. When repeat mode is disabled, the playlist will not loop back to the first item after the last item finishes playing.
+
+### `isRepeatEnabled() -> boolean`
+Retrieves the current repeat mode status of the playlist.
+
+#### Returns
+* Returns true if repeat mode is currently enabled, and false otherwise.
+
+### `setCurrentItem(index: Number) -> boolean`
+Sets the current playlist item based on the given index. The method attempts to load and play the playlist item at the specified index.
+
+#### Events
+* Fires a `beforeplaylistitem` before the specified item is loaded
+* Fires a `playlistitem` after the specified item is loaded but before it is played
+
+#### Parameters
+* `index` (`number`): The index of the item to play in the playlist.
+
+#### Returns
+* Returns true if the current item is successfully set, and false otherwise (e.g., if the index is out of bounds).
+
+### `getCurrentItem() -> PlaylistItem | undefined`
+Retrieves the currently active PlaylistItem from the playlist.
+
+#### Returns
+* Returns the current `PlaylistItem` if available. If there is no current item (e.g., if the current index is not set or out of bounds), it returns `undefined`.
+
+### `getCurrentIndex() -> number`
+Retrieves the index of the currently active item in the playlist.
+
+#### Returns
+* Returns the current item's index if available. If there is no current item, it returns -1.
+
+### `getLastIndex() -> number`
+Gets the index of the last item in the playlist.
+
+#### Returns
+* Returns the index of the last item in the playlist. If the playlist is empty, it returns -1.
+
+### `getNextIndex() -> number`
+Gets the index of the next item in the playlist.
+
+#### Returns
+* Returns the index of the next item. If at the end of the playlist and repeat is enabled, it returns 0. If repeat is disabled, it returns -1.
+
+### `getPreviousItem() -> number`
+Gets the index of the previous item in the playlist.
+
+#### Returns
+* Returns the index of the previous item. If at the beginning of the playlist and repeat is enabled, it returns the last index. If repeat is disabled, it returns -1.
+
+### `first() -> boolean`
+Sets the first item in the playlist as the current item.
+
+#### Returns
+* Returns true if the first item is successfully set as the current item. Returns false otherwise (e.g., if the playlist is empty).
+
+#### Events
+* Fires a `beforeplaylistitem` before the first item is loaded
+* Fires a `playlistitem` after the first item is loaded but before it is played
+
+### `last() -> boolean`
+Sets the last item in the playlist as the current item.
+
+#### Returns
+* Returns true if the last item is successfully set as the current item. Returns false otherwise (e.g., if the playlist is empty).
+
+#### Events
+* Fires a `beforeplaylistitem` before the last item is loaded
+* Fires a `playlistitem` after the last item is loaded but before it is played
+
+### `next() -> boolean`
+Sets the next item in the playlist as the current item.
+
+#### Returns
+
+* Returns true if the next item is successfully set as the current item. If at the end of the playlist and repeat is not enabled, it returns false.
+
+#### Events
+* Fires a `beforeplaylistitem` before the next item is loaded
+* Fires a `playlistitem` after the next item is loaded but before it is played
+
+### `previous() -> boolean`
+Sets the previous item in the playlist as the current item.
+
+#### Returns
+* Returns true if the previous item is successfully set as the current item. If at the beginning of the playlist and repeat is not enabled, it returns false.
+
+#### Events
+* Fires a `beforeplaylistitem` before the previous item is loaded
+* Fires a `playlistitem` after the previous item is loaded but before it is played
+
+### `add(items: Object | Array<Object>, index?: number) -> Array<PlaylistItem>`
+Adds one or more items to the playlist at a specified index, or at the end if the index is not provided or invalid.
+
+#### Parameters
+* `items` (`Object | Array<Object>`): The item or array of items to add to the playlist. Each item should follow the required structure described above.
+* `index` (`number`, optional): The index at which to add the items. Defaults to the end of the playlist if not provided or if provided index is invalid.
+
+#### Returns
+* Returns an array of `PlaylistItem` objects that were added, or an empty array if none were.
+
+#### Events
+* Fires a `playlistadd` event when items are successfully added.
+
+#### Example
 ```js
-player.playlist([{
-  sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/sintel/poster.png'
-}, {
-  sources: [{
-    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/bunny/poster.png'
-}], 1);
-// [{ ... }]
+// Adds one new item at index 2
+const addedItems = playlistPlugin.add({
+  sources: [{ src: '//example.com/new-video.mp4', type: 'video/mp4' }],
+  poster: '//example.com/new-poster.jpg'
+}, 2);
+
+console.log(addedItems); // -> [PlaylistItem]
 ```
 
-#### `player.playlist.currentItem([Number index]) -> Number`
+### `remove(index: number, count?: number) -> Array<PlaylistItem>`
+Removes a specified number of items from the playlist, starting at the given index.
 
-Get or set the current item index.
+#### Parameters
+* `index` (`number`): The starting index to remove items from. Removal occurs only if the index is within bounds.
+* `count` (`number`, optional): The number of items to remove, defaulting to 1. Removal occurs only if the count is a positive number. If count exceeds the number of available items to remove, the method will remove as many items as possible starting from the specified index.
 
-If called without arguments, it is a getter. With an argument, it is a setter.
+#### Returns
+* Returns an array of `PlaylistItem` objects that were removed, or an empty array if none were.
 
-If the player is currently playing a non-playlist video, it will return `-1`.
+#### Events
+* Fires a `playlistremove` event when items are successfully removed.
 
+#### Example
 ```js
-var samplePlaylist = [{
-  sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/sintel/poster.png'
-}, {
-  sources: [{
-    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/bunny/poster.png'
-}];
+// Removes 2 items starting from index 1
+const removedItems = playlistPlugin.remove(1, 2);
 
-player.playlist(samplePlaylist);
-
-player.currentItem();
-// 0
-
-player.currentItem(2);
-// 2
-
-player.src('//example.com/video.mp4');
-player.playlist.currentItem();
-// -1
+console.log(removedItems); // -> [PlaylistItem, PlaylistItem]
 ```
 
-#### `player.playlist.add(String|Object|Array items, [Number index])`
+### `sort(compare: Function)`
+Sorts the playlist array using a comparator function in a manner identical to the native [Array#sort](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) method.
 
-Adds one or more items to the current playlist without replacing the playlist.
+#### Parameters
+* `compare` (`Function`): A comparator function used to determine the order of the elements.
 
-Fires the `playlistadd` event.
+#### Events
+* Fires a `playlistsorted` event after the playlist is sorted internally.
 
-Calling this method during the `duringplaylistchange` event throws an error.
+### `reverse()`
+Reverses the order of the items in the playlist in a manner identical to [Array#reverse](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse)
 
-```js
-var samplePlaylist = [{
-  sources: [{
-    src: 'sintel.mp4',
-    type: 'video/mp4'
-  }]
-}];
+#### Events
+Fires a `playlistsorted` event after the playlist is reversed internally.
 
-player.playlist(samplePlaylist);
+### `shuffle(options?: { rest: boolean })`
+Shuffles the contents of the playlist randomly. By default, it shuffles items after the current item unless specified otherwise.
 
-// Playlist will contain two items after this call: sintel.mp4, bbb.mp4
-player.add({
-  sources: [{
-    src: 'bbb.mp4',
-    type: 'video/mp4'
-  }]
-});
+#### Parameters
+* `options` (`Object`, optional): An object containing shuffle options.
+  * `rest` (`boolean`, default: true): If true, only shuffles items after the current item. If false, shuffles the entire playlist.
 
-// Playlist will contain four items after this call: sintel.mp4, tears.mp4, test.mp4, and bbb.mp4
-player.add([{
-  sources: [{
-    src: 'tears.mp4',
-    type: 'video/mp4'
-  }]
-}, {
-  sources: [{
-    src: 'test.mp4',
-    type: 'video/mp4'
-  }]
-}], 1);
-```
-
-#### `player.playlist.remove(Number index, [Number count=1])`
-
-Removes one or more items from the current playlist without replacing the playlist. By default, if `count` is not provided, one item will be removed.
-
-Fires the `playlistremove` event.
-
-Calling this method during the `duringplaylistchange` event throws an error.
-
-```js
-var samplePlaylist = [{
-  sources: [{
-    src: 'sintel.mp4',
-    type: 'video/mp4'
-  }]
-}, {
-  sources: [{
-    src: 'bbb.mp4',
-    type: 'video/mp4'
-  }]
-}, {
-  sources: [{
-    src: 'tears.mp4',
-    type: 'video/mp4'
-  }]
-}, {
-  sources: [{
-    src: 'test.mp4',
-    type: 'video/mp4'
-  }]
-}];
-
-player.playlist(samplePlaylist);
-
-// Playlist will contain three items after this call: bbb.mp4, tears.mp4, and test.mp4
-player.remove(0);
-
-// Playlist will contain one item after this call: bbb.mp4
-player.remove(1, 2);
-```
-
-#### `player.playlist.contains(String|Object|Array value) -> Boolean`
-
-Determine whether a string, source object, or playlist item is contained within a playlist.
-
-Assuming the playlist used above, consider the following example:
-
-```js
-player.playlist.contains('//media.w3.org/2010/05/sintel/trailer.mp4');
-// true
-
-player.playlist.contains([{
-  src: '//media.w3.org/2010/05/sintel/poster.png',
-  type: 'image/png'
-}]);
-// false
-
-player.playlist.contains({
-  sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
-    type: 'video/mp4'
-  }]
-});
-// true
-```
-
-#### `player.playlist.indexOf(String|Object|Array value) -> Number`
-
-Get the index of a string, source object, or playlist item in the playlist. If not found, returns `-1`.
-
-Assuming the playlist used above, consider the following example:
-
-```js
-player.playlist.indexOf('//media.w3.org/2010/05/bunny/trailer.mp4');
-// 1
-
-player.playlist.indexOf([{
-  src: '//media.w3.org/2010/05/bunny/movie.mp4',
-  type: 'video/mp4'
-}]);
-// 3
-
-player.playlist.indexOf({
-  sources: [{
-    src: '//media.w3.org/2010/05/video/movie_300.mp4',
-    type: 'video/mp4'
-  }]
-});
-// 4
-```
-
-#### `player.playlist.currentIndex() -> Number`
-
-Get the index of the current item in the playlist. This is identical to calling `currentItem()` with no arguments.
-
-```js
-var samplePlaylist = [{
-  sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/sintel/poster.png'
-}, {
-  sources: [{
-    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/bunny/poster.png'
-}];
-
-player.currentIndex();
-// 0
-```
-
-#### `player.playlist.nextIndex() -> Number`
-
-Get the index of the next item in the playlist.
-
-If the player is on the last item, returns the last item's index. However, if the playlist repeats and is on the last item, returns `0`.
-
-If the player is currently playing a non-playlist video, it will return `-1`.
-
-```js
-var samplePlaylist = [{
-  sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/sintel/poster.png'
-}, {
-  sources: [{
-    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/bunny/poster.png'
-}];
-
-player.playlist(samplePlaylist);
-
-player.nextIndex();
-// 1
-
-player.next();
-player.nextIndex();
-// 1
-
-player.repeat(true);
-player.nextIndex();
-// 0
-
-player.src('//example.com/video.mp4');
-player.playlist.nextIndex();
-// -1
-```
-
-#### `player.playlist.previousIndex() -> Number`
-
-Get the index of the previous item in the playlist.
-
-If the player is on the first item, returns `0`. However, if the playlist repeats and is on the first item, returns the last item's index.
-
-If the player is currently playing a non-playlist video, it will return `-1`.
-
-```js
-var samplePlaylist = [{
-  sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/sintel/poster.png'
-}, {
-  sources: [{
-    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/bunny/poster.png'
-}];
-
-player.playlist(samplePlaylist, 1);
-
-player.previousIndex();
-// 0
-
-player.previous();
-player.previousIndex();
-// 0
-
-player.repeat(true);
-player.previousIndex();
-// 1
-
-player.src('//example.com/video.mp4');
-player.playlist.previousIndex();
-// -1
-```
-
-#### `player.playlist.lastIndex() -> Number`
-
-Get the index of the last item in the playlist.
-
-```js
-var samplePlaylist = [{
-  sources: [{
-    src: '//media.w3.org/2010/05/sintel/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/sintel/poster.png'
-}, {
-  sources: [{
-    src: '//media.w3.org/2010/05/bunny/trailer.mp4',
-    type: 'video/mp4'
-  }],
-  poster: '//media.w3.org/2010/05/bunny/poster.png'
-}];
-
-player.lastIndex();
-// 1
-```
-
-#### `player.playlist.first() -> Object|undefined`
-
-Play the first item in the playlist.
-
-Returns the activated playlist item unless the playlist is empty (in which case, returns `undefined`).
-
-```js
-player.playlist.first();
-// { ... }
-
-player.playlist([]);
-player.playlist.first();
-// undefined
-```
-
-#### `player.playlist.last() -> Object|undefined`
-
-Play the last item in the playlist.
-
-Returns the activated playlist item unless the playlist is empty (in which case, returns `undefined`).
-
-```js
-player.playlist.last();
-// { ... }
-
-player.playlist([]);
-player.playlist.last();
-// undefined
-```
-
-#### `player.playlist.next() -> Object`
-
-Advance to the next item in the playlist.
-
-Returns the activated playlist item unless the playlist is at the end (in which case, returns `undefined`).
-
-```js
-player.playlist.next();
-// { ... }
-
-player.playlist.last();
-player.playlist.next();
-// undefined
-```
-
-#### `player.playlist.previous() -> Object`
-
-Go back to the previous item in the playlist.
-
-Returns the activated playlist item unless the playlist is at the beginning (in which case, returns `undefined`).
-
-```js
-player.playlist.next();
-// { ... }
-
-player.playlist.previous();
-// { ... }
-
-player.playlist.first();
-// { ... }
-
-player.playlist.previous();
-// undefined
-```
-
-#### `player.playlist.autoadvance([Number delay]) -> undefined`
-
-Sets up playlist auto-advance behavior.
-
-Once invoked, at the end of each video in the playlist, the plugin will wait `delay` seconds before proceeding automatically to the next video.
-
-Any value which is not a positive, finite integer, will be treated as a request to cancel and reset the auto-advance behavior.
-
-If you change auto-advance during a delay, the auto-advance will be canceled and it will not advance the next video, but it will use the new timeout value for the following videos.
-
-```js
-// no wait before loading in the next item
-player.playlist.autoadvance(0);
-
-// wait 5 seconds before loading in the next item
-player.playlist.autoadvance(5);
-
-// reset and cancel the auto-advance
-player.playlist.autoadvance();
-```
-
-#### `player.playlist.repeat([Boolean val]) -> Boolean`
-
-Enable or disable repeat by passing true or false as the argument.
-
-When repeat is enabled, the "next" video after the final video in the playlist is the first video in the playlist. This affects the behavior of calling `next()`, of autoadvance, and so on.
-
-This method returns the current value. Call with no argument to use as a getter.
-
-Examples:
-
-```js
-
-player.playlist.repeat(true);
-
-player.playlist.repeat();
-// true
-
-player.playlist.repeat(false);
-player.playlist.repeat();
-// false
-
-```
-
-#### `player.playlist.sort([Function compare]) -> undefined`
-
-Sort the playlist in a manner identical to [`Array#sort`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort).
-
-Fires the `playlistsorted` event after sorting.
-
-#### `player.playlist.reverse() -> undefined`
-
-Reverse the playlist in a manner identical to [`Array#reverse`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reverse).
-
-Fires the `playlistsorted` event after reversing.
-
-#### `player.playlist.shuffle() -> undefined`
-
-Shuffles/randomizes the order of playlist items in a manner identical to [`lodash.shuffle`](https://lodash.com/docs/4.17.4#shuffle).
-
-Fires the `playlistsorted` event after shuffling.
+#### Events
+Fires a `playlistsorted` event after the playlist is shuffled internally.
 
 ## Events
-
-### `duringplaylistchange`
-
-This event is fired _after_ the contents of the playlist are changed when calling `playlist()`, but _before_ the current playlist item is changed. The event object has several special properties:
-
-- `nextIndex`: The index from the next playlist that will be played first.
-- `nextPlaylist`: A shallow clone of the next playlist.
-- `previousIndex`: The index from the previous playlist (will always match the current index when this event triggers, but is provided for completeness).
-- `previousPlaylist`: A shallow clone of the previous playlist.
-
-**NOTE**: This event fires every time `player.playlist()` is called - including the first time.
-
-#### Caveats
-
-During the firing of this event, the playlist is considered to be in a **changing state**, which has the following effects:
-
-- Calling the main playlist method (i.e. `player.playlist([...])`) will throw an error.
-- Playlist navigation methods - `first`, `last`, `next`, and `previous` - are rendered inoperable.
-- The `currentItem()` method only acts as a getter.
-- While the sorting methods - `sort`, `reverse`, and `shuffle` - will continue to work, they do not fire the `playlistsorted` event.
-
-#### Why have this event?
-
-This event provides an opportunity to intercept the playlist setting process before a new source is set on the player and before the `playlistchange` event fires, while providing a consistent playlist API.
-
-One use-case might be shuffling a playlist that has just come from a server, but before its initial source is loaded into the player or the playlist UI is updated:
-
-```js
-player.on('duringplaylistchange', function() {
-
-  // Remember, this will not trigger a "playlistsorted" event!
-  player.playlist.shuffle();
-});
-
-player.on('playlistchange', function() {
-  videojs.log('The playlist was shuffled, so the UI can be updated.');
-});
-```
-
 ### `playlistchange`
-
-This event is fired whenever the contents of the playlist are changed (i.e., when `player.playlist()` is called with an argument) - except the first time. Additionally, it is fired when item(s) are added or removed from the playlist.
-
-In cases where a change to the playlist may result in a new video source being loaded, it is fired asynchronously to let the browser start loading the first video in the new playlist.
+Triggered whenever there is an entirely new playlist set. This event is fired after the `setPlaylist()` method successfully adds a new playlist.
 
 ```js
-player.on('playlistchange', function() {
-  player.playlist();
+player.on('playlistchange', () => {
+  const newPlaylist = playlistPlugin.getPlaylist();
+
+  console.log(newPlaylist); // -> [PlaylistItem, PlaylistItem, ...]
 });
-
-player.playlist([]);
-// [ ... ]
-
-player.playlist([]);
-// [ ... ]
 ```
-
-#### `action`
-
-Each `playlistchange` event object has an additional `action` property. This can help you identify the action that caused the `playlistchange` event to be triggered. It will be one of:
-
-* `add`: One or more items were added to the playlist
-* `change`: The entire playlist was replaced
-* `remove`: One or more items were removed from the playlist
-
-This is considered temporary/deprecated behavior because future implementations should only fire the `playlistadd` and `playlistremove` events.
-
-#### Backward Compatibility
-
-This event _does not fire_ the first time `player.playlist()` is called. If you want it to fire on the first call to `player.playlist()`, you can call it without an argument before calling it with one:
-
-```js
-// This will fire no events.
-player.playlist();
-
-// This will fire both "duringplaylistchange" and "playlistchange"
-player.playlist([...]);
-```
-
-This behavior will be removed in v5.0.0 and the event will fire in all cases.
 
 ### `playlistadd`
+Triggered when one or more items are successfully added to the playlist. This event is fired after the `add()` method successfully adds new items.
 
-One or more items were added to the playlist via the `playlist.add()` method.
+#### Event Details
+* `count`: The number of items added.
+* `index`: The index at which the items were added.
+
+#### Example
+```js
+player.on('playlistadd', (e) => {
+  console.log(`${e.count} item(s) added at index ${e.index}.`);
+});
+```
 
 ### `playlistremove`
+Triggered when items are successfully removed from the playlist. This event is fired after the `remove()` method successfully removes items.
 
-One or more items were removed from the playlist via the `playlist.remove()` method.
+#### Event Details
+* `count`: The number of items removed.
+* `index`: The starting index from where items were removed.
 
-### `beforeplaylistitem`
-
-This event is fired before switching to a new content source within a playlist (i.e., when any of `currentItem()`, `first()`, or `last()` is called, but before the player's state has been changed).
-
-### `playlistitem`
-
-This event is fired when switching to a new content source within a playlist (i.e., when any of `currentItem()`, `first()`, or `last()` is called; after the player's state has been changed, but before playback has been resumed).
+#### Example
+```js
+player.on('playlistremove', (e) => {
+  console.log(`${e.count} item(s) removed starting from index ${e.index}.`);
+});
+```
 
 ### `playlistsorted`
+Triggered after the playlist is sorted internally. This event occurs when the `sort()`, `reverse()`, or `shuffle()` methods are called and successfully alter the order of the playlist.
 
-This event is fired when any method is called that changes the order of playlist items - `sort()`, `reverse()`, or `shuffle()`.
+#### Example
+```js
+player.on('playlistsorted', () => {
+  const newlyOrderedPlaylist = playlistPlugin.getPlaylist();
+
+  console.log(newlyOrderedPlaylist);
+});
+```
+
+### `beforeplaylistitem`
+Triggered before switching to a new content source within a playlist (i.e., after any of `setCurrentItem()`, `first()`, or `last()`, `next()`, or `previous()` are called, but before the new source has been loaded and the player's state has been changed).
+
+#### Event Details
+* **Event Argument:** The current instance of `PlaylistItem` that is about to be loaded.
+
+#### Example
+```js
+player.on('beforeplaylistitem', (playlistItem) => {
+  console.log(playlistItem); // -> PlaylistItem
+  // Actions to take before the new item is loaded
+});
+```
+
+### `playlistitem`
+Triggered after a source has been loaded and the player state has changed, but before the `play()` method is called on the new source.
+
+#### Event Details
+* **Event Argument:** The current instance of PlaylistItem that has just been loaded.
+
+#### Example
+```js
+player.on('playlistitem', (playlistItem) => {
+  console.log(playlistItem); // -> PlaylistItem
+  // Actions to take after the new item is loaded, but before playback
+});
+```

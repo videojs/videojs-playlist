@@ -53,9 +53,18 @@ When installed via npm, videojs-playlist supports Browserify-based workflows out
 For full details on how to use the playlist plugin can be found in [the API documentation](docs/api.md).
 
 ```js
-var player = videojs('video');
+// Initialize Video.js player
+const player = videojs('video');
 
-player.playlist([{
+// Initialize the playlist plugin
+const playlistPlugin = player.playlist({
+  // Play through the playlist automatically with no delay between videos
+  autoadvanceDelay: 0,
+  // Loop the playlist back to the beginning after the last video 
+  repeat: true
+});
+
+playlistPlugin.setPlaylist([{
   sources: [{
     src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
@@ -87,8 +96,13 @@ player.playlist([{
   poster: 'http://media.w3.org/2010/05/video/poster.png'
 }]);
 
-// Play through the playlist automatically.
-player.playlist.autoadvance(0);
+// Programatically modify playlist behaviors set at initialization
+
+// Disable autoadvance (videos will not automatically progress to the next one)
+playlistPlugin.setAutoadvanceDelay(null);
+
+// Disable repeat mode (the playlist will not loop back to the first video after the last one)
+playlistPlugin.disableRepeat();
 ```
 
 ## License

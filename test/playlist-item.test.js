@@ -19,7 +19,6 @@ QUnit.module('PlaylistItem', {
     this.player.trigger = sinon.spy();
     this.player.poster = sinon.spy();
     this.player.src = sinon.spy();
-    this.player.ready = sinon.stub().callsFake(callback => callback());
     this.player.addRemoteTextTrack = sinon.spy();
     this.player.remoteTextTracks = sinon.stub().returns([]);
     this.player.removeRemoteTextTrack = sinon.spy();
@@ -59,6 +58,7 @@ QUnit.test('loadOrPlay - calls play() and loads poster conditional on player sta
   this.player.paused = sinon.stub().returns(true);
   this.player.ended = sinon.stub().returns(true);
   this.playlistItem.loadOrPlay(this.player);
+  this.clock.tick(1);
   assert.ok(this.player.play.calledOnce, 'Play called when player is paused and ended');
   assert.notOk(this.player.poster.calledWith(this.fakePoster), 'Poster is not set when calling play');
 
@@ -68,6 +68,7 @@ QUnit.test('loadOrPlay - calls play() and loads poster conditional on player sta
   this.player.paused = sinon.stub().returns(true);
   this.player.ended = sinon.stub().returns(false);
   this.playlistItem.loadOrPlay(this.player);
+  this.clock.tick(1);
   assert.notOk(this.player.play.calledOnce, 'Play not called when player is paused but not ended');
   assert.ok(this.player.poster.calledWith(this.fakePoster), 'Poster is set when not playing');
 
@@ -77,15 +78,17 @@ QUnit.test('loadOrPlay - calls play() and loads poster conditional on player sta
   this.player.paused = sinon.stub().returns(false);
   this.player.ended = sinon.stub().returns(true);
   this.playlistItem.loadOrPlay(this.player);
+  this.clock.tick(1);
   assert.ok(this.player.play.calledOnce, 'Play called when player is not paused but ended');
   assert.notOk(this.player.poster.calledWith(this.fakePoster), 'Poster is not set when calling play');
 });
 
 QUnit.test('loadOrPlay - triggers beforeplaylistitem and playlistitem events', function(assert) {
   this.playlistItem.loadOrPlay(this.player);
+  this.clock.tick(1);
 
-  assert.ok(this.player.trigger.calledWith('beforeplaylistitem'), "'beforeplaylistitem' event is triggered before loading the item");
-  assert.ok(this.player.trigger.calledWith('playlistitem'), "'playlistitem' event is triggered after loading the item");
+  assert.ok(this.player.trigger.calledWith('beforeplaylistitem'), "'beforeplaylistitem' event is triggered");
+  assert.ok(this.player.trigger.calledWith('playlistitem'), "'playlistitem' event is triggered");
 
   const callOrder = this.player.trigger.args.map(args => args[0]);
 

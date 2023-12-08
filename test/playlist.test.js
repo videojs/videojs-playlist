@@ -122,10 +122,10 @@ QUnit.test('options - repeat mode can be set via option', function(assert) {
   assert.strictEqual(this.playlist.repeat_, true, 'repeat_ should be set to true');
 });
 
-QUnit.test('options - autoadvance delay can be set via option', function(assert) {
-  this.playlist = new Playlist(this.player, { autoadvance: 0 });
+QUnit.test('options - autoadvanceDelay can be set via option', function(assert) {
+  this.playlist = new Playlist(this.player, { autoadvanceDelay: 0 });
 
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, 0, 'autoAdvance_ delay should be 0 after playlist initialization');
+  assert.strictEqual(this.playlist.autoAdvance_.delay_, 0, 'autoAdvance delay should be 0 after playlist initialization');
 });
 
 QUnit.test('setPlaylist - valid input should set playlist correctly', function(assert) {

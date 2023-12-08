@@ -44,15 +44,6 @@ export default class PlaylistItem {
     // - the previous item has finished and playback of this item has been initiated, either manually or by AutoAdvance.
     const shouldCallPlay = !player.paused() || player.ended();
 
-    player.trigger('beforeplaylistitem', this);
-
-    // Only load the poster if we will not be playing this item immediately. This helps avoid poster flash.
-    player.poster(!shouldCallPlay ? this.poster : '');
-    player.src(this.sources);
-
-    // Remove any textTracks from a previous item
-    this.clearExistingTextTracks(player);
-
     player.ready(() => {
       this.addTextTracks(player);
 
@@ -63,6 +54,15 @@ export default class PlaylistItem {
         silencePromise(player.play());
       }
     });
+
+    player.trigger('beforeplaylistitem', this);
+
+    // Remove any textTracks from a previous item
+    this.clearExistingTextTracks(player);
+
+    // Only load the poster if we will not be playing this item immediately. This helps avoid poster flash.
+    player.poster(!shouldCallPlay ? this.poster : '');
+    player.src(this.sources);
   }
 
   /**

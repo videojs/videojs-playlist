@@ -7,7 +7,7 @@ const Plugin = videojs.getPlugin('plugin');
 
 const defaults = {
   repeat: false,
-  autoadvance: null
+  autoadvanceDelay: null
 };
 
 /**
@@ -67,24 +67,10 @@ export default class Playlist extends Plugin {
     this.autoAdvance_ = new AutoAdvance(this.player, () => this.next());
     this.repeat_ = this.options_.repeat;
 
-    this.setAutoadvanceDelay(this.options_.autoadvance);
+    this.setAutoadvanceDelay(this.options_.autoadvanceDelay);
 
     this.player.on('loadstart', this.handleSourceChange_.bind(this));
   }
-
-  /**
-   * @typedef {Object} DuringPlaylistChangeEvent
-   * @property {string} type
-   *           The type of the event, always 'duringplaylistchange'.
-   * @property {number} nextIndex
-   *           The index at which the new playlist will start.
-   * @property {PlaylistItem[]} nextPlaylist
-   *           The new set of playlist items.
-   * @property {number} previousIndex
-   *           The index of the current item before the playlist change.
-   * @property {PlaylistItem[]} previousPlaylist
-   *           The set of playlist items before the change.
-   */
 
   /**
    * Sets the playlist with a new list of items and optionally starts playback from a specified index.
@@ -93,8 +79,6 @@ export default class Playlist extends Plugin {
    *        An array of objects to set as the new playlist.
    * @param {number} [index=0]
    *        The index at which to start playback. Defaults to 0.
-   * @fires duringplaylistchange
-   *        Triggered after the contents of the playlist are changed, but before the current playlist item is set
    * @fires playlistchange
    *        Triggered after the contents of the playlist are changed and the current playlist item is set.
    *        This is triggered asynchronously as to not interrupt the loading of the first video.
@@ -423,7 +407,7 @@ export default class Playlist extends Plugin {
    * @param {number} index
    *        The starting index to remove items from. If out of bounds, no removal occurs.
    * @param {number} [count=1]
-   *        The number of items to remove. Defaults to 1. If count is invalid, no removal occurs.
+   *        The number of items to remove. Defaults to 1. Removal only occurs if count is positive number.
    * @return {PlaylistItem[]}
    *         An array of the removed playlist items.
    * @fires playlistremove
