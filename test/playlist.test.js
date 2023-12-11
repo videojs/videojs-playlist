@@ -881,3 +881,34 @@ QUnit.test('shuffle - correctly shuffles playlist items with rest option', funct
 
   assert.ok(spy.called, 'playlistsorted event should be triggered');
 });
+
+QUnit.test('handleSourceChange_ - calls handleNonPlaylistSource_ for non-playlist source', function(assert) {
+  this.playlist.setPlaylist(this.testItems);
+
+  // Mock non-playlist source
+  this.player.currentSrc = () => 'http://example.com/not-in-playlist.mp4';
+
+  this.playlist.handleNonPlaylistSource_ = sinon.spy();
+
+  this.playlist.handleSourceChange_();
+
+  assert.ok(this.playlist.handleNonPlaylistSource_.calledOnce, 'handleNonPlaylistSource_ should be called for a non-playlist source');
+});
+
+QUnit.test('isSourceInPlaylist_ - correctly identifies if a source is in the playlist', function(assert) {
+  this.playlist.setPlaylist(this.testItems);
+
+  assert.ok(this.playlist.isSourceInPlaylist_(this.testItems[0].sources[0].src), 'Should return true for a source in the playlist');
+  assert.notOk(this.playlist.isSourceInPlaylist_('http://example.com/not-in-playlist.mp4'), 'Should return false for a source not in the playlist');
+});
+
+QUnit.test('handleNonPlaylistSource_ - resets autoadvance and sets currentIndex to null', function(assert) {
+  this.playlist.setPlaylist(this.testItems);
+
+  this.playlist.autoAdvance_.fullReset = sinon.spy();
+
+  this.playlist.handleNonPlaylistSource_();
+
+  assert.ok(this.playlist.autoAdvance_.fullReset.calledOnce, 'autoAdvance_.fullReset() should be called');
+  assert.strictEqual(this.playlist.currentIndex_, null, 'currentIndex_ should be null');
+});
