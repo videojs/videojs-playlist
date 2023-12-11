@@ -43,7 +43,7 @@ interface PlaylistItem {
 ```
 
 ## Plugin Methods
-### `setPlaylist(items: Array<Object>, index?: number)`
+### `setPlaylist(items: Array<Object>, index?: number) -> Array<PlaylistItem>`
 
 Sets the current playlist for a player.
 
@@ -56,6 +56,9 @@ Sets the current playlist for a player.
   * `textTracks` (`Array<Object>`, optional): An optional array of text track objects that follow the structure of the Video.js [TextTrack](https://docs.videojs.com/texttrack) object.
   * Additional properties (like `title` or `description`) can be included, but note that the plugin will not utilize these properties. They can be used for custom implementations or metadata storage.
 * `index` (`number`, optional): The starting index in the playlist from which playback should begin. If omitted, the first video is loaded. If `-1`, no video is loaded.
+
+#### Returns
+* Returns the entire playlist array of `PlaylistItem` objects. If none of the provided items were valid, the previous state of the playlist array is returned.
 
 #### Events
 * Fires a `playlistchange` event after the contents of the playlist are changed and the current playlist item is set. This is triggered asynchronously as to not interrupt the loading of the first video.
@@ -92,6 +95,9 @@ Retrieves the current playlist from the player.
 
 #### Returns
 * Returns an array of `PlaylistItem` objects currently loaded in the player. Each object in the array represents a video and includes the video properties as the `items` listed above
+
+### `removePlaylist()`
+Removes the currently loaded playlist without removing the current source. This puts the player back in a single video playback state.
 
 ### `setAutoadvanceDelay(delay?: number | null)`
 Sets the auto-advance delay for the playlist or disables auto-advance. When a video ends, the playlist will automatically advance to the next video after the specified delay. Calling this method with null or without any argument cancels auto-advance.
@@ -226,7 +232,7 @@ console.log(addedItems); // -> [PlaylistItem]
 ```
 
 ### `remove(index: number, count?: number) -> Array<PlaylistItem>`
-Removes a specified number of items from the playlist, starting at the given index.
+Removes a specified number of items from the playlist, starting at the given index. If the current item is within the removed range, the next available item after it is loaded. If there is no such item, the player will have no current source.
 
 #### Parameters
 * `index` (`number`): The starting index to remove items from. Removal occurs only if the index is within bounds.

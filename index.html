@@ -202,12 +202,12 @@
 
       display.innerHTML = '';
 
-      playlist.getPlaylist().forEach(function (item, index) {
+      playlist.getPlaylist().forEach(function(item, index) {
         const itemDiv = document.createElement('div');
 
         itemDiv.classList.add('playlist-item');
 
-        itemDiv.addEventListener('click', function () {
+        itemDiv.addEventListener('click', function() {
           playlist.setCurrentItem(index);
           updatePlaylistInfo();
         });
@@ -238,7 +238,7 @@
     // Control Button Event Listeners
     const controls = document.querySelector('.controls');
 
-    controls.addEventListener('click', function (event) {
+    controls.addEventListener('click', function(event) {
       const buttonId = event.target.id;
 
       switch (buttonId) {

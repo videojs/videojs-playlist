@@ -69,7 +69,7 @@ export default class Playlist extends Plugin {
 
     this.setAutoadvanceDelay(this.options_.autoadvanceDelay);
 
-    this.player.on('loadstart', this.handleSourceChange_.bind(this));
+    this.handleSourceChange_ = this.handleSourceChange_.bind(this);
   }
 
   /**
@@ -113,6 +113,10 @@ export default class Playlist extends Plugin {
       this.player.trigger('playlistchange');
     }, 0);
 
+    // Begin handling non-playlist source changes. Remove any existing listeners first.
+    this.player.off('loadstart', this.handleSourceChange_);
+    this.player.on('loadstart', this.handleSourceChange_);
+
     return [...this.list_];
   }
 
@@ -125,6 +129,22 @@ export default class Playlist extends Plugin {
   getPlaylist() {
     // Return shallow clone of playlist array
     return [...this.list_];
+  }
+
+  /**
+   * Removes the current playlist in its entirety without unloading the currently loaded source
+   */
+  removePlaylist() {
+    this.autoAdvance_.fullReset();
+    this.currentIndex_ = null;
+    this.list_ = [];
+
+    // Stop handling non-playlist source changes
+    this.player.off('loadstart', this.handleSourceChange_);
+
+    this.player.setTimeout(() => {
+      this.player.trigger('playlistchange');
+    }, 0);
   }
 
   /**

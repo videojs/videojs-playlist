@@ -198,6 +198,21 @@ QUnit.test('setPlaylist - should trigger playlistchange events with correct prop
   assert.ok(spy.calledOnce, 'playlistchange event should be triggered asynchronously');
 });
 
+QUnit.test('setPlaylist - manages loadstart listener correctly', function(assert) {
+  this.player.off = sinon.spy();
+  this.player.on = sinon.spy();
+
+  // First call to setPlaylist
+  this.playlist.setPlaylist(this.testItems);
+  assert.ok(this.player.on.calledWith('loadstart', this.playlist.handleSourceChange_), 'loadstart listener should be added on first call');
+  assert.equal(this.player.on.callCount, 1, 'loadstart listener should be added once');
+
+  // Second call to setPlaylist
+  this.playlist.setPlaylist(this.testItems);
+  assert.ok(this.player.off.calledWith('loadstart', this.playlist.handleSourceChange_), 'Existing loadstart listener should be removed on second call');
+  assert.equal(this.player.on.callCount, 2, 'loadstart listener should be added again on second call');
+});
+
 QUnit.test('getPlaylist - returns an empty array for a new playlist', function(assert) {
   const playlistItems = this.playlist.getPlaylist();
 
@@ -225,6 +240,25 @@ QUnit.test('getPlaylist - returns a shallow clone of the playlist', function(ass
   // Modify the returned array and check if the original playlist is unaffected
   playlistItems.push({ sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }] });
   assert.strictEqual(this.playlist.list_.length, this.testItems.length, 'Original playlist should remain unchanged');
+});
+
+QUnit.test('removePlaylist - removes the playlist correctly', function(assert) {
+  this.playlist.setPlaylist(this.testItems);
+
+  this.playlist.autoAdvance_.fullReset = sinon.spy();
+  this.player.off = sinon.spy();
+  this.player.trigger = sinon.spy();
+
+  this.playlist.removePlaylist();
+
+  assert.ok(this.playlist.autoAdvance_.fullReset.calledOnce, 'autoAdvance_.fullReset() should be called');
+  assert.strictEqual(this.playlist.currentIndex_, null, 'currentIndex_ should be null after removal');
+  assert.deepEqual(this.playlist.list_, [], 'list_ should be empty after removal');
+  assert.ok(this.player.off.calledWith('loadstart', this.playlist.handleSourceChange_), 'Event listener for loadstart should be removed');
+
+  assert.notOk(this.player.trigger.calledWith('playlistchange'), 'playlistchange event should not be triggered yet');
+  this.clock.tick(1);
+  assert.ok(this.player.trigger.calledWith('playlistchange'), 'playlistchange event should be triggered asynchronously');
 });
 
 QUnit.test('setAutoadvanceDelay - sets delay correctly', function(assert) {
