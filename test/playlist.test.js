@@ -129,8 +129,9 @@ QUnit.test('options - autoadvanceDelay can be set via option', function(assert) 
 });
 
 QUnit.test('setPlaylist - valid input should set playlist correctly', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+  const playlist = this.playlist.setPlaylist(this.testItems);
 
+  assert.equal(playlist.length, this.testItems.length, 'Should return array with the correct number of items');
   assert.equal(this.playlist.list_.length, this.testItems.length, 'Playlist should have the correct number of items');
   assert.deepEqual(this.playlist.list_[0].sources, this.testItems[0].sources, 'First item sources should match');
   assert.deepEqual(this.playlist.list_[1].sources, this.testItems[1].sources, 'Second item sources should match');
@@ -138,24 +139,27 @@ QUnit.test('setPlaylist - valid input should set playlist correctly', function(a
 });
 
 QUnit.test('setPlaylist - should log error and return if items is not an array', function(assert) {
-  this.playlist.setPlaylist('not an array');
+  const playlist = this.playlist.setPlaylist('not an array');
 
   assert.ok(log.error.calledWith('The playlist must be an array.'), 'Should log error for non-array input');
+  assert.equal(playlist.length, 0, 'Should return empty array if playlist has not been set');
 });
 
 QUnit.test('setPlaylist - should log error and return if index is not a number', function(assert) {
-  this.playlist.setPlaylist(this.testItems, 'not a number');
+  const playlist = this.playlist.setPlaylist(this.testItems, 'not a number');
 
   assert.ok(log.error.calledWith('The index must be a number.'), 'Should log error for non-numeric index');
+  assert.equal(playlist.length, 0, 'Should return empty array if playlist has not been set');
 });
 
 QUnit.test('setPlaylist - should handle invalid item by logging error and continuing', function(assert) {
   const invalidItem = { sources: 'invalid' };
   const combinedItems = [this.testItems[0], invalidItem, this.testItems[1]];
 
-  this.playlist.setPlaylist(combinedItems);
+  const playlist = this.playlist.setPlaylist(combinedItems);
 
   assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Should log error for invalid item');
+  assert.equal(playlist.length, 2, 'Should return array of correct length');
   assert.equal(this.playlist.list_.length, 2, 'Should only add valid items to playlist');
 });
 
@@ -167,12 +171,15 @@ QUnit.test('setPlaylist - should log error when all provided items are invalid',
   ];
 
   // Set a valid playlist initially
-  this.playlist.setPlaylist(this.testItems);
+  const playlist = this.playlist.setPlaylist(this.testItems);
+
+  assert.equal(playlist.length, this.testItems.length, 'Should return array with valid items');
   assert.notOk(log.error.calledWith('Cannot set the playlist as none of the provided playlist items were valid.'), 'Should not log error if valid items are passed');
   assert.equal(this.playlist.list_.length, this.testItems.length, 'Playlist should have the correct number of items');
 
   // Now set an invalid playlist
   this.playlist.setPlaylist(invalidItems);
+  assert.equal(playlist.length, this.testItems.length, 'Should return previous array of valid items');
   assert.ok(log.error.calledWith('Cannot set the playlist as none of the provided playlist items were valid.'), 'Should log error when all items invalid');
   assert.strictEqual(this.playlist.list_.length, this.testItems.length, 'Playlist should be unchanged');
 });

@@ -86,19 +86,19 @@ export default class Playlist extends Plugin {
   setPlaylist(items, index = 0) {
     if (!Array.isArray(items)) {
       log.error('The playlist must be an array.');
-      return;
+      return [...this.list_];
     }
 
     if (typeof index !== 'number') {
       log.error('The index must be a number.');
-      return;
+      return [...this.list_];
     }
 
     const playlistItems = items.map(Playlist.processPlaylistItem).filter(item => item !== null);
 
     if (playlistItems.length === 0) {
       log.error('Cannot set the playlist as none of the provided playlist items were valid.');
-      return;
+      return [...this.list_];
     }
 
     // If we have valid items, proceed to set the new playlist
@@ -112,6 +112,8 @@ export default class Playlist extends Plugin {
     this.player.setTimeout(() => {
       this.player.trigger('playlistchange');
     }, 0);
+
+    return [...this.list_];
   }
 
   /**
