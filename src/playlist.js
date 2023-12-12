@@ -83,6 +83,8 @@ export default class Playlist extends Plugin {
    *
    * @param {Object[]} items
    *        An array of objects to set as the new playlist.
+   * @return {PlaylistItem[]}
+   *         An array of the playlist items.
    * @fires playlistchange
    *        Triggered after the contents of the playlist are changed.
    *        This is triggered asynchronously as to not interrupt the loading of the first video.
