@@ -345,7 +345,7 @@ player.on('beforeplaylistitem', (playlistItem) => {
 ```
 
 ### `playlistitem`
-Triggered after a source has been loaded and the player state has changed, but before the `play()` method is called on the new source.
+Triggered after a source has been loaded and the player state has changed.
 
 #### Event Details
 * **Event Argument:** The current instance of PlaylistItem that has just been loaded.
