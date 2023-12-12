@@ -116,18 +116,6 @@ QUnit.test('constructor initializes properties correctly', function(assert) {
   assert.strictEqual(this.playlist.repeat_, false, 'repeat_ should be false by default');
 });
 
-QUnit.test('options - repeat mode can be set via option', function(assert) {
-  this.playlist = new Playlist(this.player, { repeat: true });
-
-  assert.strictEqual(this.playlist.repeat_, true, 'repeat_ should be set to true');
-});
-
-QUnit.test('options - autoadvanceDelay can be set via option', function(assert) {
-  this.playlist = new Playlist(this.player, { autoadvanceDelay: 0 });
-
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, 0, 'autoAdvance delay should be 0 after playlist initialization');
-});
-
 QUnit.test('setPlaylist - valid input should set playlist correctly', function(assert) {
   const playlist = this.playlist.setPlaylist(this.testItems);
 

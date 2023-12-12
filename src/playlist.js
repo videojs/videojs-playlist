@@ -5,10 +5,7 @@ import {log, isIndexInBounds, randomize } from './utils.js';
 
 const Plugin = videojs.getPlugin('plugin');
 
-const defaults = {
-  repeat: false,
-  autoadvanceDelay: null
-};
+const defaults = {};
 
 /**
  * Represents an advanced playlist plugin for Video.js.
@@ -48,15 +45,15 @@ export default class Playlist extends Plugin {
   }
 
   /**
-     * Create a Playlist plugin instance.
-     *
-     * @param {Player} player
-     *        A Video.js Player instance.
-     *
-     * @param {Object} [options]
-     *        An optional options object.
-     *
-     */
+   * Create a Playlist plugin instance.
+   *
+   * @param {Player} player
+   *        A Video.js Player instance.
+   *
+   * @param {Object} [options]
+   *        An optional options object.
+   *
+   */
   constructor(player, options) {
     // the parent class will add player under this.player
     super(player);
@@ -64,6 +61,7 @@ export default class Playlist extends Plugin {
     this.options_ = videojs.obj.merge(defaults, options);
     this.list_ = [];
     this.currentIndex_ = null;
+    this.repeat_ = false;
     this.autoAdvance_ = new AutoAdvance(this.player, () => {
       const loadedNext = this.loadNext({ loadPoster: false });
 
@@ -71,9 +69,6 @@ export default class Playlist extends Plugin {
         this.player.play();
       }
     });
-    this.repeat_ = this.options_.repeat;
-
-    this.setAutoadvanceDelay(this.options_.autoadvanceDelay);
 
     this.handleSourceChange_ = this.handleSourceChange_.bind(this);
   }
