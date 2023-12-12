@@ -64,7 +64,13 @@ export default class Playlist extends Plugin {
     this.options_ = videojs.obj.merge(defaults, options);
     this.list_ = [];
     this.currentIndex_ = null;
-    this.autoAdvance_ = new AutoAdvance(this.player, () => this.next());
+    this.autoAdvance_ = new AutoAdvance(this.player, () => {
+      const loadedNext = this.loadNext({ loadPoster: false });
+
+      if (loadedNext) {
+        this.player.play();
+      }
+    });
     this.repeat_ = this.options_.repeat;
 
     this.setAutoadvanceDelay(this.options_.autoadvanceDelay);
@@ -73,24 +79,17 @@ export default class Playlist extends Plugin {
   }
 
   /**
-   * Sets the playlist with a new list of items and optionally starts playback from a specified index.
+   * Sets the playlist with a new list of items.
    *
    * @param {Object[]} items
    *        An array of objects to set as the new playlist.
-   * @param {number} [index=0]
-   *        The index at which to start playback. Defaults to 0.
    * @fires playlistchange
-   *        Triggered after the contents of the playlist are changed and the current playlist item is set.
+   *        Triggered after the contents of the playlist are changed.
    *        This is triggered asynchronously as to not interrupt the loading of the first video.
    */
-  setPlaylist(items, index = 0) {
+  setPlaylist(items) {
     if (!Array.isArray(items)) {
       log.error('The playlist must be an array.');
-      return [...this.list_];
-    }
-
-    if (typeof index !== 'number') {
-      log.error('The index must be a number.');
       return [...this.list_];
     }
 
@@ -104,14 +103,7 @@ export default class Playlist extends Plugin {
     // If we have valid items, proceed to set the new playlist
     this.list_ = playlistItems;
 
-    // Load the item unless it is not desired
-    if (index !== -1) {
-      this.setCurrentItem(index);
-    }
-
-    this.player.setTimeout(() => {
-      this.player.trigger('playlistchange');
-    }, 0);
+    this.player.trigger('playlistchange');
 
     // Begin handling non-playlist source changes. Remove any existing listeners first.
     this.player.off('loadstart', this.handleSourceChange_);
@@ -142,9 +134,7 @@ export default class Playlist extends Plugin {
     // Stop handling non-playlist source changes
     this.player.off('loadstart', this.handleSourceChange_);
 
-    this.player.setTimeout(() => {
-      this.player.trigger('playlistchange');
-    }, 0);
+    this.player.trigger('playlistchange');
   }
 
   /**
@@ -177,7 +167,7 @@ export default class Playlist extends Plugin {
   }
 
   /**
-   * Disables repeat mode. When enabled, the playlist will not loop back to the first item after the last item..
+   * Disables repeat mode. When enabled, the playlist will not loop back to the first item after the last item.
    */
   disableRepeat() {
     this.repeat_ = false;
@@ -194,20 +184,22 @@ export default class Playlist extends Plugin {
   }
 
   /**
-   * Sets the current playlist item based on the given index.
+   * Loads a new current item based on the given index.
    *
    * @param {number} index
-   *        The index of the item to play.
+   *        The index of the item to load.
+   * @param {boolean} [options.loadPoster = true]
+   *        Whether or not to load the poster image
    * @return {boolean}
-   *         Returns true if the current item is set, and false otherwise
+   *         Returns true if the current item is loaded, and false otherwise
    */
-  setCurrentItem(index) {
+  loadItem(index, { loadPoster = true } = {}) {
     if (!isIndexInBounds(this.list_, index)) {
       log.error('Index is out of bounds.');
       return false;
     }
 
-    this.list_[index].loadOrPlay(this.player);
+    this.list_[index].load(this.player, { loadPoster });
     this.currentIndex_ = index;
 
     return true;
@@ -283,34 +275,40 @@ export default class Playlist extends Plugin {
   }
 
   /**
-   * Sets the first item in the playlist as the current item.
+   * Loads the first item in the playlist.
    *
+   * @param {boolean} [options.loadPoster = true]
+   *        Whether or not to load the poster image
    * @return {boolean}
    *         Returns true if the first item is set, and false otherwise
    */
-  first() {
-    return this.setCurrentItem(0);
+  loadFirst({ loadPoster = true } = {}) {
+    return this.loadItem(0, { loadPoster });
   }
 
   /**
-   * Sets the last item in the playlist as the current item.
+   * Loads the last item in the playlist.
    *
+   * @param {boolean} [options.loadPoster = true]
+   *        Whether or not to load the poster image
    * @return {boolean}
    *         Returns true if the last item is set, and false otherwise
    */
-  last() {
+  loadLast({ loadPoster = true } = {}) {
     const lastIndex = this.getLastIndex();
 
-    return this.setCurrentItem(lastIndex);
+    return this.loadItem(lastIndex, { loadPoster });
   }
 
   /**
-   * Advance to the next item in the playlist.
+   * Loads the next item in the playlist.
    *
+   * @param {boolean} [options.loadPoster = true]
+   *        Whether or not to load the poster image
    * @return {boolean}
    *         Returns true if the next item is set, and false otherwise
    */
-  next() {
+  loadNext({ loadPoster = true } = {}) {
     const nextIndex = this.getNextIndex();
 
     // Check if we've reached the end of the playlist without repeating
@@ -318,16 +316,18 @@ export default class Playlist extends Plugin {
       return false;
     }
 
-    return this.setCurrentItem(nextIndex);
+    return this.loadItem(nextIndex, { loadPoster });
   }
 
   /**
-   * Go back to the previous item in the playlist.
+   * Loads the previous item in the playlist.
    *
+   * @param {boolean} [options.loadPoster = true]
+   *        Whether or not to load the poster image
    * @return {boolean}
    *         Returns true if the previous item is set, and false otherwise
    */
-  previous() {
+  loadPrevious({ loadPoster = true } = {}) {
     const previousIndex = this.getPreviousIndex();
 
     // Check if we are on the first item and there is no previous index unless we are repeating
@@ -335,7 +335,7 @@ export default class Playlist extends Plugin {
       return false;
     }
 
-    return this.setCurrentItem(previousIndex);
+    return this.loadItem(previousIndex, { loadPoster });
   }
 
   /**
@@ -493,7 +493,7 @@ export default class Playlist extends Plugin {
     // Load next available item if there is one.
     // After the removal, the currentIndex_ now represents the first item after the removed range
     if (this.list_.length > this.currentIndex_) {
-      this.setCurrentItem(this.currentIndex_);
+      this.loadItem(this.currentIndex_);
 
     // Load first item if we are in repeat mode and the playlist still has items
     } else if (this.repeat_ && this.list_.length > 0) {

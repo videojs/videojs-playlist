@@ -181,7 +181,8 @@
     const playlist = player.playlist();
 
     // Set a playlist and load the first item
-    playlist.setPlaylist(videoList, 0);
+    playlist.setPlaylist(videoList);
+    playlist.loadItem(0);
 
     // Set autoadvance delay to 0 seconds
     playlist.setAutoadvanceDelay(0);
@@ -208,7 +209,7 @@
         itemDiv.classList.add('playlist-item');
 
         itemDiv.addEventListener('click', function() {
-          playlist.setCurrentItem(index);
+          playlist.loadItem(index);
           updatePlaylistInfo();
         });
 
@@ -243,16 +244,16 @@
 
       switch (buttonId) {
         case 'prevBtn':
-          playlist.previous();
+          playlist.loadPrevious();
           break;
         case 'nextBtn':
-          playlist.next();
+          playlist.loadNext();
           break;
         case 'firstBtn':
-          playlist.first();
+          playlist.loadFirst();
           break;
         case 'lastBtn':
-          playlist.last();
+          playlist.loadLast();
           break;
         case 'addBtn':
           const addIndex = parseInt(document.getElementById('addIndexInput').value, 10);

@@ -1,5 +1,3 @@
-import { silencePromise } from './utils.js';
-
 /**
  * Represents a single item in a video playlist.
  */
@@ -27,42 +25,33 @@ export default class PlaylistItem {
   }
 
   /**
-   * Loads a playlist item. Initiates playback if certain conditions are met.
+   * Loads a playlist item
    *
    * @param {Player} player
    *        A Video.js Player instance.
+   * @param {boolean} [options.loadPoster = true]
+   *        Whether or not to load the poster image
    * @fires beforeplaylistitem
    *        Triggered before a source is loaded.
    *        This event passes the current instance of PlaylistItem as an argument to the event handlers.
    * @fires playlistitem
-   *        Triggered after a source has been loaded and the player is ready, but before play() is called.
+   *        Triggered after a source has been loaded and the player is ready.
    *        This event passes the current instance of PlaylistItem as an argument to the event handlers.
    */
-  loadOrPlay(player) {
-    // We should only immediately play this item if:
-    // - we are switching to it from one that was already playing, in which case continued playback is expected.
-    // - the previous item has finished and playback of this item has been initiated, either manually or by AutoAdvance.
-    const shouldCallPlay = !player.paused() || player.ended();
-
-    player.ready(() => {
-      this.addTextTracks(player);
-
-      player.trigger('playlistitem', this);
-
-      if (shouldCallPlay) {
-        // silence any "uncaught play promise" rejection error messages
-        silencePromise(player.play());
-      }
-    });
-
+  load(player, { loadPoster = true } = {}) {
     player.trigger('beforeplaylistitem', this);
 
     // Remove any textTracks from a previous item
     this.clearExistingTextTracks(player);
 
-    // Only load the poster if we will not be playing this item immediately. This helps avoid poster flash.
-    player.poster(!shouldCallPlay ? this.poster : '');
+    player.poster(loadPoster ? this.poster : '');
     player.src(this.sources);
+
+    player.ready(() => {
+      this.addTextTracks(player);
+
+      player.trigger('playlistitem', this);
+    });
   }
 
   /**

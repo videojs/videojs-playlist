@@ -12,10 +12,7 @@ QUnit.module('PlaylistItem', {
     this.fixture.appendChild(this.video);
     this.player = videojs(this.video);
 
-    // Setup stubs and spies
-    this.player.play = sinon.spy();
-    this.player.paused = sinon.stub().returns(false);
-    this.player.ended = sinon.stub().returns(false);
+    // Stubs and spies
     this.player.trigger = sinon.spy();
     this.player.poster = sinon.spy();
     this.player.src = sinon.spy();
@@ -54,45 +51,32 @@ QUnit.test('constructor initializes all properties correctly, including addition
   assert.equal(this.playlistItem.description, additionalSourceProps.description, 'Additional description property is set correctly');
 });
 
-QUnit.test('loadOrPlay - calls play() and loads poster conditional on player state', function(assert) {
-  this.player.paused = sinon.stub().returns(true);
-  this.player.ended = sinon.stub().returns(true);
-  this.playlistItem.loadOrPlay(this.player);
+QUnit.test('load - loads sources and poster based on options', function(assert) {
+  this.playlistItem.load(this.player, { loadPoster: true });
   this.clock.tick(1);
-  assert.ok(this.player.play.calledOnce, 'Play called when player is paused and ended');
-  assert.notOk(this.player.poster.calledWith(this.fakePoster), 'Poster is not set when calling play');
 
-  this.player.play.resetHistory();
+  assert.ok(this.player.poster.calledWith(this.fakePoster), 'Poster is loaded when loadPoster is true');
+  assert.ok(this.player.src.calledWith(this.fakeSources), 'Sources are set correctly');
+
   this.player.poster.resetHistory();
+  this.player.src.resetHistory();
 
-  this.player.paused = sinon.stub().returns(true);
-  this.player.ended = sinon.stub().returns(false);
-  this.playlistItem.loadOrPlay(this.player);
-  this.clock.tick(1);
-  assert.notOk(this.player.play.calledOnce, 'Play not called when player is paused but not ended');
-  assert.ok(this.player.poster.calledWith(this.fakePoster), 'Poster is set when not playing');
-
-  this.player.play.resetHistory();
-  this.player.poster.resetHistory();
-
-  this.player.paused = sinon.stub().returns(false);
-  this.player.ended = sinon.stub().returns(true);
-  this.playlistItem.loadOrPlay(this.player);
-  this.clock.tick(1);
-  assert.ok(this.player.play.calledOnce, 'Play called when player is not paused but ended');
-  assert.notOk(this.player.poster.calledWith(this.fakePoster), 'Poster is not set when calling play');
+  this.playlistItem.load(this.player, { loadPoster: false });
+  assert.ok(this.player.poster.calledWith(''), 'Poster is not loaded when loadPoster is false');
+  assert.ok(this.player.src.calledWith(this.fakeSources), 'Sources are still set correctly');
 });
 
-QUnit.test('loadOrPlay - triggers beforeplaylistitem and playlistitem events', function(assert) {
-  this.playlistItem.loadOrPlay(this.player);
+QUnit.test('load - triggers events in the correct order', function(assert) {
+  this.playlistItem.load(this.player, { loadPoster: true });
   this.clock.tick(1);
 
-  assert.ok(this.player.trigger.calledWith('beforeplaylistitem'), "'beforeplaylistitem' event is triggered");
-  assert.ok(this.player.trigger.calledWith('playlistitem'), "'playlistitem' event is triggered");
+  const triggerCalls = this.player.trigger.getCalls().map(call => call.args[0]);
+  const beforePlaylistItemIndex = triggerCalls.indexOf('beforeplaylistitem');
+  const playlistItemIndex = triggerCalls.indexOf('playlistitem');
 
-  const callOrder = this.player.trigger.args.map(args => args[0]);
-
-  assert.ok(callOrder.indexOf('beforeplaylistitem') < callOrder.indexOf('playlistitem'), "'beforeplaylistitem' event is triggered before 'playlistitem' event");
+  assert.ok(beforePlaylistItemIndex !== -1, "'beforeplaylistitem' event was triggered");
+  assert.ok(playlistItemIndex !== -1, "'playlistitem' event was triggered");
+  assert.ok(beforePlaylistItemIndex < playlistItemIndex, "'beforeplaylistitem' is triggered before 'playlistitem'");
 });
 
 QUnit.test('addTextTracks - adds text tracks', function(assert) {

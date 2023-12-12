@@ -96,6 +96,12 @@ playlistPlugin.setPlaylist([{
   poster: 'http://media.w3.org/2010/05/video/poster.png'
 }]);
 
+// Load the first playlist item
+playlistPlugin.loadItem(0);
+
+// Play the first item. While auto-advance is enabled, subsequent play() calls will happen automatically.
+player.play();
+
 // Programatically modify playlist behaviors set at initialization
 
 // Disable autoadvance (videos will not automatically progress to the next one)

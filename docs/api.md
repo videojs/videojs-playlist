@@ -43,7 +43,7 @@ interface PlaylistItem {
 ```
 
 ## Plugin Methods
-### `setPlaylist(items: Array<Object>, index?: number) -> Array<PlaylistItem>`
+### `setPlaylist(items: Array<Object>) -> Array<PlaylistItem>`
 
 Sets the current playlist for a player.
 
@@ -55,13 +55,12 @@ Sets the current playlist for a player.
   * `poster` (`string`, optional): An optional URL string pointing to the image displayed before the video plays.
   * `textTracks` (`Array<Object>`, optional): An optional array of text track objects that follow the structure of the Video.js [TextTrack](https://docs.videojs.com/texttrack) object.
   * Additional properties (like `title` or `description`) can be included, but note that the plugin will not utilize these properties. They can be used for custom implementations or metadata storage.
-* `index` (`number`, optional): The starting index in the playlist from which playback should begin. If omitted, the first video is loaded. If `-1`, no video is loaded.
 
 #### Returns
 * Returns the entire playlist array of `PlaylistItem` objects. If none of the provided items were valid, the previous state of the playlist array is returned.
 
 #### Events
-* Fires a `playlistchange` event after the contents of the playlist are changed and the current playlist item is set. This is triggered asynchronously as to not interrupt the loading of the first video.
+* Fires a `playlistchange` event after the contents of the playlist are changed.
 
 #### Example
 ```js
@@ -99,6 +98,9 @@ Retrieves the current playlist from the player.
 ### `removePlaylist()`
 Removes the currently loaded playlist without removing the current source. This puts the player back in a single video playback state.
 
+#### Events
+* Fires a `playlistchange` event after the contents of the playlist are changed.
+
 ### `setAutoadvanceDelay(delay?: number | null)`
 Sets the auto-advance delay for the playlist or disables auto-advance. When a video ends, the playlist will automatically advance to the next video after the specified delay. Calling this method with null or without any argument cancels auto-advance.
 
@@ -123,15 +125,15 @@ Retrieves the current repeat mode status of the playlist.
 #### Returns
 * Returns true if repeat mode is currently enabled, and false otherwise.
 
-### `setCurrentItem(index: Number) -> boolean`
-Sets the current playlist item based on the given index. The method attempts to load and play the playlist item at the specified index.
+### `loadItem(index: Number) -> boolean`
+Loads a playlist item based on the given index. This method only loads a source, poster, and text tracks for a given item. Playback must be initiated by calling `player.play()`
 
 #### Events
 * Fires a `beforeplaylistitem` before the specified item is loaded
-* Fires a `playlistitem` after the specified item is loaded but before it is played
+* Fires a `playlistitem` after the specified item is loaded
 
 #### Parameters
-* `index` (`number`): The index of the item to play in the playlist.
+* `index` (`number`): The index of the item to load in the playlist.
 
 #### Returns
 * Returns true if the current item is successfully set, and false otherwise (e.g., if the index is out of bounds).
@@ -166,46 +168,45 @@ Gets the index of the previous item in the playlist.
 #### Returns
 * Returns the index of the previous item. If at the beginning of the playlist and repeat is enabled, it returns the last index. If repeat is disabled, it returns -1.
 
-### `first() -> boolean`
-Sets the first item in the playlist as the current item.
+### `loadFirst() -> boolean`
+Loads the first item in the playlist into the player.
 
 #### Returns
 * Returns true if the first item is successfully set as the current item. Returns false otherwise (e.g., if the playlist is empty).
 
 #### Events
-* Fires a `beforeplaylistitem` before the first item is loaded
-* Fires a `playlistitem` after the first item is loaded but before it is played
+* Fires a `beforeplaylistitem` before the first item is loaded.
+* Fires a `playlistitem` after the first item is loaded.
 
-### `last() -> boolean`
-Sets the last item in the playlist as the current item.
+### `loadLast() -> boolean`
+Loads the last item in the playlist into the player.
 
 #### Returns
 * Returns true if the last item is successfully set as the current item. Returns false otherwise (e.g., if the playlist is empty).
 
 #### Events
-* Fires a `beforeplaylistitem` before the last item is loaded
-* Fires a `playlistitem` after the last item is loaded but before it is played
+* Fires a `beforeplaylistitem` before the last item is loaded.
+* Fires a `playlistitem` after the last item is loaded.
 
-### `next() -> boolean`
-Sets the next item in the playlist as the current item.
+### `loadNext() -> boolean`
+Loads the next item in the playlist into the player.
 
 #### Returns
-
 * Returns true if the next item is successfully set as the current item. If at the end of the playlist and repeat is not enabled, it returns false.
 
 #### Events
-* Fires a `beforeplaylistitem` before the next item is loaded
-* Fires a `playlistitem` after the next item is loaded but before it is played
+* Fires a `beforeplaylistitem` before the next item is loaded.
+* Fires a `playlistitem` after the next item is loaded.
 
-### `previous() -> boolean`
-Sets the previous item in the playlist as the current item.
+### `loadPrevious() -> boolean`
+Loads the previous item in the playlist into the player.
 
 #### Returns
 * Returns true if the previous item is successfully set as the current item. If at the beginning of the playlist and repeat is not enabled, it returns false.
 
 #### Events
-* Fires a `beforeplaylistitem` before the previous item is loaded
-* Fires a `playlistitem` after the previous item is loaded but before it is played
+* Fires a `beforeplaylistitem` before the previous item is loaded.
+* Fires a `playlistitem` after the previous item is loaded.
 
 ### `add(items: Object | Array<Object>, index?: number) -> Array<PlaylistItem>`
 Adds one or more items to the playlist at a specified index, or at the end if the index is not provided or invalid.
@@ -279,7 +280,7 @@ Fires a `playlistsorted` event after the playlist is shuffled internally.
 
 ## Events
 ### `playlistchange`
-Triggered whenever there is an entirely new playlist set. This event is fired after the `setPlaylist()` method successfully adds a new playlist.
+Triggered whenever there is an entirely new playlist set. This event is fired after the `setPlaylist()` method successfully adds a new playlist, or when `removePlaylist()` removes one.
 
 ```js
 player.on('playlistchange', () => {
