@@ -57,12 +57,7 @@ For full details on how to use the playlist plugin can be found in [the API docu
 const player = videojs('video');
 
 // Initialize the playlist plugin
-const playlistPlugin = player.playlist({
-  // Play through the playlist automatically with no delay between videos
-  autoadvanceDelay: 0,
-  // Loop the playlist back to the beginning after the last video 
-  repeat: true
-});
+const playlistPlugin = player.playlist();
 
 playlistPlugin.setPlaylist([{
   sources: [{
@@ -96,19 +91,17 @@ playlistPlugin.setPlaylist([{
   poster: 'http://media.w3.org/2010/05/video/poster.png'
 }]);
 
+// Enable autoadvance delay of 0 seconds (when a video finishes the playlist will immediately advance to the next one)
+playlistPlugin.setAutoadvanceDelay(0);
+
+// Enable repeat mode (the playlist will loop back to the first video after the last one has finished)
+playlistPlugin.enableRepeat();
+
 // Load the first playlist item
 playlistPlugin.loadItem(0);
 
 // Play the first item. While auto-advance is enabled, subsequent play() calls will happen automatically.
 player.play();
-
-// Programatically modify playlist behaviors set at initialization
-
-// Disable autoadvance (videos will not automatically progress to the next one)
-playlistPlugin.setAutoadvanceDelay(null);
-
-// Disable repeat mode (the playlist will not loop back to the first video after the last one)
-playlistPlugin.disableRepeat();
 ```
 
 ## License
