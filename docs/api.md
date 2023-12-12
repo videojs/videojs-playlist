@@ -331,7 +331,7 @@ player.on('playlistsorted', () => {
 ```
 
 ### `beforeplaylistitem`
-Triggered before switching to a new content source within a playlist (i.e., after any of `setCurrentItem()`, `first()`, or `last()`, `next()`, or `previous()` are called, but before the new source has been loaded and the player's state has been changed).
+Triggered before switching to a new content source within a playlist (i.e., after any of `loadItem()`, `loadFirst()`, or `loadLast()`, `loadNext()`, or `loadPrevious()` are called, but before the new source has been loaded and the player's state has been changed).
 
 #### Event Details
 * **Event Argument:** The current instance of `PlaylistItem` that is about to be loaded.
