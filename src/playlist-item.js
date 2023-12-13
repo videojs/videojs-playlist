@@ -61,7 +61,7 @@ export default class PlaylistItem {
    *        A Video.js Player instance.
    */
   addTextTracks(player) {
-    this.textTracks.forEach(player.addRemoteTextTrack.bind(this.player_));
+    this.textTracks.forEach(player.addRemoteTextTrack.bind(player));
   }
 
   /**
