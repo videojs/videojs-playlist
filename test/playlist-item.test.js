@@ -79,16 +79,16 @@ QUnit.test('load - triggers events in the correct order', function(assert) {
   assert.ok(beforePlaylistItemIndex < playlistItemIndex, "'beforeplaylistitem' is triggered before 'playlistitem'");
 });
 
-QUnit.test('addTextTracks - adds text tracks', function(assert) {
-  this.playlistItem.addTextTracks(this.player);
+QUnit.test('addTextTracks_ - adds text tracks', function(assert) {
+  this.playlistItem.addTextTracks_(this.player);
 
   assert.ok(this.player.addRemoteTextTrack.calledWith(this.fakeTextTracks[0]), 'Text track added');
 });
 
-QUnit.test('clearExistingTextTracks - removes text tracks', function(assert) {
+QUnit.test('PlaylistItem.clearExistingTextTracks_ - removes text tracks', function(assert) {
   this.player.remoteTextTracks = sinon.stub().returns(this.fakeTextTracks);
 
-  this.playlistItem.clearExistingTextTracks(this.player);
+  PlaylistItem.clearExistingTextTracks_(this.player);
 
   assert.ok(this.player.removeRemoteTextTrack.calledWith(this.fakeTextTracks[0]), 'Text track removed');
 });

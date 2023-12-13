@@ -33,7 +33,7 @@ QUnit.module('Playlist', {
   }
 });
 
-QUnit.test('processPlaylistItem - with valid item', function(assert) {
+QUnit.test('Playlist.processPlaylistItem - with valid item', function(assert) {
   const validItem = {
     sources: [
       { src: 'http://example.com/video.mp4', type: 'video/mp4' }
@@ -47,7 +47,7 @@ QUnit.test('processPlaylistItem - with valid item', function(assert) {
   assert.deepEqual(result.sources, validItem.sources, 'Sources of the returned PlaylistItem match the input');
 });
 
-QUnit.test('processPlaylistItem - with some invalid sources', function(assert) {
+QUnit.test('Playlist.processPlaylistItem - with some invalid sources', function(assert) {
   const itemWithInvalidSources = {
     sources: [
       { src: 'http://example.com/video.mp4', type: 'video/mp4' },
@@ -64,7 +64,7 @@ QUnit.test('processPlaylistItem - with some invalid sources', function(assert) {
   assert.ok(log.warn.calledOnce, 'Logs a warning for disregarded invalid sources');
 });
 
-QUnit.test('processPlaylistItem - with all invalid sources', function(assert) {
+QUnit.test('Playlist.processPlaylistItem - with all invalid sources', function(assert) {
   const itemWithAllInvalidSources = {
     sources: [
       { src: 'video.mp4' },
@@ -79,7 +79,7 @@ QUnit.test('processPlaylistItem - with all invalid sources', function(assert) {
   assert.ok(log.error.calledWith('Invalid playlist item: No valid sources were found.'), 'Logs an error for an item with no valid sources');
 });
 
-QUnit.test('processPlaylistItem - with incorrect item structure', function(assert) {
+QUnit.test('Playlist.processPlaylistItem - with incorrect item structure', function(assert) {
   // missing 'sources' array
   const invalidItem = {
     title: 'No Sources'
@@ -91,7 +91,7 @@ QUnit.test('processPlaylistItem - with incorrect item structure', function(asser
   assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Logs an error for incorrect item structure');
 });
 
-QUnit.test('processPlaylistItem - retains properties of the original item', function(assert) {
+QUnit.test('Playlist.processPlaylistItem - retains properties of the original item', function(assert) {
   const itemWithAdditionalProps = {
     sources: [{ src: 'http://example.com/video.mp4', type: 'video/mp4' }],
     title: 'Video with Additional Properties',

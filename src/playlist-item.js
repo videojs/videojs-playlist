@@ -3,6 +3,23 @@
  */
 export default class PlaylistItem {
   /**
+   * Clears all existing text tracks from the player associated with this playlist item.
+   *
+   * @param {Player} player
+   *        A Video.js Player instance.
+   */
+  static clearExistingTextTracks_(player) {
+    const textTracks = player.remoteTextTracks();
+    let i = textTracks && textTracks.length || 0;
+
+    // This uses a `while` loop rather than `forEach` because the
+    // `TextTrackList` object is a live DOM list (not an array).
+    while (i--) {
+      player.removeRemoteTextTrack(textTracks[i]);
+    }
+  }
+
+  /**
    * Creates an instance of the PlaylistItem class.
    *
    * @param {Object} videoProperties
@@ -42,13 +59,13 @@ export default class PlaylistItem {
     player.trigger('beforeplaylistitem', this);
 
     // Remove any textTracks from a previous item
-    this.clearExistingTextTracks(player);
+    PlaylistItem.clearExistingTextTracks_(player);
 
     player.poster(loadPoster ? this.poster : '');
     player.src(this.sources);
 
     player.ready(() => {
-      this.addTextTracks(player);
+      this.addTextTracks_(player);
 
       player.trigger('playlistitem', this);
     });
@@ -60,24 +77,7 @@ export default class PlaylistItem {
    * @param {Player} player
    *        A Video.js Player instance.
    */
-  addTextTracks(player) {
+  addTextTracks_(player) {
     this.textTracks.forEach(player.addRemoteTextTrack.bind(player));
-  }
-
-  /**
-   * Clears all existing text tracks from the player associated with this playlist item.
-   *
-   * @param {Player} player
-   *        A Video.js Player instance.
-   */
-  clearExistingTextTracks(player) {
-    const textTracks = player.remoteTextTracks();
-    let i = textTracks && textTracks.length || 0;
-
-    // This uses a `while` loop rather than `forEach` because the
-    // `TextTrackList` object is a live DOM list (not an array).
-    while (i--) {
-      player.removeRemoteTextTrack(textTracks[i]);
-    }
   }
 }
