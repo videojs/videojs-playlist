@@ -1,28 +1,52 @@
 import videojs from 'video.js';
-import PlaylistItem from './playlist-item.js';
-import AutoAdvance from './auto-advance.js';
-import {log, isIndexInBounds, randomize } from './utils.js';
-
-const Plugin = videojs.getPlugin('plugin');
-
-const defaults = {};
+import { isIndexInBounds, randomize } from './utils.js';
 
 /**
- * Represents an advanced playlist plugin for Video.js.
- * This class manages the playlist, handling operations like adding, removing, or updating items.
+ * This is standalone class that encapsulates all playlist logic that does not require a `player` instance
  */
-export default class Playlist extends Plugin {
+export default class Playlist extends videojs.EventTarget {
   /**
-   * Processes a single playlist item by validating its structure and sources.
+   * Creates a new Playlist instance from a given array of items.
    *
-   * @param {Object} item
-   *        The playlist item to be processed. It should be an object with a `sources` array.
-   * @return {PlaylistItem|null}
-   *          A PlaylistItem object with valid sources, or null if the item is invalid.
+   * @param {Object[]} items - An array of objects to initialize the playlist.
+   * @return {Playlist} A new Playlist instance populated with the given items.
    */
-  static processPlaylistItem(item) {
+  static from(items) {
+    const playlist = new Playlist();
+
+    playlist.set(items);
+
+    return playlist;
+  }
+
+  constructor() {
+    super();
+
+    this.list_ = [];
+    this.currentIndex_ = null;
+    this.repeat_ = false;
+    this.log_ = console;
+  }
+
+  /**
+   * Sets a custom logger, replacing the default console logger
+   *
+   * @param {Object} logger - An object that contains logging methods such as log, warn, error.
+   *                          This object should conform to the console interface.
+   */
+  setLogger(logger) {
+    this.log_ = logger;
+  }
+
+  /**
+   * Validates and sanitizes the structure and sources of a single playlist item
+   *
+   * @param {Object} item - The playlist item to be processed. It should be an object with a `sources` array.
+   * @return {Object|null} A sanitized playlist item object with valid sources, or null if the item is invalid.
+   */
+  sanitizePlaylistItem(item) {
     if (!item || typeof item !== 'object' || !Array.isArray(item.sources)) {
-      log.error('Invalid playlist item: Must be an object with a `sources` array.');
+      this.log_.error('Invalid playlist item: Must be an object with a `sources` array.');
       return null;
     }
 
@@ -33,78 +57,44 @@ export default class Playlist extends Plugin {
       typeof source.type === 'string');
 
     if (validSources.length === 0) {
-      log.error('Invalid playlist item: No valid sources were found.');
+      this.log_.error('Invalid playlist item: No valid sources were found.');
       return null;
     }
 
     if (validSources.length < item.sources.length) {
-      log.warn('Some invalid playlist item sources were disregarded.');
+      this.log_.warn('Some invalid playlist item sources were disregarded.');
     }
 
-    return new PlaylistItem(Object.assign({}, item, { sources: validSources }));
+    const { poster = '', textTracks = [] } = item;
+
+    return Object.assign({}, item, { poster, textTracks, sources: validSources });
   }
 
   /**
-   * Create a Playlist plugin instance.
+   * Sets the playlist with a new list of items, overriding any existing items.
    *
-   * @param {Player} player
-   *        A Video.js Player instance.
-   *
-   * @param {Object} [options]
-   *        An optional options object.
-   *
+   * @param {Object[]} items - An array of objects to set as the new playlist.
+   * @return {Object[]} An array of the playlist items.
+   * @fires playlistchange - Triggered after the contents of the playlist are changed.
+   *                         This event indicates that the current playlist has been updated.
    */
-  constructor(player, options) {
-    // the parent class will add player under this.player
-    super(player);
-
-    this.options_ = videojs.obj.merge(defaults, options);
-    this.list_ = [];
-    this.currentIndex_ = null;
-    this.repeat_ = false;
-    this.autoAdvance_ = new AutoAdvance(this.player, () => {
-      const loadedNext = this.loadNext({ loadPoster: false });
-
-      if (loadedNext) {
-        this.player.play();
-      }
-    });
-
-    this.handleSourceChange_ = this.handleSourceChange_.bind(this);
-  }
-
-  /**
-   * Sets the playlist with a new list of items.
-   *
-   * @param {Object[]} items
-   *        An array of objects to set as the new playlist.
-   * @return {PlaylistItem[]}
-   *         An array of the playlist items.
-   * @fires playlistchange
-   *        Triggered after the contents of the playlist are changed.
-   *        This is triggered asynchronously as to not interrupt the loading of the first video.
-   */
-  setPlaylist(items) {
+  set(items) {
     if (!Array.isArray(items)) {
-      log.error('The playlist must be an array.');
+      this.log_.error('The playlist must be an array.');
       return [...this.list_];
     }
 
-    const playlistItems = items.map(Playlist.processPlaylistItem).filter(item => item !== null);
+    const playlistItems = items.map(this.sanitizePlaylistItem).filter(item => item !== null);
 
     if (playlistItems.length === 0) {
-      log.error('Cannot set the playlist as none of the provided playlist items were valid.');
+      this.log_.error('Cannot set the playlist as none of the provided playlist items were valid.');
       return [...this.list_];
     }
 
     // If we have valid items, proceed to set the new playlist
     this.list_ = playlistItems;
 
-    this.player.trigger('playlistchange');
-
-    // Begin handling non-playlist source changes. Remove any existing listeners first.
-    this.player.off('loadstart', this.handleSourceChange_);
-    this.player.on('loadstart', this.handleSourceChange_);
+    this.trigger('playlistchange');
 
     return [...this.list_];
   }
@@ -112,10 +102,9 @@ export default class Playlist extends Plugin {
   /**
    * Retrieves the current playlist.
    *
-   * @return {PlaylistItem[]}
-   *         The current list of playlist items.
+   * @return {Object[]} The current list of playlist items.
    */
-  getPlaylist() {
+  get() {
     // Return shallow clone of playlist array
     return [...this.list_];
   }
@@ -123,37 +112,11 @@ export default class Playlist extends Plugin {
   /**
    * Removes the current playlist in its entirety without unloading the currently loaded source
    */
-  removePlaylist() {
-    this.autoAdvance_.fullReset();
+  reset() {
     this.currentIndex_ = null;
     this.list_ = [];
 
-    // Stop handling non-playlist source changes
-    this.player.off('loadstart', this.handleSourceChange_);
-
-    this.player.trigger('playlistchange');
-  }
-
-  /**
-   * Sets the auto-advance delay for the playlist.
-   * When a video ends, the playlist will automatically advance to the next video after this delay.
-   *
-   * @param {number} delay
-   *        The delay in seconds before advancing to the next item.
-   *        If not a positive number, auto-advance is canceled.
-   */
-  setAutoadvanceDelay(delay) {
-    this.autoAdvance_.setDelay(delay);
-  }
-
-  /**
-   * Gets the auto-advance delay for the playlist.
-   *
-   * @return {number|null}
-   *         The delay in seconds before advancing to the next item, or null if auto-advance is disabled.
-   */
-  getAutoadvanceDelay() {
-    return this.autoAdvance_.getDelay();
+    this.trigger('playlistchange');
   }
 
   /**
@@ -164,7 +127,7 @@ export default class Playlist extends Plugin {
   }
 
   /**
-   * Disables repeat mode. When enabled, the playlist will not loop back to the first item after the last item.
+   * Disables repeat mode. When disabled, the playlist will not loop back to the first item after the last item.
    */
   disableRepeat() {
     this.repeat_ = false;
@@ -173,40 +136,25 @@ export default class Playlist extends Plugin {
   /**
    * Retrieves the current repeat mode status of the playlist.
    *
-   * @return {boolean}
-   *         True if repeat mode is enabled, false otherwise.
+   * @return {boolean} - True if repeat mode is enabled, false otherwise.
    */
   isRepeatEnabled() {
     return this.repeat_;
   }
 
   /**
-   * Loads a new current item based on the given index.
+   * Sets the current index to the specified value.
    *
-   * @param {number} index
-   *        The index of the item to load.
-   * @param {boolean} [options.loadPoster = true]
-   *        Whether or not to load the poster image
-   * @return {boolean}
-   *         Returns true if the current item is loaded, and false otherwise
+   * @param {number} index - The index to be set as the current index.
    */
-  loadItem(index, { loadPoster = true } = {}) {
-    if (!isIndexInBounds(this.list_, index)) {
-      log.error('Index is out of bounds.');
-      return false;
-    }
-
-    this.list_[index].load(this.player, { loadPoster });
+  setCurrentIndex(index) {
     this.currentIndex_ = index;
-
-    return true;
   }
 
   /**
-   * Retrieves the currently active PlaylistItem.
+   * Retrieves the currently active playlist item object.
    *
-   * @return {PlaylistItem|undefined}
-   *         The current PlaylistItem if available, or undefined if no current item.
+   * @return {Object|undefined} The current playlist item if available, or undefined if no current item.
    */
   getCurrentItem() {
     return this.list_[this.currentIndex_];
@@ -215,8 +163,7 @@ export default class Playlist extends Plugin {
   /**
   * Retrieves the index of the currently active item in the playlist.
   *
-  * @return {number}
-  *         The current item's index if available, or -1 if no current item.
+  * @return {number} The current item's index if available, or -1 if no current item.
   */
   getCurrentIndex() {
     if (this.currentIndex_ === null) {
@@ -229,9 +176,7 @@ export default class Playlist extends Plugin {
   /**
    * Get the index of the last item in the playlist.
    *
-   * @return {number}
-   *         The index of the last item in the playlist or -1 if there are no
-   *         items.
+   * @return {number} The index of the last item in the playlist or -1 if there are no items.
    */
   getLastIndex() {
     return this.list_.length ? this.list_.length - 1 : -1;
@@ -240,9 +185,8 @@ export default class Playlist extends Plugin {
   /**
    * Calculates the index of the next item in the playlist.
    *
-   * @return {number}
-   *         The index of the next item or -1 if at the end of the playlist
-   *         and repeat is not enabled.
+   * @return {number} The index of the next item or -1 if at the end of the playlist
+   *                  and repeat is not enabled.
    */
   getNextIndex() {
     if (this.currentIndex_ === null) {
@@ -257,9 +201,8 @@ export default class Playlist extends Plugin {
   /**
    * Calculates the index of the previous item in the playlist.
    *
-   * @return {number}
-   *         The index of the previous item or -1 if at the beginning of the playlist
-   *         and repeat is not enabled.
+   * @return {number} The index of the previous item or -1 if at the beginning of the playlist
+   *                  and repeat is not enabled.
    */
   getPreviousIndex() {
     if (this.currentIndex_ === null) {
@@ -272,106 +215,33 @@ export default class Playlist extends Plugin {
   }
 
   /**
-   * Loads the first item in the playlist.
-   *
-   * @param {boolean} [options.loadPoster = true]
-   *        Whether or not to load the poster image
-   * @return {boolean}
-   *         Returns true if the first item is set, and false otherwise
-   */
-  loadFirst({ loadPoster = true } = {}) {
-    return this.loadItem(0, { loadPoster });
-  }
-
-  /**
-   * Loads the last item in the playlist.
-   *
-   * @param {boolean} [options.loadPoster = true]
-   *        Whether or not to load the poster image
-   * @return {boolean}
-   *         Returns true if the last item is set, and false otherwise
-   */
-  loadLast({ loadPoster = true } = {}) {
-    const lastIndex = this.getLastIndex();
-
-    return this.loadItem(lastIndex, { loadPoster });
-  }
-
-  /**
-   * Loads the next item in the playlist.
-   *
-   * @param {boolean} [options.loadPoster = true]
-   *        Whether or not to load the poster image
-   * @return {boolean}
-   *         Returns true if the next item is set, and false otherwise
-   */
-  loadNext({ loadPoster = true } = {}) {
-    const nextIndex = this.getNextIndex();
-
-    // Check if we've reached the end of the playlist without repeating
-    if (nextIndex === -1) {
-      return false;
-    }
-
-    return this.loadItem(nextIndex, { loadPoster });
-  }
-
-  /**
-   * Loads the previous item in the playlist.
-   *
-   * @param {boolean} [options.loadPoster = true]
-   *        Whether or not to load the poster image
-   * @return {boolean}
-   *         Returns true if the previous item is set, and false otherwise
-   */
-  loadPrevious({ loadPoster = true } = {}) {
-    const previousIndex = this.getPreviousIndex();
-
-    // Check if we are on the first item and there is no previous index unless we are repeating
-    if (previousIndex === -1) {
-      return false;
-    }
-
-    return this.loadItem(previousIndex, { loadPoster });
-  }
-
-  /**
    * A custom DOM event that is fired when new item(s) are added to the current
    * playlist (rather than replacing the entire playlist).
    *
-   * Unlike playlistchange, this is fired synchronously as it does not
-   * affect playback.
-   *
    * @typedef  {Object} PlaylistAddEvent
    * @see      [CustomEvent Properties]{@link https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent}
-   * @property {string} type
-   *           Always "playlistadd"
+   * @property {string} type - Always "playlistadd"
    *
-   * @property {number} count
-   *           The number of items that were added.
+   * @property {number} count - The number of items that were added.
    *
-   * @property {number} index
-   *           The starting index where item(s) were added.
+   * @property {number} index - The starting index where item(s) were added.
    */
 
   /**
    * Adds one or more items to the playlist at the specified index or at the end if the index is not provided or invalid.
+   * If items is empty or contains only invalid items, no items are added, and an empty array is returned.
    *
-   * @param {Object|Object[]} items
-   *         The item or array of items to add.
-   * @param {number} [index]
-   *        The index at which to add the items. Defaults to the end of the playlist.
-   * @return {PlaylistItem[]}
-   *         The array of added playlist items.
-   * @fires playlistadd
-   *        Triggered when items are successfully added.
+   * @param {Object|Object[]} items - The item or array of items to add.
+   * @param {number} [index] - The index at which to add the items. Defaults to the end of the playlist.
+   * @return {Object[]} The array of added playlist items or an empty array if no valid items were provided.
+   * @fires playlistadd - Triggered when items are successfully added.
    */
   add(items, index) {
     if (!Array.isArray(items)) {
       if (typeof items === 'object' && items !== null) {
         items = [items];
       } else {
-        log.error('Provided items must be an object or an array of objects.');
+        this.log_.error('Provided items must be an object or an array of objects.');
         return [];
       }
     }
@@ -379,10 +249,10 @@ export default class Playlist extends Plugin {
     const resolvedIndex = (typeof index !== 'number' || index < 0 || index > this.list_.length) ? this.list_.length : index;
     const beforeItems = this.list_.slice(0, resolvedIndex);
     const afterItems = this.list_.slice(resolvedIndex);
-    const newItems = items.map(Playlist.processPlaylistItem).filter(item => item !== null);
+    const newItems = items.map(this.sanitizePlaylistItem).filter(item => item !== null);
 
     if (newItems.length === 0) {
-      log.error('Cannot add items to the playlist as none were valid.');
+      this.log_.error('Cannot add items to the playlist as none were valid.');
       return [];
     }
 
@@ -393,7 +263,7 @@ export default class Playlist extends Plugin {
       this.currentIndex_ += items.length;
     }
 
-    this.player.trigger({
+    this.trigger({
       type: 'playlistadd',
       count: newItems.length,
       index: resolvedIndex
@@ -410,36 +280,30 @@ export default class Playlist extends Plugin {
    *
    * @typedef  {Object} PlaylistRemoveEvent
    * @see      [CustomEvent Properties]{@link https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent}
-   * @property {string} type
-   *           Always "playlistremove"
+   * @property {string} type - Always "playlistremove"
    *
-   * @property {number} count
-   *           The number of items that were removed.
+   * @property {number} count - The number of items that were removed.
    *
-   * @property {number} index
-   *           The starting index where item(s) were removed.
+   * @property {number} index - The starting index where item(s) were removed.
    */
 
   /**
    * Removes a specified number of items from the playlist, starting at the given index.
+   * Adjusts the current index if it falls within the range of the removed items.
    *
-   * @param {number} index
-   *        The starting index to remove items from. If out of bounds, no removal occurs.
-   * @param {number} [count=1]
-   *        The number of items to remove. Defaults to 1. Removal only occurs if count is positive number.
-   * @return {PlaylistItem[]}
-   *         An array of the removed playlist items.
-   * @fires playlistremove
-   *        Triggered when items are successfully removed.
+   * @param {number} index - The starting index to remove items from. If out of bounds, no removal occurs.
+   * @param {number} [count=1] - The number of items to remove. Defaults to 1. Removal occurs only if count is a positive number.
+   * @return {Object[]} An array of the removed playlist items.
+   * @fires playlistremove - Triggered when items are successfully removed.
    */
   remove(index, count = 1) {
     if (!isIndexInBounds(this.list_, index)) {
-      log.error('Index is out of bounds.');
+      this.log_.error('Index is out of bounds.');
       return [];
     }
 
     if (typeof count !== 'number' || count < 0) {
-      log.error('Invalid count for removal.');
+      this.log_.error('Invalid count for removal.');
       return [];
     }
 
@@ -449,7 +313,7 @@ export default class Playlist extends Plugin {
 
     this.adjustCurrentIndexAfterRemoval_(index, actualCount);
 
-    this.player.trigger({
+    this.trigger({
       type: 'playlistremove',
       count: actualCount,
       index
@@ -459,58 +323,11 @@ export default class Playlist extends Plugin {
   }
 
   /**
-   * Adjusts the current index after items have been removed from the playlist.
-   *
-   * @param {number} index
-   *        The starting index from which items were removed.
-   * @param {number} actualCount
-   *        The actual number of items removed.
-   */
-  adjustCurrentIndexAfterRemoval_(index, actualCount) {
-    // If the removals are happening after the current item, no index adjustment is needed
-    if (this.currentIndex_ < index) {
-      return;
-    }
-
-    // Removals are happening before the current item, but the current item is not within the removed range
-    if (this.currentIndex_ >= index + actualCount) {
-      this.currentIndex_ -= actualCount;
-      return;
-    }
-
-    // The current item is within the removed range
-    this.currentIndex_ = index;
-    this.handleCurrentIndexWithinRemovedRange_();
-  }
-
-  /**
-   * Loads a new item when when the current one has been removed, if there is one to load.
-   */
-  handleCurrentIndexWithinRemovedRange_() {
-    // Load next available item if there is one.
-    // After the removal, the currentIndex_ now represents the first item after the removed range
-    if (this.list_.length > this.currentIndex_) {
-      this.loadItem(this.currentIndex_);
-
-    // Load first item if we are in repeat mode and the playlist still has items
-    } else if (this.repeat_ && this.list_.length > 0) {
-      this.first();
-
-    // Unload the current item source and reset the current index
-    } else {
-      this.currentIndex_ = null;
-      this.player.reset();
-    }
-  }
-
-  /**
    * Sorts the playlist array.
    *
    * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort}
-   * @param {Function} compare
-   *        A comparator function as per the native Array method.
-   * @fires playlistsorted
-   *        Triggered after the playlist is sorted internally.
+   * @param {Function} compare - A comparator function as per the native Array method.
+   * @fires playlistsorted - Triggered after the playlist is sorted internally.
    */
   sort(compare) {
     if (!this.list_.length || typeof compare !== 'function') {
@@ -524,14 +341,13 @@ export default class Playlist extends Plugin {
     // Update the current index after sorting
     this.currentIndex_ = this.list_.indexOf(currentItem);
 
-    this.player.trigger('playlistsorted');
+    this.trigger('playlistsorted');
   }
 
   /**
    * Reverses the order of the items in the playlist.
    *
-   * @fires playlistsorted
-   *        Triggered after the playlist is sorted internally.
+   * @fires playlistsorted - Triggered after the playlist is sorted internally.
    */
   reverse() {
     if (!this.list_.length) {
@@ -543,18 +359,15 @@ export default class Playlist extends Plugin {
     // Invert the current index
     this.currentIndex_ = this.list_.length - 1 - this.currentIndex_;
 
-    this.player.trigger('playlistsorted');
+    this.trigger('playlistsorted');
   }
 
   /**
    * Shuffle the contents of the list randomly.
+   * If 'rest' is true, only items after the current item are shuffled.
    *
-   * @param {Object} [options]
-   *        An object containing shuffle options.
-   * @param {boolean} [options.rest = true]
-   *        Shuffle only items after the current item.
-   * @fires playlistsorted
-   *        Triggered after the playlist is sorted internally.
+   * @param {boolean} [options.rest = true] - Shuffle only items after the current item.
+   * @fires playlistsorted - Triggered after the playlist is sorted internally.
    */
   shuffle({ rest = true } = {}) {
     const startIndex = rest ? this.currentIndex_ + 1 : 0;
@@ -577,37 +390,30 @@ export default class Playlist extends Plugin {
     // Set the new index of the current item
     this.currentIndex_ = this.list_.indexOf(currentItem);
 
-    this.player.trigger('playlistsorted');
+    this.trigger('playlistsorted');
   }
 
   /**
-   * Handles source changes for non-playlist sources
-   */
-  handleSourceChange_() {
-    const currentSrc = this.player.currentSrc();
-
-    if (!this.isSourceInPlaylist_(currentSrc)) {
-      this.handleNonPlaylistSource_();
-    }
-  }
-
-  /**
-   * Checks if a given source URL is present in the current playlist.
+   * Adjusts the current index after items have been removed from the playlist.
+   * This method accounts for the removal position relative to the current index.
    *
-   * @param {string} src
-   *        The source URL to check.
-   * @return {boolean}
-   *         Returns true if the source is in the playlist, false otherwise.
+   * @param {number} index - The starting index from which items were removed.
+   * @param {number} actualCount - The actual number of items removed.
+   * @private
    */
-  isSourceInPlaylist_(src) {
-    return this.list_.some(item => item.sources.some(source => source.src === src));
-  }
+  adjustCurrentIndexAfterRemoval_(index, actualCount) {
+    // If the removals are happening after the current item, no index adjustment is needed
+    if (this.currentIndex_ < index) {
+      return;
+    }
 
-  /**
-   * Disables autoadvance and sets current index for non-playlist source
-   */
-  handleNonPlaylistSource_() {
-    this.autoAdvance_.fullReset();
+    // Removals are happening before the current item, but the current item is not within the removed range
+    if (this.currentIndex_ >= index + actualCount) {
+      this.currentIndex_ -= actualCount;
+      return;
+    }
+
+    // The current item is within the removed range
     this.currentIndex_ = null;
   }
 }

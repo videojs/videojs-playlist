@@ -2,6 +2,13 @@ import videojs from 'video.js';
 
 export const log = videojs.log.createLogger('videojs-playlist');
 
+/**
+ * Checks if the given index is within the bounds of the array.
+ *
+ * @param {Array} array - The array to check against.
+ * @param {number} index - The index to verify.
+ * @return {boolean} - Returns true if the index is a number and lies within the array's bounds, otherwise false.
+ */
 export const isIndexInBounds = (array, index) => {
   return typeof index === 'number' && index >= 0 && index < array.length;
 };

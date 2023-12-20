@@ -29,12 +29,6 @@ Install videojs-playlist via npm (preferred):
 $ npm install videojs-playlist
 ```
 
-Or Bower:
-
-```sh
-$ bower install videojs-playlist
-```
-
 ## Inclusion
 
 Include videojs-playlist on your website using the tool(s) of your choice.
@@ -57,9 +51,13 @@ For full details on how to use the playlist plugin can be found in [the API docu
 const player = videojs('video');
 
 // Initialize the playlist plugin
-const playlistPlugin = player.playlist();
+const playlistPlugin = player.playlistPlugin();
 
-playlistPlugin.setPlaylist([{
+// Retrieve the PlaylistPlugin class
+// This is used to access static methods of the PlaylistPlugin
+const PlaylistPluginClass = videojs.getPlugin('playlistPlugin');
+
+const videoList = [{
   sources: [{
     src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
     type: 'video/mp4'
@@ -77,30 +75,32 @@ playlistPlugin.setPlaylist([{
     type: 'video/mp4'
   }],
   poster: 'http://www.videojs.com/img/poster.jpg'
-}, {
-  sources: [{
-    src: 'http://media.w3.org/2010/05/bunny/movie.mp4',
-    type: 'video/mp4'
-  }],
-  poster: 'http://media.w3.org/2010/05/bunny/poster.png'
-}, {
-  sources: [{
-    src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
-    type: 'video/mp4'
-  }],
-  poster: 'http://media.w3.org/2010/05/video/poster.png'
-}]);
+}];
 
-// Enable autoadvance delay of 0 seconds (when a video finishes the playlist will immediately advance to the next one)
+// Create a new Playlist instance from the video list
+// This utilizes a static method of the PlaylistPlugin class to create a Playlist instance
+const playlist = PlaylistPluginClass.createPlaylistFrom(videoList);
+
+// Playlist methods - Manage Playlist Content and Indexing
+// Methods under Playlist are focused on direct manipulation of the playlist content (add, remove, shuffle, reverse etc)
+// and controlling playlist indexing (getNextIndex, getPreviousIndex, enableRepeat, disableRepeat, etc), but not how the player uses the playlist
+playlist.add({
+  // video item details
+});
+playlist.remove(0);
+playlist.shuffle();
+playlist.reverse();
+playlist.enableRepeat();
+playlist.disableRepeat();
+
+// Plugin methods - Integrate Playlist with the Player
+// Methods under PlaylistPlugin are focused on how the playlist is used by the player
+// This includes loading the playlist into the player, handling playback, and setting auto-advance behavior
+playlistPlugin.loadPlaylist(playlist);
+playlistPlugin.loadFirstItem();
 playlistPlugin.setAutoadvanceDelay(0);
 
-// Enable repeat mode (the playlist will loop back to the first video after the last one has finished)
-playlistPlugin.enableRepeat();
-
-// Load the first playlist item
-playlistPlugin.loadItem(0);
-
-// Play the first item. While auto-advance is enabled, subsequent play() calls will happen automatically.
+// Play the currently loaded playlist item
 player.play();
 ```
 
