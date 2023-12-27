@@ -22,7 +22,7 @@ export default class AutoAdvance {
 
   /**
    * Sets the delay for auto-advance.
-   * If the delay is invalid or not a positive number, auto-advance is cancelled.
+   * If the delay is invalid or not zero or a positive number, auto-advance is cancelled.
    *
    * @param {number} seconds
    *        The delay in seconds before auto-advancing.
@@ -50,6 +50,8 @@ export default class AutoAdvance {
 
   /**
    * Starts the auto-advance timeout.
+   *
+   * @private
    */
   startTimeout_() {
     // Ensure we don't stack timeouts
@@ -72,6 +74,8 @@ export default class AutoAdvance {
 
   /**
    * Clears the current auto-advance timeout and removes the 'play' event listener.
+   *
+   * @private
    */
   clearTimeout_() {
     if (this.timeoutId_) {

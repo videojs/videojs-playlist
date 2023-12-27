@@ -35,7 +35,7 @@ QUnit.module('videojs-playlist', {
 
 QUnit.test('registers itself with video.js', function(assert) {
   assert.strictEqual(
-    typeof Player.prototype.playlist,
+    typeof Player.prototype.playlistPlugin,
     'function',
     'playlist plugin was registered'
   );

@@ -1,13 +1,13 @@
 import videojs from 'video.js';
 import Playlist from './playlist.js';
 import AutoAdvance from './auto-advance.js';
-import { log } from './utils.js';
+import { isIndexInBounds, log } from './utils.js';
 
 const Plugin = videojs.getPlugin('plugin');
 
 export default class PlaylistPlugin extends Plugin {
   /**
-   * Creates a playlist from an array of items.
+   * Creates a new Playlist instance from an array of items.
    *
    * @param {Object[]} items - The array of playlist items.
    * @return {Playlist} The created Playlist instance.
@@ -25,8 +25,8 @@ export default class PlaylistPlugin extends Plugin {
   constructor(player, options) {
     super(player);
 
-    this.playlist_ = undefined;
-    this.autoAdvance_ = undefined;
+    this.playlist_ = null;
+    this.autoAdvance_ = null;
     this.handleSourceChange_ = this.handleSourceChange_.bind(this);
   }
 
@@ -51,6 +51,10 @@ export default class PlaylistPlugin extends Plugin {
    * Unloads the current playlist and associated functionality.
    */
   unloadPlaylist() {
+    if (!this.playlist_ || !this.autoAdvance_) {
+      return;
+    }
+
     this.playlist_.reset();
     this.autoAdvance_.fullReset();
 
@@ -92,19 +96,14 @@ export default class PlaylistPlugin extends Plugin {
    * @return {boolean} True if the item was loaded successfully, false otherwise.
    */
   loadPlaylistItem(index, { loadPoster = true } = {}) {
-    const playlistItems = this.playlist_.get();
+    const items = this.playlist_.get();
 
-    if (!playlistItems) {
+    if (!isIndexInBounds(items, index)) {
+      log.error('Index is out of bounds.');
       return false;
     }
 
-    const item = playlistItems[index];
-
-    if (!item) {
-      return false;
-    }
-
-    this.loadItem_(item, { loadPoster });
+    this.loadItem_(items[index], { loadPoster });
     this.playlist_.setCurrentIndex(index);
 
     return true;

@@ -26,6 +26,7 @@ export default class Playlist extends videojs.EventTarget {
     this.currentIndex_ = null;
     this.repeat_ = false;
     this.log_ = console;
+    this.sanitizePlaylistItem = this.sanitizePlaylistItem.bind(this);
   }
 
   /**
@@ -74,7 +75,7 @@ export default class Playlist extends videojs.EventTarget {
    * Sets the playlist with a new list of items, overriding any existing items.
    *
    * @param {Object[]} items - An array of objects to set as the new playlist.
-   * @return {Object[]} An array of the playlist items.
+   * @return {Object[]} A shallow clone of the array of the playlist items.
    * @fires playlistchange - Triggered after the contents of the playlist are changed.
    *                         This event indicates that the current playlist has been updated.
    */
@@ -102,10 +103,9 @@ export default class Playlist extends videojs.EventTarget {
   /**
    * Retrieves the current playlist.
    *
-   * @return {Object[]} The current list of playlist items.
+   * @return {Object[]} A shallow clone of the current list of playlist items.
    */
   get() {
-    // Return shallow clone of playlist array
     return [...this.list_];
   }
 
@@ -148,6 +148,11 @@ export default class Playlist extends videojs.EventTarget {
    * @param {number} index - The index to be set as the current index.
    */
   setCurrentIndex(index) {
+    if (!isIndexInBounds(this.list_, index)) {
+      this.log_.error('Cannot set index that is out of bounds.');
+      return;
+    }
+
     this.currentIndex_ = index;
   }
 
@@ -260,7 +265,7 @@ export default class Playlist extends videojs.EventTarget {
 
     // Update currentIndex if inserting new elements earlier in the array than the current item
     if (resolvedIndex <= this.currentIndex_) {
-      this.currentIndex_ += items.length;
+      this.currentIndex_ += newItems.length;
     }
 
     this.trigger({

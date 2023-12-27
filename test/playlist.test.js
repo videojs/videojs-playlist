@@ -3,8 +3,6 @@ import QUnit from 'qunit';
 import sinon from 'sinon';
 import videojs from 'video.js';
 import Playlist from '../src/playlist.js';
-import PlaylistItem from '../src/playlist-item.js';
-import AutoAdvance from '../src/auto-advance.js';
 import { log } from '../src/utils.js';
 
 QUnit.module('Playlist', {
@@ -21,10 +19,12 @@ QUnit.module('Playlist', {
     // Test data
     this.testItems = [
       { sources: [{ src: 'http://example.com/video1.mp4', type: 'video/mp4' }], title: 'Video 1' },
-      { sources: [{ src: 'http://example.com/video2.mp4', type: 'video/mp4' }], title: 'Video 2' }
+      { sources: [{ src: 'http://example.com/video2.mp4', type: 'video/mp4' }], title: 'Video 2' },
+      { sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' }
     ];
 
-    this.playlist = new Playlist(this.player, {});
+    this.playlist = new Playlist();
+    this.playlist.setLogger(log);
   },
 
   afterEach() {
@@ -33,21 +33,32 @@ QUnit.module('Playlist', {
   }
 });
 
-QUnit.test('Playlist.processPlaylistItem - with valid item', function(assert) {
+QUnit.test('Playlist.from - returns a Playlist instance and calls set()', function(assert) {
+  const playlist = Playlist.from(this.testItems);
+
+  assert.ok(playlist instanceof Playlist, 'Should be an instance of Playlist');
+});
+
+QUnit.test('constructor initializes properties correctly', function(assert) {
+  assert.ok(Array.isArray(this.playlist.list_), 'list_ should be initialized as an array');
+  assert.equal(this.playlist.list_.length, 0, 'list_ should initially be empty');
+  assert.strictEqual(this.playlist.currentIndex_, null, 'currentIndex_ should initially be null');
+  assert.strictEqual(this.playlist.repeat_, false, 'repeat_ should be false by default');
+});
+
+QUnit.test('sanitizePlaylistItem - with valid item', function(assert) {
   const validItem = {
-    sources: [
-      { src: 'http://example.com/video.mp4', type: 'video/mp4' }
-    ],
+    sources: [{ src: 'http://example.com/video.mp4', type: 'video/mp4' }],
     title: 'Valid Video'
   };
 
-  const result = Playlist.processPlaylistItem(validItem);
+  const result = this.playlist.sanitizePlaylistItem(validItem);
 
-  assert.ok(result instanceof PlaylistItem, 'Returns a PlaylistItem for a valid item');
-  assert.deepEqual(result.sources, validItem.sources, 'Sources of the returned PlaylistItem match the input');
+  assert.deepEqual(result.sources, validItem.sources, 'Sources of the returned item match the input');
+  assert.strictEqual(result.title, validItem.title, 'Title property is retained');
 });
 
-QUnit.test('Playlist.processPlaylistItem - with some invalid sources', function(assert) {
+QUnit.test('sanitizePlaylistItem - with some invalid sources', function(assert) {
   const itemWithInvalidSources = {
     sources: [
       { src: 'http://example.com/video.mp4', type: 'video/mp4' },
@@ -56,42 +67,35 @@ QUnit.test('Playlist.processPlaylistItem - with some invalid sources', function(
     title: 'Mixed Sources'
   };
 
-  const result = Playlist.processPlaylistItem(itemWithInvalidSources);
+  const result = this.playlist.sanitizePlaylistItem(itemWithInvalidSources);
 
-  assert.ok(result instanceof PlaylistItem, 'Returns a PlaylistItem even with some invalid sources');
   assert.equal(result.sources.length, 1, 'Only includes valid sources');
   assert.deepEqual(result.sources[0], itemWithInvalidSources.sources[0], 'Includes the correct valid source');
   assert.ok(log.warn.calledOnce, 'Logs a warning for disregarded invalid sources');
 });
 
-QUnit.test('Playlist.processPlaylistItem - with all invalid sources', function(assert) {
+QUnit.test('sanitizePlaylistItem - with all invalid sources', function(assert) {
   const itemWithAllInvalidSources = {
-    sources: [
-      { src: 'video.mp4' },
-      { type: 'video/mp4' }
-    ],
+    sources: [{ src: 'video.mp4' }, { type: 'video/mp4' }],
     title: 'Invalid Sources'
   };
 
-  const result = Playlist.processPlaylistItem(itemWithAllInvalidSources);
+  const result = this.playlist.sanitizePlaylistItem(itemWithAllInvalidSources);
 
   assert.strictEqual(result, null, 'Returns null for an item with all invalid sources');
   assert.ok(log.error.calledWith('Invalid playlist item: No valid sources were found.'), 'Logs an error for an item with no valid sources');
 });
 
-QUnit.test('Playlist.processPlaylistItem - with incorrect item structure', function(assert) {
-  // missing 'sources' array
-  const invalidItem = {
-    title: 'No Sources'
-  };
+QUnit.test('sanitizePlaylistItem - with incorrect item structure', function(assert) {
+  const invalidItem = { title: 'No Sources' };
 
-  const result = Playlist.processPlaylistItem(invalidItem);
+  const result = this.playlist.sanitizePlaylistItem(invalidItem);
 
   assert.strictEqual(result, null, 'Returns null for an item with incorrect structure');
   assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Logs an error for incorrect item structure');
 });
 
-QUnit.test('Playlist.processPlaylistItem - retains properties of the original item', function(assert) {
+QUnit.test('sanitizePlaylistItem - retains properties of the original item', function(assert) {
   const itemWithAdditionalProps = {
     sources: [{ src: 'http://example.com/video.mp4', type: 'video/mp4' }],
     title: 'Video with Additional Properties',
@@ -99,118 +103,79 @@ QUnit.test('Playlist.processPlaylistItem - retains properties of the original it
     customProperty: 'Custom Value'
   };
 
-  const result = Playlist.processPlaylistItem(itemWithAdditionalProps);
+  const result = this.playlist.sanitizePlaylistItem(itemWithAdditionalProps);
 
-  assert.ok(result instanceof PlaylistItem, 'Returns a PlaylistItem for a valid item');
   assert.strictEqual(result.title, itemWithAdditionalProps.title, 'Retains the title property');
   assert.strictEqual(result.description, itemWithAdditionalProps.description, 'Retains the description property');
   assert.strictEqual(result.customProperty, itemWithAdditionalProps.customProperty, 'Retains custom properties');
 });
 
-QUnit.test('constructor initializes properties correctly', function(assert) {
-  assert.ok(Array.isArray(this.playlist.list_), 'list_ should be initialized as an array');
-  assert.equal(this.playlist.list_.length, 0, 'list_ should initially be empty');
-  assert.strictEqual(this.playlist.currentIndex_, null, 'currentIndex_ should initially be null');
-  assert.ok(this.playlist.autoAdvance_ instanceof AutoAdvance, 'autoAdvance_ should be an instance of AutoAdvance');
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'autoAdvance_ delay should be null by default after playlist initialization');
-  assert.strictEqual(this.playlist.repeat_, false, 'repeat_ should be false by default');
+QUnit.test('set - valid input should set playlist correctly', function(assert) {
+  const result = this.playlist.set(this.testItems);
+
+  assert.equal(result.length, this.testItems.length, 'Should return array with the correct number of items');
+  assert.deepEqual(result[0].sources, this.testItems[0].sources, 'First item sources should match');
+  assert.deepEqual(result[1].sources, this.testItems[1].sources, 'Second item sources should match');
 });
 
-QUnit.test('setPlaylist - valid input should set playlist correctly', function(assert) {
-  const playlist = this.playlist.setPlaylist(this.testItems);
-
-  assert.equal(playlist.length, this.testItems.length, 'Should return array with the correct number of items');
-  assert.equal(this.playlist.list_.length, this.testItems.length, 'Playlist should have the correct number of items');
-  assert.deepEqual(this.playlist.list_[0].sources, this.testItems[0].sources, 'First item sources should match');
-  assert.deepEqual(this.playlist.list_[1].sources, this.testItems[1].sources, 'Second item sources should match');
-  assert.equal(this.playlist.currentIndex_, null, 'currentIndex_ should be null until item is loaded');
-});
-
-QUnit.test('setPlaylist - should log error and return if items is not an array', function(assert) {
-  const playlist = this.playlist.setPlaylist('not an array');
+QUnit.test('set - should log error and return if items is not an array', function(assert) {
+  const result = this.playlist.set('not an array');
 
   assert.ok(log.error.calledWith('The playlist must be an array.'), 'Should log error for non-array input');
-  assert.equal(playlist.length, 0, 'Should return empty array if playlist has not been set');
+  assert.deepEqual(result, [], 'Should return an empty array if items are not valid');
 });
 
-QUnit.test('setPlaylist - should handle invalid item by logging error and continuing', function(assert) {
+QUnit.test('set - should handle invalid item by logging error and continuing', function(assert) {
   const invalidItem = { sources: 'invalid' };
   const combinedItems = [this.testItems[0], invalidItem, this.testItems[1]];
 
-  const playlist = this.playlist.setPlaylist(combinedItems);
+  const result = this.playlist.set(combinedItems);
 
   assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Should log error for invalid item');
-  assert.equal(playlist.length, 2, 'Should return array of correct length');
-  assert.equal(this.playlist.list_.length, 2, 'Should only add valid items to playlist');
+  assert.equal(result.length, 2, 'Should return array of correct length');
 });
 
-QUnit.test('setPlaylist - should log error when all provided items are invalid', function(assert) {
-  const invalidItems = [
-    { sources: 'invalid0' },
-    { sources: 'invalid1' },
-    { sources: 'invalid2' }
-  ];
+QUnit.test('set - should log error when all provided items are invalid', function(assert) {
+  const invalidItems = [{ sources: 'invalid0' }, { sources: 'invalid1' }, { sources: 'invalid2' }];
 
-  // Set a valid playlist initially
-  const playlist = this.playlist.setPlaylist(this.testItems);
+  const result = this.playlist.set(invalidItems);
 
-  assert.equal(playlist.length, this.testItems.length, 'Should return array with valid items');
-  assert.notOk(log.error.calledWith('Cannot set the playlist as none of the provided playlist items were valid.'), 'Should not log error if valid items are passed');
-  assert.equal(this.playlist.list_.length, this.testItems.length, 'Playlist should have the correct number of items');
-
-  // Now set an invalid playlist
-  this.playlist.setPlaylist(invalidItems);
-  assert.equal(playlist.length, this.testItems.length, 'Should return previous array of valid items');
   assert.ok(log.error.calledWith('Cannot set the playlist as none of the provided playlist items were valid.'), 'Should log error when all items invalid');
-  assert.strictEqual(this.playlist.list_.length, this.testItems.length, 'Playlist should be unchanged');
+  assert.deepEqual(result, [], 'Should return an empty array if all items are invalid');
 });
 
-QUnit.test('setPlaylist - should trigger playlistchange events with correct properties', function(assert) {
+QUnit.test('set - should trigger playlistchange events with correct properties', function(assert) {
   const spy = sinon.spy();
 
-  this.player.on('playlistchange', spy);
+  this.playlist.on('playlistchange', spy);
 
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
-  assert.ok(spy.calledOnce, 'playlistchange event should not be triggered yet');
+  assert.ok(spy.calledOnce, 'playlistchange event should be triggered');
 });
 
-QUnit.test('setPlaylist - manages loadstart listener correctly', function(assert) {
-  this.player.off = sinon.spy();
-  this.player.on = sinon.spy();
-
-  // First call to setPlaylist
-  this.playlist.setPlaylist(this.testItems);
-  assert.ok(this.player.on.calledWith('loadstart', this.playlist.handleSourceChange_), 'loadstart listener should be added on first call');
-  assert.equal(this.player.on.callCount, 1, 'loadstart listener should be added once');
-
-  // Second call to setPlaylist
-  this.playlist.setPlaylist(this.testItems);
-  assert.ok(this.player.off.calledWith('loadstart', this.playlist.handleSourceChange_), 'Existing loadstart listener should be removed on second call');
-  assert.equal(this.player.on.callCount, 2, 'loadstart listener should be added again on second call');
-});
-
-QUnit.test('getPlaylist - returns an empty array for a new playlist', function(assert) {
-  const playlistItems = this.playlist.getPlaylist();
+QUnit.test('get - returns an empty array for a new playlist', function(assert) {
+  const playlistItems = this.playlist.get();
 
   assert.ok(Array.isArray(playlistItems), 'Returned value should be an array');
   assert.strictEqual(playlistItems.length, 0, 'New playlist should be empty');
 });
 
-QUnit.test('getPlaylist - returns all items in the playlist', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+QUnit.test('get - returns all items in the playlist', function(assert) {
+  this.playlist.set(this.testItems);
 
-  const playlistItems = this.playlist.getPlaylist();
+  const playlistItems = this.playlist.get();
 
   assert.strictEqual(playlistItems.length, this.testItems.length, 'Returned playlist should have the same number of items');
   assert.deepEqual(playlistItems[0].sources, this.testItems[0].sources, 'First item should match');
   assert.deepEqual(playlistItems[1].sources, this.testItems[1].sources, 'Second item should match');
+  assert.deepEqual(playlistItems[2].sources, this.testItems[2].sources, 'Third item should match');
 });
 
-QUnit.test('getPlaylist - returns a shallow clone of the playlist', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+QUnit.test('get - returns a shallow clone of the playlist', function(assert) {
+  this.playlist.set(this.testItems);
 
-  const playlistItems = this.playlist.getPlaylist();
+  const playlistItems = this.playlist.get();
 
   assert.notStrictEqual(playlistItems, this.playlist.list_, 'Returned playlist should not be the original array');
 
@@ -219,69 +184,22 @@ QUnit.test('getPlaylist - returns a shallow clone of the playlist', function(ass
   assert.strictEqual(this.playlist.list_.length, this.testItems.length, 'Original playlist should remain unchanged');
 });
 
-QUnit.test('removePlaylist - removes the playlist correctly', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+QUnit.test('reset - clears the playlist, resets currentIndex_, and triggers playlistchange event', function(assert) {
+  const spy = sinon.spy();
 
-  this.playlist.autoAdvance_.fullReset = sinon.spy();
-  this.player.off = sinon.spy();
-  this.player.trigger = sinon.spy();
+  this.playlist.on('playlistchange', spy);
+  this.playlist.set(this.testItems);
 
-  this.playlist.removePlaylist();
+  // Set currentIndex_ to a non-null value
+  this.playlist.currentIndex_ = 0;
 
-  assert.ok(this.playlist.autoAdvance_.fullReset.calledOnce, 'autoAdvance_.fullReset() should be called');
-  assert.strictEqual(this.playlist.currentIndex_, null, 'currentIndex_ should be null after removal');
-  assert.deepEqual(this.playlist.list_, [], 'list_ should be empty after removal');
-  assert.ok(this.player.off.calledWith('loadstart', this.playlist.handleSourceChange_), 'Event listener for loadstart should be removed');
-  assert.ok(this.player.trigger.calledWith('playlistchange'), 'playlistchange event should be triggered asynchronously');
-});
+  this.playlist.reset();
 
-QUnit.test('setAutoadvanceDelay - sets delay correctly', function(assert) {
-  this.playlist.setAutoadvanceDelay(5);
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be set to 5 seconds');
+  this.clock.tick(1);
 
-  this.playlist.setAutoadvanceDelay(0);
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, 0, 'Delay should be set to 0 seconds (immediate advance)');
-});
-
-QUnit.test('setAutoadvanceDelay - cancels auto-advance on invalid input', function(assert) {
-  // Set valid value initially
-  this.playlist.setAutoadvanceDelay(5);
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be set to 5 seconds initially');
-
-  this.playlist.setAutoadvanceDelay(-1);
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'Negative delay should cancel auto-advance');
-
-  // Reset to valid value
-  this.playlist.setAutoadvanceDelay(5);
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be reset to 5 seconds');
-
-  this.playlist.setAutoadvanceDelay('invalid');
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'Non-numeric delay should cancel auto-advance');
-
-  // Reset to valid value
-  this.playlist.setAutoadvanceDelay(5);
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be reset to 5 seconds');
-
-  this.playlist.setAutoadvanceDelay(null);
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'Null delay should cancel auto-advance');
-
-  // Reset to valid value
-  this.playlist.setAutoadvanceDelay(5);
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, 5, 'Delay should be reset to 5 seconds');
-
-  this.playlist.setAutoadvanceDelay();
-  assert.strictEqual(this.playlist.autoAdvance_.delay_, null, 'Undefined delay should cancel auto-advance');
-});
-
-QUnit.test('getAutoadvanceDelay - gets delay correctly', function(assert) {
-  this.playlist.setAutoadvanceDelay(5);
-  assert.strictEqual(this.playlist.getAutoadvanceDelay(), 5, 'Delay should be set to 5 seconds');
-
-  this.playlist.setAutoadvanceDelay(0);
-  assert.strictEqual(this.playlist.getAutoadvanceDelay(), 0, 'Delay should be set to 0 seconds');
-
-  this.playlist.setAutoadvanceDelay(null);
-  assert.strictEqual(this.playlist.getAutoadvanceDelay(), null, 'Delay should be set to 0 seconds');
+  assert.deepEqual(this.playlist.list_, [], 'Playlist should be empty after reset');
+  assert.strictEqual(this.playlist.currentIndex_, null, 'currentIndex_ should be null after reset');
+  assert.ok(spy.calledTwice, 'playlistchange event should be triggered once for set() and again after reset()');
 });
 
 QUnit.test('enableRepeat/disableRepeat - set repeat mode correctly', function(assert) {
@@ -300,51 +218,56 @@ QUnit.test('isRepeatEnabled - retrieves the current repeat mode status', functio
   assert.strictEqual(this.playlist.isRepeatEnabled(), false, 'Should return false when repeat mode is disabled');
 });
 
-QUnit.test('loadItem - loads the current item correctly', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+QUnit.test('setCurrentIndex - sets a valid index', function(assert) {
+  this.playlist.set(this.testItems);
 
-  const status = this.playlist.loadItem(1);
+  this.playlist.setCurrentIndex(0);
+  assert.strictEqual(this.playlist.currentIndex_, 0, 'currentIndex_ should be set correctly for a valid index');
 
-  assert.strictEqual(this.playlist.currentIndex_, 1, 'Current index should be set correctly');
-  assert.ok(status, 'Returns true if the item is set');
+  this.playlist.setCurrentIndex(1);
+  assert.strictEqual(this.playlist.currentIndex_, 1, 'currentIndex_ should be set correctly for a valid index');
+
+  this.playlist.setCurrentIndex(this.testItems.length - 1);
+  assert.strictEqual(this.playlist.currentIndex_, this.testItems.length - 1, 'currentIndex_ should be set correctly for a valid index');
 });
 
-QUnit.test('loadItem - logs error on invalid index', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  const status = this.playlist.loadItem(5);
+QUnit.test('setCurrentIndex - does not set an out-of-bounds index', function(assert) {
+  this.playlist.set(this.testItems);
 
-  assert.ok(log.error.calledWith('Index is out of bounds.'), 'Should log error for out-of-bounds index');
-  assert.strictEqual(this.playlist.currentIndex_, null, 'Current index should remain unchanged on invalid input');
-  assert.notOk(status, 'Returns false if the item is not set');
+  const outOfBoundsIndex = this.testItems.length;
+  const originalIndex = this.playlist.currentIndex_;
+
+  this.playlist.setCurrentIndex(outOfBoundsIndex);
+
+  assert.strictEqual(this.playlist.currentIndex_, originalIndex, 'currentIndex_ should not change for an out-of-bounds index');
+  assert.ok(log.error.calledWith('Cannot set index that is out of bounds.'), 'Should log an error for an out-of-bounds index');
 });
 
-QUnit.test('getCurrentItem - retrieves the correct PlaylistItem', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  this.playlist.loadItem(0);
+QUnit.test('getCurrentItem - retrieves the correct playlist item', function(assert) {
+  this.playlist.set(this.testItems);
+  this.playlist.setCurrentIndex(0);
 
-  assert.ok(this.playlist.getCurrentItem() instanceof PlaylistItem, 'Should return an instance of PlaylistItem');
-  assert.strictEqual(this.playlist.getCurrentItem(), this.playlist.list_[0], 'Should return the correct PlaylistItem for the initial index');
+  assert.strictEqual(this.playlist.getCurrentItem(), this.playlist.list_[0], 'Should return the correct playlist item for the initial index');
 
-  this.playlist.loadItem(1);
-  assert.ok(this.playlist.getCurrentItem() instanceof PlaylistItem, 'Should return an instance of PlaylistItem');
-  assert.strictEqual(this.playlist.getCurrentItem(), this.playlist.list_[1], 'Should return the correct PlaylistItem for the current index');
+  this.playlist.setCurrentIndex(1);
+  assert.strictEqual(this.playlist.getCurrentItem(), this.playlist.list_[1], 'Should return the correct playlist item for the current index');
 });
 
 QUnit.test('getCurrentItem - returns undefined when no current item', function(assert) {
   assert.strictEqual(this.playlist.getCurrentItem(), undefined, 'Should return undefined when no playlist set');
 
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
   assert.strictEqual(this.playlist.getCurrentItem(), undefined, 'Should still return undefined when no item loaded');
 });
 
 QUnit.test('getCurrentIndex - returns the correct current index', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  this.playlist.loadItem(0);
+  this.playlist.set(this.testItems);
+  this.playlist.setCurrentIndex(0);
 
   assert.equal(this.playlist.getCurrentIndex(), 0, 'Should return the correct current index');
 
-  this.playlist.loadItem(1);
+  this.playlist.setCurrentIndex(1);
   assert.equal(this.playlist.getCurrentIndex(), 1, 'Should return the correct current index');
 });
 
@@ -353,20 +276,20 @@ QUnit.test('getCurrentIndex - returns -1 if no current item is set', function(as
 });
 
 QUnit.test('getLastIndex - returns the index of the last item', function(assert) {
-  this.playlist.setPlaylist([]);
+  this.playlist.set([]);
   assert.equal(this.playlist.getLastIndex(), -1, 'Should return -1 if the playlist is empty');
 
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
   assert.equal(this.playlist.getLastIndex(), this.testItems.length - 1, 'Should return the index of the last item');
 });
 
 QUnit.test('getNextIndex - returns the correct next index', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
-  this.playlist.loadItem(0);
+  this.playlist.setCurrentIndex(0);
   assert.equal(this.playlist.getNextIndex(), 1, 'Should return the next index');
 
-  this.playlist.loadItem(this.testItems.length - 1);
+  this.playlist.setCurrentIndex(this.testItems.length - 1);
   assert.equal(this.playlist.getNextIndex(), -1, 'Should return -1 if at the end and repeat is not enabled');
 
   this.playlist.enableRepeat();
@@ -378,12 +301,12 @@ QUnit.test('getNextIndex - returns -1 if no current item is set', function(asser
 });
 
 QUnit.test('getPreviousIndex - returns the correct previous index', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
-  this.playlist.loadItem(1);
+  this.playlist.setCurrentIndex(1);
   assert.equal(this.playlist.getPreviousIndex(), 0, 'Should return the previous index');
 
-  this.playlist.loadItem(0);
+  this.playlist.setCurrentIndex(0);
   assert.equal(this.playlist.getPreviousIndex(), -1, 'Should return -1 if at the beginning and repeat is not enabled');
 
   this.playlist.enableRepeat();
@@ -394,169 +317,45 @@ QUnit.test('getPreviousIndex - returns -1 if no current item is set', function(a
   assert.equal(this.playlist.getPreviousIndex(), -1, 'Should return -1 if no current item is set');
 });
 
-QUnit.test('loadFirst - sets the first item as current', function(assert) {
-  // Set initial index as something other than first item
-  this.playlist.setPlaylist(this.testItems);
-
-  assert.equal(this.playlist.getCurrentIndex(), -1, 'The initial index is -1 before item loaded');
-
-  const status = this.playlist.loadFirst();
-
-  assert.equal(this.playlist.getCurrentIndex(), 0, 'The first index should be set');
-  assert.ok(status, 'Returns true if the item is set');
-});
-
-QUnit.test('loadFirst - does nothing if no playlist is set', function(assert) {
-  const status = this.playlist.loadFirst();
-
-  assert.equal(this.playlist.getCurrentIndex(), -1, 'Current item index still does not exist');
-  assert.notOk(status, 'Returns false if the item is not set');
-});
-
-QUnit.test('loadLast - sets the last item as current', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-
-  assert.equal(this.playlist.getCurrentIndex(), -1, 'The initial index is correct');
-
-  const status = this.playlist.loadLast();
-
-  assert.equal(this.playlist.getCurrentIndex(), 1, 'The last index should be set');
-  assert.ok(status, 'Returns true if the item is set');
-});
-
-QUnit.test('last - does nothing if no playlist is set', function(assert) {
-  const status = this.playlist.loadLast();
-
-  assert.equal(this.playlist.getCurrentIndex(), -1, 'Current item index still does not exist');
-  assert.notOk(status, 'Returns false if the item is not set');
-});
-
-QUnit.test('loadNext - advances to the next item', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  this.playlist.loadItem(0);
-
-  assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0');
-
-  const status = this.playlist.loadNext();
-
-  assert.equal(this.playlist.getCurrentIndex(), 1, 'The next item index should be 1');
-  assert.ok(status, 'Returns true if the item is set');
-});
-
-QUnit.test('loadNext - loops to the first item when repeat is enabled', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  this.playlist.enableRepeat();
-  this.playlist.loadItem(this.testItems.length - 1);
-
-  assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'The initial index should be at the last item');
-
-  const status = this.playlist.loadNext();
-
-  assert.equal(this.playlist.getCurrentIndex(), 0, 'Should loop back to the first item with repeat enabled');
-  assert.ok(status, 'Returns true if the item is set');
-});
-
-QUnit.test('loadNext - does nothing at the end of the playlist without repeat', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  this.playlist.loadItem(this.testItems.length - 1);
-  this.playlist.disableRepeat();
-
-  assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'The initial index should be at the last item');
-
-  const status = this.playlist.loadNext();
-
-  assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'The last item index should remain unchanged without repeat');
-  assert.notOk(status, 'Returns false if the item is not set');
-});
-
-QUnit.test('loadNext - does nothing if no playlist is set', function(assert) {
-  const status = this.playlist.loadNext();
-
-  assert.equal(this.playlist.getCurrentIndex(), -1, 'Current item index still does not exist');
-  assert.notOk(status, 'Returns false if the item is not set');
-});
-
-QUnit.test('loadPrevious - goes back to the previous item', function(assert) {
-  this.playlist.setPlaylist(this.testItems, 1);
-  this.playlist.loadItem(1);
-
-  assert.equal(this.playlist.getCurrentIndex(), 1, 'The initial index should be 1');
-
-  const status = this.playlist.loadPrevious();
-
-  assert.equal(this.playlist.getCurrentIndex(), 0, 'The previous item index should be 0');
-  assert.ok(status, 'Returns true if the item is set');
-});
-
-QUnit.test('loadPrevious - loops to the last item when repeat is enabled', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  this.playlist.loadItem(0);
-  this.playlist.enableRepeat();
-
-  assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0');
-
-  const status = this.playlist.loadPrevious();
-
-  assert.equal(this.playlist.getCurrentIndex(), this.testItems.length - 1, 'Should loop back to the last item with repeat enabled');
-  assert.ok(status, 'Returns true if the item is set');
-});
-
-QUnit.test('loadPrevious - does nothing at the start of the playlist without repeat', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-  this.playlist.loadItem(0);
-  this.playlist.disableRepeat();
-
-  assert.equal(this.playlist.getCurrentIndex(), 0, 'The initial index should be 0');
-
-  const status = this.playlist.loadPrevious();
-
-  assert.equal(this.playlist.getCurrentIndex(), 0, 'The first item index should remain unchanged without repeat');
-  assert.notOk(status, 'Returns false if the item is not set');
-});
-
-QUnit.test('loadPrevious - does nothing if no playlist is set', function(assert) {
-  const status = this.playlist.loadPrevious();
-
-  assert.equal(this.playlist.getCurrentIndex(), -1, 'Current item index still does not exist');
-  assert.notOk(status, 'Returns false if the item is not set');
-});
-
 QUnit.test('add - adds a single item to the playlist', function(assert) {
   const added = this.playlist.add(this.testItems[0]);
+  const expectedItem = this.testItems[0];
+
+  expectedItem.poster = '';
+  expectedItem.textTracks = [];
 
   assert.equal(this.playlist.list_.length, 1, 'Playlist should have one item');
-  assert.ok(this.playlist.list_[0] instanceof PlaylistItem, 'Added item should be an instance of PlaylistItem');
-  assert.ok(added[0] instanceof PlaylistItem, 'Should return an array with added PlaylistItem');
+  assert.deepEqual(this.playlist.list_[0], expectedItem, 'Should add item to playlist correctly');
+  assert.deepEqual(added[0], expectedItem, 'Should return added item');
 });
 
 QUnit.test('add - adds multiple items to the playlist', function(assert) {
   const added = this.playlist.add(this.testItems);
 
-  assert.equal(this.playlist.list_.length, 2, 'Playlist should have two items');
-  assert.ok(this.playlist.list_[1] instanceof PlaylistItem, 'Items should be a instances of PlaylistItem');
-  assert.equal(added.length, 2, 'Should return an array with two items');
+  assert.equal(this.playlist.list_.length, this.testItems.length, 'Playlist should have correct number of items');
+  assert.equal(added.length, this.testItems.length, 'Should return an array with correct number of items');
 });
 
 QUnit.test('add - adds items at specified index', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
   const newItem = { sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' };
 
   this.playlist.add(newItem, 1);
 
-  assert.equal(this.playlist.list_.length, 3, 'Playlist should have three items');
+  assert.equal(this.playlist.list_.length, this.testItems.length + 1, 'Playlist should have correct number of items');
   assert.deepEqual(this.playlist.list_[1].sources.src, newItem.sources.src, 'New item should be at the specified index');
 });
 
 QUnit.test('add - adds items at the end for invalid index', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
   const newItem = { sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' };
 
   this.playlist.add(newItem, 10);
 
-  assert.equal(this.playlist.list_.length, 3, 'Playlist should have three items');
-  assert.deepEqual(this.playlist.list_[2].sources.src, newItem.sources.src, 'New item should be added at the end for invalid index');
+  assert.equal(this.playlist.list_.length, this.testItems.length + 1, 'Playlist should have correct number of items');
+  assert.deepEqual(this.playlist.list_[this.playlist.list_.length - 1].sources.src, newItem.sources.src, 'New item should be added at the end for invalid index');
 });
 
 QUnit.test('add - handles invalid items correctly', function(assert) {
@@ -594,9 +393,6 @@ QUnit.test('add - handles invalid items correctly', function(assert) {
 });
 
 QUnit.test('add - updates currentIndex_ correctly when adding items', function(assert) {
-  // Setup a 3 item playlist for this test
-  this.testItems.push({ sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' });
-
   const addTestScenarios = [
     {
       description: 'Add an item before the current index',
@@ -630,8 +426,8 @@ QUnit.test('add - updates currentIndex_ correctly when adding items', function(a
 
   addTestScenarios.forEach(scenario => {
     // Setup playlist for scenario
-    this.playlist.setPlaylist(this.testItems);
-    this.playlist.loadItem(scenario.currentIndex);
+    this.playlist.set(this.testItems);
+    this.playlist.setCurrentIndex(scenario.currentIndex);
     assert.equal(this.playlist.getCurrentIndex(), scenario.currentIndex, `currentIndex_ set to ${scenario.currentIndex} before adding`);
 
     const added = this.playlist.add(scenario.addItems, scenario.addIndex);
@@ -644,16 +440,18 @@ QUnit.test('add - updates currentIndex_ correctly when adding items', function(a
 QUnit.test('add - triggers playlistadd event', function(assert) {
   const spy = sinon.spy();
 
-  this.player.on('playlistadd', spy);
+  this.playlist.on('playlistadd', spy);
   this.playlist.add(this.testItems[0]);
 
   assert.ok(spy.calledOnce, 'playlistadd event should be triggered');
+  assert.equal(spy.args[0][0].type, 'playlistadd', 'event has correct type prop');
+  assert.equal(spy.args[0][0].count, 1, 'event has correct count prop');
+  assert.equal(spy.args[0][0].index, 0, 'event has correct index prop');
 });
 
 QUnit.test('remove - updates currentIndex_ correctly when removing items in different scenarios', function(assert) {
   // Setup a 5 item playlist for this test
   this.testItems.push(
-    { sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' },
     { sources: [{ src: 'http://example.com/video4.mp4', type: 'video/mp4' }], title: 'Video 4' },
     { sources: [{ src: 'http://example.com/video5.mp4', type: 'video/mp4' }], title: 'Video 5' }
   );
@@ -667,10 +465,17 @@ QUnit.test('remove - updates currentIndex_ correctly when removing items in diff
       expectedIndex: 0
     },
     {
+      description: 'Remove a range before the current index',
+      currentIndex: 3,
+      removeCount: 2,
+      removeIndex: 0,
+      expectedIndex: 1
+    },
+    {
       description: 'Remove just the current item',
       currentIndex: 1,
       removeIndex: 1,
-      expectedIndex: 1
+      expectedIndex: -1
     },
     {
       description: 'Remove the item after the current index',
@@ -683,29 +488,28 @@ QUnit.test('remove - updates currentIndex_ correctly when removing items in diff
       currentIndex: 1,
       removeIndex: 1,
       removeCount: 2,
-      expectedIndex: 1
+      expectedIndex: -1
     },
     {
       description: 'Remove multiple items, including the current item (current at end)',
       currentIndex: 1,
       removeIndex: 0,
       removeCount: 2,
-      expectedIndex: 0
+      expectedIndex: -1
     },
-    //
     {
       description: 'Remove items with the current item at the start and no items after',
       currentIndex: 2,
       removeIndex: 2,
       removeCount: 2,
-      expectedIndex: 2
+      expectedIndex: -1
     },
     {
       description: 'Remove multiple items with the current item in the middle of the removal range',
       currentIndex: 2,
       removeIndex: 1,
       removeCount: 3,
-      expectedIndex: 1
+      expectedIndex: -1
     },
     {
       description: 'Remove all items including the current item',
@@ -715,17 +519,17 @@ QUnit.test('remove - updates currentIndex_ correctly when removing items in diff
       expectedIndex: -1
     },
     {
-      description: 'Remove the the current item when it is at the start',
+      description: 'Remove the current item when it is at the start',
       currentIndex: 0,
       removeIndex: 0,
-      expectedIndex: 0
+      expectedIndex: -1
     },
     {
       description: 'Remove a range at the start that includes the current item',
       currentIndex: 1,
       removeIndex: 0,
       removeCount: 2,
-      expectedIndex: 0
+      expectedIndex: -1
     },
     {
       description: 'Remove the the current item when it is at the end',
@@ -744,8 +548,8 @@ QUnit.test('remove - updates currentIndex_ correctly when removing items in diff
 
   testScenarios.forEach((scenario) => {
     // Setup playlist for scenario
-    this.playlist.setPlaylist(this.testItems);
-    this.playlist.loadItem(scenario.currentIndex);
+    this.playlist.set(this.testItems);
+    this.playlist.setCurrentIndex(scenario.currentIndex);
     assert.equal(this.playlist.getCurrentIndex(), scenario.currentIndex, `currentIndex_ set to ${scenario.currentIndex}`);
 
     const removed = this.playlist.remove(scenario.removeIndex, scenario.removeCount);
@@ -756,8 +560,7 @@ QUnit.test('remove - updates currentIndex_ correctly when removing items in diff
 });
 
 QUnit.test('remove - handles invalid inputs correctly', function(assert) {
-  // Setup a playlist with test items
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
   // Invalid index
   const removed1 = this.playlist.remove(-1);
@@ -773,11 +576,11 @@ QUnit.test('remove - handles invalid inputs correctly', function(assert) {
 });
 
 QUnit.test('remove - triggers playlistremove event with correct properties', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
   const spy = sinon.spy();
 
-  this.player.on('playlistremove', spy);
+  this.playlist.on('playlistremove', spy);
   this.playlist.remove(1);
 
   assert.ok(spy.calledOnce, 'playlistremove event is triggered');
@@ -787,7 +590,7 @@ QUnit.test('remove - triggers playlistremove event with correct properties', fun
 });
 
 QUnit.test('remove - resets currentIndex_ correctly when all items are removed', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
+  this.playlist.set(this.testItems);
 
   this.playlist.remove(0, this.testItems.length);
   assert.strictEqual(this.playlist.currentIndex_, null, 'currentIndex_ should be null when all items are removed');
@@ -800,30 +603,29 @@ QUnit.test('sort - correctly sorts playlist items', function(assert) {
     { sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' },
     { sources: [{ src: 'http://example.com/video1.mp4', type: 'video/mp4' }], title: 'Video 1' }
   ];
-  this.playlist.setPlaylist(this.testItems);
-  assert.deepEqual(this.playlist.getPlaylist().map(item => item.title), ['Video 2', 'Video 3', 'Video 1'], 'Playlist should be initially unsorted');
+  this.playlist.set(this.testItems);
+  assert.deepEqual(this.playlist.get().map(item => item.title), ['Video 2', 'Video 3', 'Video 1'], 'Playlist should be initially unsorted');
 
   const compareFunction = (a, b) => a.title.localeCompare(b.title);
   const spy = sinon.spy();
 
-  this.player.on('playlistsorted', spy);
+  this.playlist.on('playlistsorted', spy);
   this.playlist.sort(compareFunction);
 
-  assert.deepEqual(this.playlist.getPlaylist().map(item => item.title), ['Video 1', 'Video 2', 'Video 3'], 'Playlist should be sorted');
+  assert.deepEqual(this.playlist.get().map(item => item.title), ['Video 1', 'Video 2', 'Video 3'], 'Playlist should be sorted');
   assert.ok(spy.calledOnce, 'playlistsorted event should be triggered');
 });
 
 QUnit.test('reverse - correctly reverses playlist items', function(assert) {
-  this.testItems.push({ sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' });
-  this.playlist.setPlaylist(this.testItems);
-  assert.deepEqual(this.playlist.getPlaylist().map(item => item.title), ['Video 1', 'Video 2', 'Video 3'], 'Playlist should be initially sequential');
+  this.playlist.set(this.testItems);
+  assert.deepEqual(this.playlist.get().map(item => item.title), ['Video 1', 'Video 2', 'Video 3'], 'Playlist should be initially sequential');
 
   const spy = sinon.spy();
 
-  this.player.on('playlistsorted', spy);
+  this.playlist.on('playlistsorted', spy);
   this.playlist.reverse();
 
-  assert.deepEqual(this.playlist.getPlaylist().map(item => item.title), ['Video 3', 'Video 2', 'Video 1'], 'Playlist should be reversed');
+  assert.deepEqual(this.playlist.get().map(item => item.title), ['Video 3', 'Video 2', 'Video 1'], 'Playlist should be reversed');
   assert.ok(spy.calledOnce, 'playlistsorted event should be triggered');
 });
 
@@ -831,7 +633,6 @@ QUnit.test('shuffle - correctly shuffles playlist items with rest option', funct
   assert.expect(11);
 
   const additionalItems = [
-    { sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' },
     { sources: [{ src: 'http://example.com/video4.mp4', type: 'video/mp4' }], title: 'Video 4' },
     { sources: [{ src: 'http://example.com/video5.mp4', type: 'video/mp4' }], title: 'Video 5' },
     { sources: [{ src: 'http://example.com/video6.mp4', type: 'video/mp4' }], title: 'Video 6' }
@@ -841,18 +642,18 @@ QUnit.test('shuffle - correctly shuffles playlist items with rest option', funct
   this.testItems.push(...additionalItems);
 
   // Set the current item to the third one
-  this.playlist.setPlaylist(this.testItems);
-  this.playlist.loadItem(2);
+  this.playlist.set(this.testItems);
+  this.playlist.setCurrentIndex(2);
 
-  const originalPlaylist = this.playlist.getPlaylist();
+  const originalPlaylist = this.playlist.get();
   const spy = sinon.spy();
 
-  this.player.on('playlistsorted', spy);
+  this.playlist.on('playlistsorted', spy);
 
   // Shuffle with the `rest` option
   this.playlist.shuffle({ rest: true });
 
-  const shuffledPlaylist = this.playlist.getPlaylist();
+  const shuffledPlaylist = this.playlist.get();
 
   assert.equal(shuffledPlaylist.length, originalPlaylist.length, 'Playlist should maintain the same length');
 
@@ -867,35 +668,4 @@ QUnit.test('shuffle - correctly shuffles playlist items with rest option', funct
   assert.strictEqual(shuffledPlaylist[2], originalPlaylist[2], `Item ${originalPlaylist[2].title} should remain in place`);
 
   assert.ok(spy.called, 'playlistsorted event should be triggered');
-});
-
-QUnit.test('handleSourceChange_ - calls handleNonPlaylistSource_ for non-playlist source', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-
-  // Mock non-playlist source
-  this.player.currentSrc = () => 'http://example.com/not-in-playlist.mp4';
-
-  this.playlist.handleNonPlaylistSource_ = sinon.spy();
-
-  this.playlist.handleSourceChange_();
-
-  assert.ok(this.playlist.handleNonPlaylistSource_.calledOnce, 'handleNonPlaylistSource_ should be called for a non-playlist source');
-});
-
-QUnit.test('isSourceInPlaylist_ - correctly identifies if a source is in the playlist', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-
-  assert.ok(this.playlist.isSourceInPlaylist_(this.testItems[0].sources[0].src), 'Should return true for a source in the playlist');
-  assert.notOk(this.playlist.isSourceInPlaylist_('http://example.com/not-in-playlist.mp4'), 'Should return false for a source not in the playlist');
-});
-
-QUnit.test('handleNonPlaylistSource_ - resets autoadvance and sets currentIndex to null', function(assert) {
-  this.playlist.setPlaylist(this.testItems);
-
-  this.playlist.autoAdvance_.fullReset = sinon.spy();
-
-  this.playlist.handleNonPlaylistSource_();
-
-  assert.ok(this.playlist.autoAdvance_.fullReset.calledOnce, 'autoAdvance_.fullReset() should be called');
-  assert.strictEqual(this.playlist.currentIndex_, null, 'currentIndex_ should be null');
 });
