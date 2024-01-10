@@ -43,7 +43,7 @@ interface PlaylistItem {
 ```
 
 ## Plugin Methods
-Under construction...
+TODO
 
 ## Playlist Methods
-Under construction...
+TODO
