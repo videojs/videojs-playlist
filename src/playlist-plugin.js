@@ -171,7 +171,7 @@ export default class PlaylistPlugin extends Plugin {
     this.player.trigger('beforeplaylistitem', item);
 
     // Remove any textTracks from a previous item
-    this.clearExistingItemTextTracks_(this.player);
+    this.clearExistingItemTextTracks_();
 
     this.player.poster(loadPoster ? item.poster : '');
     this.player.src(item.sources);

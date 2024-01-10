@@ -26,7 +26,7 @@ export default class Playlist extends videojs.EventTarget {
     this.currentIndex_ = null;
     this.repeat_ = false;
     this.log_ = console;
-    this.sanitizePlaylistItem = this.sanitizePlaylistItem.bind(this);
+    this.sanitizePlaylistItem_ = this.sanitizePlaylistItem_.bind(this);
   }
 
   /**
@@ -37,38 +37,6 @@ export default class Playlist extends videojs.EventTarget {
    */
   setLogger(logger) {
     this.log_ = logger;
-  }
-
-  /**
-   * Validates and sanitizes the structure and sources of a single playlist item
-   *
-   * @param {Object} item - The playlist item to be processed. It should be an object with a `sources` array.
-   * @return {Object|null} A sanitized playlist item object with valid sources, or null if the item is invalid.
-   */
-  sanitizePlaylistItem(item) {
-    if (!item || typeof item !== 'object' || !Array.isArray(item.sources)) {
-      this.log_.error('Invalid playlist item: Must be an object with a `sources` array.');
-      return null;
-    }
-
-    const validSources = item.sources.filter(source =>
-      source &&
-      typeof source === 'object' &&
-      typeof source.src === 'string' &&
-      typeof source.type === 'string');
-
-    if (validSources.length === 0) {
-      this.log_.error('Invalid playlist item: No valid sources were found.');
-      return null;
-    }
-
-    if (validSources.length < item.sources.length) {
-      this.log_.warn('Some invalid playlist item sources were disregarded.');
-    }
-
-    const { poster = '', textTracks = [] } = item;
-
-    return Object.assign({}, item, { poster, textTracks, sources: validSources });
   }
 
   /**
@@ -85,7 +53,7 @@ export default class Playlist extends videojs.EventTarget {
       return [...this.list_];
     }
 
-    const playlistItems = items.map(this.sanitizePlaylistItem).filter(item => item !== null);
+    const playlistItems = items.map(this.sanitizePlaylistItem_).filter(item => item !== null);
 
     if (playlistItems.length === 0) {
       this.log_.error('Cannot set the playlist as none of the provided playlist items were valid.');
@@ -254,7 +222,7 @@ export default class Playlist extends videojs.EventTarget {
     const resolvedIndex = (typeof index !== 'number' || index < 0 || index > this.list_.length) ? this.list_.length : index;
     const beforeItems = this.list_.slice(0, resolvedIndex);
     const afterItems = this.list_.slice(resolvedIndex);
-    const newItems = items.map(this.sanitizePlaylistItem).filter(item => item !== null);
+    const newItems = items.map(this.sanitizePlaylistItem_).filter(item => item !== null);
 
     if (newItems.length === 0) {
       this.log_.error('Cannot add items to the playlist as none were valid.');
@@ -396,6 +364,38 @@ export default class Playlist extends videojs.EventTarget {
     this.currentIndex_ = this.list_.indexOf(currentItem);
 
     this.trigger('playlistsorted');
+  }
+
+  /**
+   * Validates and sanitizes the structure and sources of a single playlist item
+   *
+   * @param {Object} item - The playlist item to be processed. It should be an object with a `sources` array.
+   * @return {Object|null} A sanitized playlist item object with valid sources, or null if the item is invalid.
+   */
+  sanitizePlaylistItem_(item) {
+    if (!item || typeof item !== 'object' || !Array.isArray(item.sources)) {
+      this.log_.error('Invalid playlist item: Must be an object with a `sources` array.');
+      return null;
+    }
+
+    const validSources = item.sources.filter(source =>
+      source &&
+      typeof source === 'object' &&
+      typeof source.src === 'string' &&
+      typeof source.type === 'string');
+
+    if (validSources.length === 0) {
+      this.log_.error('Invalid playlist item: No valid sources were found.');
+      return null;
+    }
+
+    if (validSources.length < item.sources.length) {
+      this.log_.warn('Some invalid playlist item sources were disregarded.');
+    }
+
+    const { poster = '', textTracks = [] } = item;
+
+    return Object.assign({}, item, { poster, textTracks, sources: validSources });
   }
 
   /**
