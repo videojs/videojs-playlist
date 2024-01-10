@@ -46,19 +46,19 @@ QUnit.test('constructor initializes properties correctly', function(assert) {
   assert.strictEqual(this.playlist.repeat_, false, 'repeat_ should be false by default');
 });
 
-QUnit.test('sanitizePlaylistItem - with valid item', function(assert) {
+QUnit.test('sanitizePlaylistItem_ - with valid item', function(assert) {
   const validItem = {
     sources: [{ src: 'http://example.com/video.mp4', type: 'video/mp4' }],
     title: 'Valid Video'
   };
 
-  const result = this.playlist.sanitizePlaylistItem(validItem);
+  const result = this.playlist.sanitizePlaylistItem_(validItem);
 
   assert.deepEqual(result.sources, validItem.sources, 'Sources of the returned item match the input');
   assert.strictEqual(result.title, validItem.title, 'Title property is retained');
 });
 
-QUnit.test('sanitizePlaylistItem - with some invalid sources', function(assert) {
+QUnit.test('sanitizePlaylistItem_ - with some invalid sources', function(assert) {
   const itemWithInvalidSources = {
     sources: [
       { src: 'http://example.com/video.mp4', type: 'video/mp4' },
@@ -67,35 +67,35 @@ QUnit.test('sanitizePlaylistItem - with some invalid sources', function(assert) 
     title: 'Mixed Sources'
   };
 
-  const result = this.playlist.sanitizePlaylistItem(itemWithInvalidSources);
+  const result = this.playlist.sanitizePlaylistItem_(itemWithInvalidSources);
 
   assert.equal(result.sources.length, 1, 'Only includes valid sources');
   assert.deepEqual(result.sources[0], itemWithInvalidSources.sources[0], 'Includes the correct valid source');
   assert.ok(log.warn.calledOnce, 'Logs a warning for disregarded invalid sources');
 });
 
-QUnit.test('sanitizePlaylistItem - with all invalid sources', function(assert) {
+QUnit.test('sanitizePlaylistItem_ - with all invalid sources', function(assert) {
   const itemWithAllInvalidSources = {
     sources: [{ src: 'video.mp4' }, { type: 'video/mp4' }],
     title: 'Invalid Sources'
   };
 
-  const result = this.playlist.sanitizePlaylistItem(itemWithAllInvalidSources);
+  const result = this.playlist.sanitizePlaylistItem_(itemWithAllInvalidSources);
 
   assert.strictEqual(result, null, 'Returns null for an item with all invalid sources');
   assert.ok(log.error.calledWith('Invalid playlist item: No valid sources were found.'), 'Logs an error for an item with no valid sources');
 });
 
-QUnit.test('sanitizePlaylistItem - with incorrect item structure', function(assert) {
+QUnit.test('sanitizePlaylistItem_ - with incorrect item structure', function(assert) {
   const invalidItem = { title: 'No Sources' };
 
-  const result = this.playlist.sanitizePlaylistItem(invalidItem);
+  const result = this.playlist.sanitizePlaylistItem_(invalidItem);
 
   assert.strictEqual(result, null, 'Returns null for an item with incorrect structure');
   assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Logs an error for incorrect item structure');
 });
 
-QUnit.test('sanitizePlaylistItem - retains properties of the original item', function(assert) {
+QUnit.test('sanitizePlaylistItem_ - retains properties of the original item', function(assert) {
   const itemWithAdditionalProps = {
     sources: [{ src: 'http://example.com/video.mp4', type: 'video/mp4' }],
     title: 'Video with Additional Properties',
@@ -103,7 +103,7 @@ QUnit.test('sanitizePlaylistItem - retains properties of the original item', fun
     customProperty: 'Custom Value'
   };
 
-  const result = this.playlist.sanitizePlaylistItem(itemWithAdditionalProps);
+  const result = this.playlist.sanitizePlaylistItem_(itemWithAdditionalProps);
 
   assert.strictEqual(result.title, itemWithAdditionalProps.title, 'Retains the title property');
   assert.strictEqual(result.description, itemWithAdditionalProps.description, 'Retains the description property');
