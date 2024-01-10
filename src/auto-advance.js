@@ -67,7 +67,7 @@ export default class AutoAdvance {
         this.advanceCallback_();
 
         // Clean up the listener for the play event when the auto-advance triggers
-        this.player_.off('play', this.clearTimeoutOnPlay);
+        this.clearTimeout_()
       }, this.delay_ * 1000);
     }
   }
