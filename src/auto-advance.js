@@ -77,7 +77,7 @@ export default class AutoAdvance {
    *
    * @private
    */
-  clearTimeout_() {
+  clearTimeout_ = () => {
     if (this.timeoutId_) {
       clearTimeout(this.timeoutId_);
       this.timeoutId_ = null;
