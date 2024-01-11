@@ -3,7 +3,6 @@ import QUnit from 'qunit';
 import sinon from 'sinon';
 import videojs from 'video.js';
 import Playlist from '../src/playlist.js';
-import { log } from '../src/utils.js';
 
 QUnit.module('Playlist', {
   beforeEach() {
@@ -13,8 +12,8 @@ QUnit.module('Playlist', {
     this.fixture.appendChild(this.video);
     this.player = videojs(this.video);
 
-    log.error = sinon.spy();
-    log.warn = sinon.spy();
+    this.onError = sinon.spy();
+    this.onWarn = sinon.spy();
 
     // Test data
     this.testItems = [
@@ -23,8 +22,7 @@ QUnit.module('Playlist', {
       { sources: [{ src: 'http://example.com/video3.mp4', type: 'video/mp4' }], title: 'Video 3' }
     ];
 
-    this.playlist = new Playlist();
-    this.playlist.setLogger(log);
+    this.playlist = new Playlist({ onError: this.onError, onWarn: this.onWarn });
   },
 
   afterEach() {
@@ -71,7 +69,7 @@ QUnit.test('sanitizePlaylistItem_ - with some invalid sources', function(assert)
 
   assert.equal(result.sources.length, 1, 'Only includes valid sources');
   assert.deepEqual(result.sources[0], itemWithInvalidSources.sources[0], 'Includes the correct valid source');
-  assert.ok(log.warn.calledOnce, 'Logs a warning for disregarded invalid sources');
+  assert.ok(this.onWarn.calledOnce, 'Logs a warning for disregarded invalid sources');
 });
 
 QUnit.test('sanitizePlaylistItem_ - with all invalid sources', function(assert) {
@@ -83,7 +81,7 @@ QUnit.test('sanitizePlaylistItem_ - with all invalid sources', function(assert) 
   const result = this.playlist.sanitizePlaylistItem_(itemWithAllInvalidSources);
 
   assert.strictEqual(result, null, 'Returns null for an item with all invalid sources');
-  assert.ok(log.error.calledWith('Invalid playlist item: No valid sources were found.'), 'Logs an error for an item with no valid sources');
+  assert.ok(this.onError.calledWith('Invalid playlist item: No valid sources were found.'), 'Logs an error for an item with no valid sources');
 });
 
 QUnit.test('sanitizePlaylistItem_ - with incorrect item structure', function(assert) {
@@ -92,7 +90,7 @@ QUnit.test('sanitizePlaylistItem_ - with incorrect item structure', function(ass
   const result = this.playlist.sanitizePlaylistItem_(invalidItem);
 
   assert.strictEqual(result, null, 'Returns null for an item with incorrect structure');
-  assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Logs an error for incorrect item structure');
+  assert.ok(this.onError.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Logs an error for incorrect item structure');
 });
 
 QUnit.test('sanitizePlaylistItem_ - retains properties of the original item', function(assert) {
@@ -121,7 +119,7 @@ QUnit.test('set - valid input should set playlist correctly', function(assert) {
 QUnit.test('set - should log error and return if items is not an array', function(assert) {
   const result = this.playlist.set('not an array');
 
-  assert.ok(log.error.calledWith('The playlist must be an array.'), 'Should log error for non-array input');
+  assert.ok(this.onError.calledWith('The playlist must be an array.'), 'Should log error for non-array input');
   assert.deepEqual(result, [], 'Should return an empty array if items are not valid');
 });
 
@@ -131,7 +129,7 @@ QUnit.test('set - should handle invalid item by logging error and continuing', f
 
   const result = this.playlist.set(combinedItems);
 
-  assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Should log error for invalid item');
+  assert.ok(this.onError.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Should log error for invalid item');
   assert.equal(result.length, 2, 'Should return array of correct length');
 });
 
@@ -140,7 +138,7 @@ QUnit.test('set - should log error when all provided items are invalid', functio
 
   const result = this.playlist.set(invalidItems);
 
-  assert.ok(log.error.calledWith('Cannot set the playlist as none of the provided playlist items were valid.'), 'Should log error when all items invalid');
+  assert.ok(this.onError.calledWith('Cannot set the playlist as none of the provided playlist items were valid.'), 'Should log error when all items invalid');
   assert.deepEqual(result, [], 'Should return an empty array if all items are invalid');
 });
 
@@ -240,7 +238,7 @@ QUnit.test('setCurrentIndex - does not set an out-of-bounds index', function(ass
   this.playlist.setCurrentIndex(outOfBoundsIndex);
 
   assert.strictEqual(this.playlist.currentIndex_, originalIndex, 'currentIndex_ should not change for an out-of-bounds index');
-  assert.ok(log.error.calledWith('Cannot set index that is out of bounds.'), 'Should log an error for an out-of-bounds index');
+  assert.ok(this.onError.calledWith('Cannot set index that is out of bounds.'), 'Should log an error for an out-of-bounds index');
 });
 
 QUnit.test('getCurrentItem - retrieves the correct playlist item', function(assert) {
@@ -365,11 +363,11 @@ QUnit.test('add - handles invalid items correctly', function(assert) {
   const added = this.playlist.add(invalidItem1);
 
   assert.equal(this.playlist.list_.length, 0, 'Playlist should not add an item with invalid sources');
-  assert.ok(log.error.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Error should be logged for item with invalid sources');
-  assert.ok(log.error.calledWith('Cannot add items to the playlist as none were valid.'), 'Error should be logged for item with invalid sources');
+  assert.ok(this.onError.calledWith('Invalid playlist item: Must be an object with a `sources` array.'), 'Error should be logged for item with invalid sources');
+  assert.ok(this.onError.calledWith('Cannot add items to the playlist as none were valid.'), 'Error should be logged for item with invalid sources');
   assert.equal(added.length, 0, 'Should return an empty array');
 
-  log.error.resetHistory();
+  this.onError.resetHistory();
 
   // Invalid item of non-object type
   const invalidItem2 = 'not an object';
@@ -377,10 +375,10 @@ QUnit.test('add - handles invalid items correctly', function(assert) {
   const added2 = this.playlist.add(invalidItem2);
 
   assert.equal(this.playlist.list_.length, 0, 'Playlist should not add non-object items');
-  assert.ok(log.error.calledWith('Provided items must be an object or an array of objects.'), 'Error should be logged for non-object item');
+  assert.ok(this.onError.calledWith('Provided items must be an object or an array of objects.'), 'Error should be logged for non-object item');
   assert.equal(added2.length, 0, 'Should return an empty array');
 
-  log.error.resetHistory();
+  this.onError.resetHistory();
 
   // Invalid item as null
   const invalidItem3 = null;
@@ -388,7 +386,7 @@ QUnit.test('add - handles invalid items correctly', function(assert) {
   const added3 = this.playlist.add(invalidItem3);
 
   assert.equal(this.playlist.list_.length, 0, 'Playlist should not add null as an item');
-  assert.ok(log.error.calledWith('Provided items must be an object or an array of objects.'), 'Error should be logged for null item');
+  assert.ok(this.onError.calledWith('Provided items must be an object or an array of objects.'), 'Error should be logged for null item');
   assert.equal(added3.length, 0, 'Should return an empty array');
 });
 
@@ -565,13 +563,13 @@ QUnit.test('remove - handles invalid inputs correctly', function(assert) {
   // Invalid index
   const removed1 = this.playlist.remove(-1);
 
-  assert.ok(log.error.calledWith('Index is out of bounds.'), 'Error logged for invalid index');
+  assert.ok(this.onError.calledWith('Index is out of bounds.'), 'Error logged for invalid index');
   assert.equal(removed1.length, 0, 'Should return an empty array');
 
   // Invalid count
   const removed2 = this.playlist.remove(0, -1);
 
-  assert.ok(log.error.calledWith('Invalid count for removal.'), 'Error logged for invalid count');
+  assert.ok(this.onError.calledWith('Invalid count for removal.'), 'Error logged for invalid count');
   assert.equal(removed2.length, 0, 'Should return an empty array');
 });
 

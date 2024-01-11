@@ -9,33 +9,25 @@ export default class Playlist extends videojs.EventTarget {
    * Creates a new Playlist instance from a given array of items.
    *
    * @param {Object[]} items - An array of objects to initialize the playlist.
+   * @param {Object} options - An options object to pass to the Playlist constructor
    * @return {Playlist} A new Playlist instance populated with the given items.
    */
-  static from(items) {
-    const playlist = new Playlist();
+  static from(items, options) {
+    const playlist = new Playlist(options);
 
     playlist.set(items);
 
     return playlist;
   }
 
-  constructor() {
+  constructor(options = {}) {
     super();
 
     this.list_ = [];
     this.currentIndex_ = null;
     this.repeat_ = false;
-    this.log_ = console;
-  }
-
-  /**
-   * Sets a custom logger, replacing the default console logger
-   *
-   * @param {Object} logger - An object that contains logging methods such as log, warn, error.
-   *                          This object should conform to the console interface.
-   */
-  setLogger(logger) {
-    this.log_ = logger;
+    this.onError_ = options.onError || (() => {});
+    this.onWarn_ = options.onWarn || (() => {});
   }
 
   /**
@@ -48,14 +40,14 @@ export default class Playlist extends videojs.EventTarget {
    */
   set(items) {
     if (!Array.isArray(items)) {
-      this.log_.error('The playlist must be an array.');
+      this.onError_('The playlist must be an array.');
       return [...this.list_];
     }
 
     const playlistItems = items.map(this.sanitizePlaylistItem_).filter(item => item !== null);
 
     if (playlistItems.length === 0) {
-      this.log_.error('Cannot set the playlist as none of the provided playlist items were valid.');
+      this.onError_('Cannot set the playlist as none of the provided playlist items were valid.');
       return [...this.list_];
     }
 
@@ -116,7 +108,7 @@ export default class Playlist extends videojs.EventTarget {
    */
   setCurrentIndex(index) {
     if (!isIndexInBounds(this.list_, index)) {
-      this.log_.error('Cannot set index that is out of bounds.');
+      this.onError_('Cannot set index that is out of bounds.');
       return;
     }
 
@@ -213,7 +205,7 @@ export default class Playlist extends videojs.EventTarget {
       if (typeof items === 'object' && items !== null) {
         items = [items];
       } else {
-        this.log_.error('Provided items must be an object or an array of objects.');
+        this.onError_('Provided items must be an object or an array of objects.');
         return [];
       }
     }
@@ -224,7 +216,7 @@ export default class Playlist extends videojs.EventTarget {
     const newItems = items.map(this.sanitizePlaylistItem_).filter(item => item !== null);
 
     if (newItems.length === 0) {
-      this.log_.error('Cannot add items to the playlist as none were valid.');
+      this.onError_('Cannot add items to the playlist as none were valid.');
       return [];
     }
 
@@ -270,12 +262,12 @@ export default class Playlist extends videojs.EventTarget {
    */
   remove(index, count = 1) {
     if (!isIndexInBounds(this.list_, index)) {
-      this.log_.error('Index is out of bounds.');
+      this.onError_('Index is out of bounds.');
       return [];
     }
 
     if (typeof count !== 'number' || count < 0) {
-      this.log_.error('Invalid count for removal.');
+      this.onError_('Invalid count for removal.');
       return [];
     }
 
@@ -373,7 +365,7 @@ export default class Playlist extends videojs.EventTarget {
    */
   sanitizePlaylistItem_ = (item) => {
     if (!item || typeof item !== 'object' || !Array.isArray(item.sources)) {
-      this.log_.error('Invalid playlist item: Must be an object with a `sources` array.');
+      this.onError_('Invalid playlist item: Must be an object with a `sources` array.');
       return null;
     }
 
@@ -384,12 +376,12 @@ export default class Playlist extends videojs.EventTarget {
       typeof source.type === 'string');
 
     if (validSources.length === 0) {
-      this.log_.error('Invalid playlist item: No valid sources were found.');
+      this.onError_('Invalid playlist item: No valid sources were found.');
       return null;
     }
 
     if (validSources.length < item.sources.length) {
-      this.log_.warn('Some invalid playlist item sources were disregarded.');
+      this.onWarn_('Some invalid playlist item sources were disregarded.');
     }
 
     const { poster = '', textTracks = [] } = item;

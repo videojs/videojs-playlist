@@ -7,7 +7,7 @@ import Playlist from '../src/playlist.js';
 // import AutoAdvance from '../src/auto-advance.js';
 import { log } from '../src/utils.js';
 
-QUnit.module('Playlist', {
+QUnit.module('Playlist Plugin', {
   beforeEach() {
     this.clock = sinon.useFakeTimers();
     this.fixture = document.getElementById('qunit-fixture');
@@ -31,7 +31,6 @@ QUnit.module('Playlist', {
     ];
 
     this.mockPlaylist = {
-      setLogger: sinon.spy(),
       on: sinon.spy(),
       reset: sinon.spy(),
       get: sinon.stub().returns([{}, {}, {}]),
@@ -60,7 +59,6 @@ QUnit.test('loadPlaylist - sets up playlist and logger correctly', function(asse
   this.playlistPlugin.loadPlaylist(this.mockPlaylist);
 
   assert.strictEqual(this.playlistPlugin.playlist_, this.mockPlaylist, 'Playlist is set correctly');
-  assert.ok(this.mockPlaylist.setLogger.calledWith(log), 'Logger is set for playlist');
   assert.ok(this.mockPlaylist.on.called, 'Event forwarding is set up');
   assert.ok(this.playlistPlugin.handleSourceChange_.notCalled, 'handleSourceChange_ not called');
 
@@ -72,8 +70,6 @@ QUnit.test('loadPlaylist - sets up playlist and logger correctly', function(asse
 QUnit.test('loadPlaylist - sets up event forwarding correctly', function(assert) {
   const done = assert.async();
   const mockPlaylist = new videojs.EventTarget();
-
-  mockPlaylist.setLogger = () => {};
 
   this.player.on('playlistchange', () => {
     assert.ok(true, 'Event is successfully forwarded from the playlist to the player');

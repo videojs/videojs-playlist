@@ -13,7 +13,7 @@ export default class PlaylistPlugin extends Plugin {
    * @return {Playlist} The created Playlist instance.
    */
   static createPlaylistFrom(items) {
-    return Playlist.from(items);
+    return Playlist.from(items, { onError: log.error, onWarn: log.warn });
   }
 
   /**
@@ -38,7 +38,6 @@ export default class PlaylistPlugin extends Plugin {
     this.playlist_ = playlist;
     this.autoAdvance_ = new AutoAdvance(this.player, this.playNext_);
 
-    this.playlist_.setLogger(log);
     this.setupEventForwarding_();
 
     // Begin handling non-playlist source changes. Remove any existing listeners first.
