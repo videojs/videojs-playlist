@@ -27,7 +27,6 @@ export default class PlaylistPlugin extends Plugin {
 
     this.playlist_ = null;
     this.autoAdvance_ = null;
-    this.handleSourceChange_ = this.handleSourceChange_.bind(this);
   }
 
   /**
@@ -37,7 +36,7 @@ export default class PlaylistPlugin extends Plugin {
    */
   loadPlaylist(playlist) {
     this.playlist_ = playlist;
-    this.autoAdvance_ = new AutoAdvance(this.player, this.playNext_.bind(this));
+    this.autoAdvance_ = new AutoAdvance(this.player, this.playNext_);
 
     this.playlist_.setLogger(log);
     this.setupEventForwarding_();
@@ -199,13 +198,13 @@ export default class PlaylistPlugin extends Plugin {
    *
    * @private
    */
-  playNext_() {
+  playNext_ = () => {
     const loadedNext = this.loadNextItem({ loadPoster: false });
 
     if (loadedNext) {
       this.player.play();
     }
-  }
+  };
 
   /**
    * Clears text tracks of the currently loaded item.
@@ -238,13 +237,13 @@ export default class PlaylistPlugin extends Plugin {
    *
    * @private
    */
-  handleSourceChange_() {
+  handleSourceChange_ = () => {
     const currentSrc = this.player.currentSrc();
 
     if (!this.isSourceInPlaylist_(currentSrc)) {
       this.handleNonPlaylistSource_();
     }
-  }
+  };
 
   /**
    * Checks if the current source is in the playlist.

@@ -10,7 +10,7 @@
     "clean": "shx rm -rf ./dist ./test/dist",
     "postclean": "shx mkdir -p ./dist ./test/dist",
     "docs": "doctoc README.md",
-    "lint": "vjsstandard",
+    "lint": "eslint src test",
     "server": "karma start scripts/karma.conf.js --singleRun=false --auto-watch",
     "start": "npm-run-all -p server watch",
     "pretest": "npm-run-all lint build",
@@ -67,13 +67,17 @@
     "videojs-generate-karma-config": "^8.0.1",
     "videojs-generate-rollup-config": "^7.0.1",
     "videojs-generator-verify": "^4.0.1",
-    "videojs-standard": "^9.0.1"
+    "eslint": "^8.39.0",
+    "eslint-config-videojs": "^6.0.0",
+    "eslint-plugin-jsdoc": "^41.1.1",
+    "eslint-plugin-json-light": "^1.0.3",
+    "eslint-plugin-markdown": "^3.0.0"
   },
   "generator-videojs-plugin": {
     "version": "7.3.2"
   },
   "engines": {
-    "node": ">=4.4.0"
+    "node": ">=16"
   },
   "module": "dist/videojs-playlist.es.js",
   "vjsstandard": {
@@ -85,7 +89,7 @@
   },
   "lint-staged": {
     "*.js": [
-      "vjsstandard --fix",
+      "eslint --fix",
       "git add"
     ],
     "README.md": [

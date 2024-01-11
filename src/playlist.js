@@ -26,7 +26,6 @@ export default class Playlist extends videojs.EventTarget {
     this.currentIndex_ = null;
     this.repeat_ = false;
     this.log_ = console;
-    this.sanitizePlaylistItem_ = this.sanitizePlaylistItem_.bind(this);
   }
 
   /**
@@ -372,7 +371,7 @@ export default class Playlist extends videojs.EventTarget {
    * @param {Object} item - The playlist item to be processed. It should be an object with a `sources` array.
    * @return {Object|null} A sanitized playlist item object with valid sources, or null if the item is invalid.
    */
-  sanitizePlaylistItem_(item) {
+  sanitizePlaylistItem_ = (item) => {
     if (!item || typeof item !== 'object' || !Array.isArray(item.sources)) {
       this.log_.error('Invalid playlist item: Must be an object with a `sources` array.');
       return null;
@@ -396,7 +395,7 @@ export default class Playlist extends videojs.EventTarget {
     const { poster = '', textTracks = [] } = item;
 
     return Object.assign({}, item, { poster, textTracks, sources: validSources });
-  }
+  };
 
   /**
    * Adjusts the current index after items have been removed from the playlist.

@@ -47,10 +47,13 @@ QUnit.test('setDelay - does not set delay for invalid values', function(assert) 
 QUnit.test('startTimeout - sets a timeout and registers play event listener', function(assert) {
   this.autoAdvance.setDelay(5);
   this.autoAdvance.startTimeout_();
+
+  assert.ok(this.autoAdvance.timeoutId_, 'Timeout ID is set');
+
   this.clock.tick(5000);
 
   assert.ok(this.player.one.calledWith('play'), 'Play event listener registered');
-  assert.ok(this.autoAdvance.timeoutId_, 'Timeout ID is set');
+  assert.equal(this.autoAdvance.timeoutId_, null, 'Timeout ID is reset after timeout is triggered');
 });
 
 QUnit.test('clearTimeout - clears the timeout and removes play event listener', function(assert) {
