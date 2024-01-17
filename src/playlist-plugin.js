@@ -38,10 +38,8 @@ export default class PlaylistPlugin extends Plugin {
    * @param {Playlist} playlist - The playlist to load.
    */
   loadPlaylist(playlist) {
-    // Clean up if there is an existing playlist
-    if (this.playlist_) {
-      this.unloadPlaylist();
-    }
+    // Clean up any existing playlist
+    this.unloadPlaylist();
 
     this.playlist_ = playlist;
     this.autoAdvance_ = new AutoAdvance(this.player, this.playNext_);
