@@ -54,17 +54,17 @@ export default class PlaylistPlugin extends Plugin {
    * Unloads the current playlist and associated functionality.
    */
   unloadPlaylist() {
-    if (!this.playlist_ || !this.autoAdvance_) {
-      return;
+    if (this.playlist_) {
+      this.playlist_.reset();
+      this.cleanupEventForwarding_();
     }
 
-    this.playlist_.reset();
-    this.autoAdvance_.fullReset();
+    if (this.autoAdvance_) {
+      this.autoAdvance_.fullReset();
+    }
 
     // Stop handling non-playlist source changes
     this.player.off('loadstart', this.handleSourceChange_);
-
-    this.cleanupEventForwarding_();
   }
 
   /**
