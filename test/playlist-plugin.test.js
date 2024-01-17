@@ -32,6 +32,7 @@ QUnit.module('Playlist Plugin', {
 
     this.mockPlaylist = {
       on: sinon.spy(),
+      off: sinon.spy(),
       reset: sinon.spy(),
       get: sinon.stub().returns([{}, {}, {}]),
       setCurrentIndex: sinon.spy()
@@ -58,7 +59,7 @@ QUnit.test('loadPlaylist - sets up playlist and logger correctly', function(asse
 
   this.playlistPlugin.loadPlaylist(this.mockPlaylist);
 
-  assert.strictEqual(this.playlistPlugin.playlist_, this.mockPlaylist, 'Playlist is set correctly');
+  assert.deepEqual(this.playlistPlugin.playlist_, this.mockPlaylist, 'Playlist is set correctly');
   assert.ok(this.mockPlaylist.on.called, 'Event forwarding is set up');
   assert.ok(this.playlistPlugin.handleSourceChange_.notCalled, 'handleSourceChange_ not called');
 
@@ -81,7 +82,30 @@ QUnit.test('loadPlaylist - sets up event forwarding correctly', function(assert)
   mockPlaylist.trigger('playlistchange');
 });
 
+QUnit.test('loadPlaylist - cleans up existing playlist before loading new one', function(assert) {
+  this.playlistPlugin.loadPlaylist(this.mockPlaylist);
+
+  this.playlistPlugin.unloadPlaylist = sinon.spy();
+
+  const newMockPlaylist = {
+    new: true,
+    on: sinon.spy(),
+    off: sinon.spy(),
+    reset: sinon.spy(),
+    get: sinon.stub().returns([{}, {}, {}]),
+    setCurrentIndex: sinon.spy()
+  };
+
+  // Load a new playlist
+  this.playlistPlugin.loadPlaylist(newMockPlaylist);
+
+  assert.ok(this.playlistPlugin.unloadPlaylist.calledOnce, 'unloadPlaylist is called to clean up existing playlist');
+  assert.deepEqual(this.playlistPlugin.playlist_, newMockPlaylist, 'New playlist is loaded correctly');
+});
+
 QUnit.test('unloadPlaylist - resets and removes event handling correctly', function(assert) {
+  const playlistEvents = ['playlistchange', 'playlistadd', 'playlistremove', 'playlistsorted'];
+
   this.playlistPlugin.playlist_ = this.mockPlaylist;
   this.playlistPlugin.autoAdvance_ = { fullReset: sinon.spy() };
   this.playlistPlugin.handleSourceChange_ = sinon.spy();
@@ -91,6 +115,10 @@ QUnit.test('unloadPlaylist - resets and removes event handling correctly', funct
   assert.ok(this.mockPlaylist.reset.called, 'Playlist reset is called');
   assert.ok(this.playlistPlugin.autoAdvance_.fullReset.called, 'AutoAdvance fullReset is called');
   assert.ok(this.playlistPlugin.handleSourceChange_.notCalled, 'handleSourceChange_ not called');
+
+  playlistEvents.forEach(eventType => {
+    assert.ok(this.mockPlaylist.off.calledWith(eventType), `Event forwarding for '${eventType}' removed`);
+  });
 
   this.player.trigger('loadstart');
 

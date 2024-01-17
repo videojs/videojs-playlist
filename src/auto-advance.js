@@ -56,18 +56,20 @@ export default class AutoAdvance {
     // Ensure we don't stack timeouts
     this.clearTimeout_();
 
-    // Set a new timeout for auto-advancing
-    if (this.delay_ !== null) {
-      // Listen for a play event to cancel auto-advance if it occurs before the timeout completes
-      this.player_.one('play', this.clearTimeout_);
-
-      this.timeoutId_ = setTimeout(() => {
-        this.advanceCallback_();
-
-        // Clean up the listener for the play event when the auto-advance triggers
-        this.clearTimeout_();
-      }, this.delay_ * 1000);
+    if (this.delay_ === null) {
+      return;
     }
+
+    // Listen for a play event to cancel auto-advance if it occurs before the timeout completes
+    this.player_.one('play', this.clearTimeout_);
+
+    // Set a new timeout for auto-advancing
+    this.timeoutId_ = setTimeout(() => {
+      this.advanceCallback_();
+
+      // Clean up the listener for the play event when the auto-advance triggers
+      this.clearTimeout_();
+    }, this.delay_ * 1000);
   };
 
   /**

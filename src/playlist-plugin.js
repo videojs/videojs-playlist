@@ -35,13 +35,17 @@ export default class PlaylistPlugin extends Plugin {
    * @param {Playlist} playlist - The playlist to load.
    */
   loadPlaylist(playlist) {
+    // Clean up if there is an existing playlist
+    if (this.playlist_) {
+      this.unloadPlaylist();
+    }
+
     this.playlist_ = playlist;
     this.autoAdvance_ = new AutoAdvance(this.player, this.playNext_);
 
     this.setupEventForwarding_();
 
-    // Begin handling non-playlist source changes. Remove any existing listeners first.
-    this.player.off('loadstart', this.handleSourceChange_);
+    // Begin handling non-playlist source changes.
     this.player.on('loadstart', this.handleSourceChange_);
   }
 
@@ -58,6 +62,8 @@ export default class PlaylistPlugin extends Plugin {
 
     // Stop handling non-playlist source changes
     this.player.off('loadstart', this.handleSourceChange_);
+
+    this.cleanupEventForwarding_();
   }
 
   /**
@@ -190,6 +196,17 @@ export default class PlaylistPlugin extends Plugin {
     const playlistEvents = ['playlistchange', 'playlistadd', 'playlistremove', 'playlistsorted'];
 
     playlistEvents.forEach((eventType) => this.playlist_.on(eventType, (event) => this.player.trigger(event)));
+  }
+
+  /**
+   * Cleans up event forwarding from the playlist to the player.
+   *
+   * @private
+   */
+  cleanupEventForwarding_() {
+    const playlistEvents = ['playlistchange', 'playlistadd', 'playlistremove', 'playlistsorted'];
+
+    playlistEvents.forEach((eventType) => this.playlist_.off(eventType, this.handlePlaylistEvent_));
   }
 
   /**
