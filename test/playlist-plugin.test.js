@@ -5,7 +5,7 @@ import videojs from 'video.js';
 import PlaylistPlugin from '../src/playlist-plugin.js';
 import Playlist from '../src/playlist.js';
 // import AutoAdvance from '../src/auto-advance.js';
-import { log } from '../src/utils.js';
+import { log } from '../src/playlist-plugin.js';
 
 QUnit.module('Playlist Plugin', {
   beforeEach() {

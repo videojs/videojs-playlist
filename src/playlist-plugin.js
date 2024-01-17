@@ -1,9 +1,12 @@
 import videojs from 'video.js';
 import Playlist from './playlist.js';
 import AutoAdvance from './auto-advance.js';
-import { isIndexInBounds, log } from './utils.js';
+import { isIndexInBounds } from './utils.js';
 
 const Plugin = videojs.getPlugin('plugin');
+
+// Exported for testing purposes
+export const log = videojs.log.createLogger('videojs-playlist');
 
 export default class PlaylistPlugin extends Plugin {
   /**
