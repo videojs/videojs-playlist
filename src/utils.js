@@ -1,7 +1,3 @@
-import videojs from 'video.js';
-
-export const log = videojs.log.createLogger('videojs-playlist');
-
 /**
  * Checks if the given index is within the bounds of the array.
  *
