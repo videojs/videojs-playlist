@@ -1,167 +1,89 @@
-import window from 'global/window';
+import document from 'global/document';
 import QUnit from 'qunit';
 import sinon from 'sinon';
-import * as autoadvance from '../src/auto-advance.js';
-import playerProxyMaker from './player-proxy-maker.js';
+import videojs from 'video.js';
+import AutoAdvance from '../src/auto-advance.js';
 
-QUnit.module('auto-advance');
+QUnit.module('AutoAdvance', {
+  beforeEach() {
+    this.clock = sinon.useFakeTimers();
+    this.fixture = document.getElementById('qunit-fixture');
+    this.video = document.createElement('video');
+    this.fixture.appendChild(this.video);
+    this.player = videojs(this.video);
+    this.autoAdvance = new AutoAdvance(this.player, () => {});
 
-QUnit.test('set up ended listener if one does not exist yet', function(assert) {
-  const player = playerProxyMaker();
-  const ones = [];
+    // Setup spies
+    this.player.on = sinon.spy();
+    this.player.one = sinon.spy();
+    this.player.off = sinon.spy();
+    this.player.trigger = sinon.spy();
+  },
 
-  player.one = function(type) {
-    ones.push(type);
-  };
-
-  autoadvance.setup(player, 0);
-
-  assert.equal(ones.length, 1, 'there should have been only one one event added');
-  assert.equal(ones[0], 'ended', 'the event we want to one is "ended"');
+  afterEach() {
+    this.player.dispose();
+    this.clock.restore();
+  }
 });
 
-QUnit.test('off previous listener if exists before adding a new one', function(assert) {
-  const player = playerProxyMaker();
-  const ones = [];
-  const offs = [];
-
-  player.one = function(type) {
-    ones.push(type);
-  };
-
-  player.off = function(type) {
-    offs.push(type);
-  };
-
-  autoadvance.setup(player, 0);
-  assert.equal(ones.length, 1, 'there should have been only one one event added');
-  assert.equal(ones[0], 'ended', 'the event we want to one is "ended"');
-  assert.equal(offs.length, 0, 'we should not have off-ed anything yet');
-
-  autoadvance.setup(player, 10);
-
-  assert.equal(ones.length, 2, 'there should have been only two one event added');
-  assert.equal(ones[0], 'ended', 'the event we want to one is "ended"');
-  assert.equal(ones[1], 'ended', 'the event we want to one is "ended"');
-  assert.equal(offs.length, 1, 'there should have been only one off event added');
-  assert.equal(offs[0], 'ended', 'the event we want to off is "ended"');
+QUnit.test('constructor initializes properties correctly', function(assert) {
+  assert.equal(this.autoAdvance.player_, this.player, 'Player is set correctly');
+  assert.equal(this.autoAdvance.timeoutId_, null, 'Timeout ID is initially null');
+  assert.equal(this.autoAdvance.delay_, null, 'Delay is initially null');
 });
 
-QUnit.test('do nothing if timeout is weird', function(assert) {
-  const player = playerProxyMaker();
-
-  const ones = [];
-  const offs = [];
-
-  player.one = function(type) {
-    ones.push(type);
-  };
-
-  player.off = function(type) {
-    offs.push(type);
-  };
-
-  autoadvance.setup(player, -1);
-  autoadvance.setup(player, -100);
-  autoadvance.setup(player, null);
-  autoadvance.setup(player, {});
-  autoadvance.setup(player, []);
-
-  assert.equal(offs.length, 0, 'we did nothing');
-  assert.equal(ones.length, 0, 'we did nothing');
+QUnit.test('setDelay - sets delay and registers ended event listener', function(assert) {
+  this.autoAdvance.setDelay(5);
+  assert.equal(this.autoAdvance.delay_, 5, 'Delay is set correctly');
+  assert.ok(this.player.on.calledWith('ended'), 'Ended event listener registered');
 });
 
-QUnit.test('reset if timeout is weird after we advance', function(assert) {
-  const player = playerProxyMaker();
-
-  const ones = [];
-  const offs = [];
-
-  player.one = function(type) {
-    ones.push(type);
-  };
-
-  player.off = function(type) {
-    offs.push(type);
-  };
-
-  autoadvance.setup(player, 0);
-  autoadvance.setup(player, -1);
-  autoadvance.setup(player, 0);
-  autoadvance.setup(player, -100);
-  autoadvance.setup(player, 0);
-  autoadvance.setup(player, null);
-  autoadvance.setup(player, 0);
-  autoadvance.setup(player, {});
-  autoadvance.setup(player, 0);
-  autoadvance.setup(player, []);
-  autoadvance.setup(player, 0);
-  autoadvance.setup(player, NaN);
-  autoadvance.setup(player, 0);
-  autoadvance.setup(player, Infinity);
-  autoadvance.setup(player, 0);
-  autoadvance.setup(player, -Infinity);
-
-  assert.equal(offs.length, 8, 'we reset the advance 8 times');
-  assert.equal(ones.length, 8, 'we autoadvanced 8 times');
+QUnit.test('setDelay - does not set delay for invalid values', function(assert) {
+  this.autoAdvance.setDelay(-1);
+  assert.equal(this.autoAdvance.delay_, null, 'Delay remains null for negative value');
+  assert.ok(this.player.on.notCalled, 'Ended event listener not registered for negative value');
 });
 
-QUnit.test('reset if we have already started advancing', function(assert) {
-  const player = playerProxyMaker();
-  const oldClearTimeout = window.clearTimeout;
-  let clears = 0;
+QUnit.test('startTimeout - sets a timeout and registers play event listener', function(assert) {
+  this.autoAdvance.setDelay(5);
+  this.autoAdvance.startTimeout_();
 
-  window.clearTimeout = function() {
-    clears++;
-  };
+  assert.ok(this.autoAdvance.timeoutId_, 'Timeout ID is set');
 
-  // pretend we started autoadvancing
-  player.playlist.autoadvance_.timeout = 1;
-  autoadvance.setup(player, 0);
+  this.clock.tick(5000);
 
-  assert.equal(clears, 1, 'we reset the auto advance');
-
-  window.clearTimeout = oldClearTimeout;
+  assert.ok(this.player.one.calledWith('play'), 'Play event listener registered');
+  assert.equal(this.autoAdvance.timeoutId_, null, 'Timeout ID is reset after timeout is triggered');
 });
 
-QUnit.test('timeout is given in seconds', function(assert) {
-  const player = playerProxyMaker();
-  const oldSetTimeout = window.setTimeout;
+QUnit.test('clearTimeout - clears the timeout and removes play event listener', function(assert) {
+  this.autoAdvance.setDelay(5);
+  this.autoAdvance.startTimeout_();
+  this.autoAdvance.clearTimeout_();
 
-  player.addEventListener = Function.prototype;
-
-  window.setTimeout = function(fn, timeout) {
-    assert.equal(timeout, 10 * 1000, 'timeout was given in seconds');
-  };
-
-  autoadvance.setup(player, 10);
-  player.trigger('ended');
-
-  window.setTimeout = oldSetTimeout;
+  assert.equal(this.autoAdvance.timeoutId_, null, 'Timeout ID is cleared');
+  assert.ok(this.player.off.calledWith('play'), 'Play event listener removed');
 });
 
-QUnit.test('cancel a pending auto-advance if play is requested', function(assert) {
-  const clock = sinon.useFakeTimers();
-  const player = playerProxyMaker();
+QUnit.test('fullReset - clears timeout and unregisters ended event listener', function(assert) {
+  this.autoAdvance.setDelay(5);
+  this.autoAdvance.fullReset();
 
-  sinon.spy(player.playlist, 'next');
+  assert.equal(this.autoAdvance.delay_, null, 'Delay is reset');
+  assert.ok(this.player.off.calledWith('ended'), 'Ended event listener unregistered');
+});
 
-  autoadvance.setup(player, 10);
-  player.trigger('ended');
-  clock.tick(10000);
+QUnit.test('callback is executed after timeout', function(assert) {
+  let callbackExecuted = false;
 
-  assert.equal(player.playlist.next.callCount, 1, 'next was called');
+  this.autoAdvance = new AutoAdvance(this.player, () => {
+    callbackExecuted = true;
+  });
 
-  autoadvance.setup(player, 10);
-  player.trigger('ended');
-  clock.tick(5000);
-  player.trigger('play');
-  clock.tick(5000);
+  this.autoAdvance.setDelay(5);
+  this.autoAdvance.startTimeout_();
 
-  assert.equal(player.playlist.next.callCount, 1, 'next was not called because a "play" occurred');
+  this.clock.tick(5000);
 
-  player.trigger('ended');
-  clock.tick(10000);
-
-  assert.equal(player.playlist.next.callCount, 2, 'next was called again because the content ended again and the appropriate wait time elapsed');
+  assert.ok(callbackExecuted, 'Callback is executed after timeout expires');
 });

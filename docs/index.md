@@ -1,1 +1,0 @@
-# Documentation for videojs-playlist

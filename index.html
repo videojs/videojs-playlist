@@ -1,114 +1,293 @@
 <!doctype html>
-<html>
+<html lang="en">
+
 <head>
   <meta charset="utf-8">
   <title>videojs-playlist Demo</title>
-  <link href="/node_modules/video.js/dist/video-js.css" rel="stylesheet">
+  <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
   <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: #f4f4f4;
+    }
+
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
 
     button {
-      margin: 1em;
-      width: 10em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 16px;
     }
 
-    .options {
-      margin: 1em;
+    button:hover {
+      background-color: #0056b3;
     }
 
-    .autoadvance-group label {
-      margin: 10px;
+    .playlist-info {
+      margin-top: 20px;
+      background-color: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .playlist-display {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .playlist-item {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
+    }
+
+    .playlist-item:hover {
+      background-color: #007bff;
+    }
+
+    .playlist-item img {
+      max-width: 100px;
+      height: auto;
+      border-radius: 5px;
+    }
+
+    .playlist-item p {
+      margin: 5px 0 0;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-top: 10px;
+    }
+
+    input[type="number"] {
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      width: 50px;
     }
   </style>
 </head>
+
 <body>
-  <video class="video-js vjs-default-skin" controls width="640px" height="360px"></video>
-  <button class="previous">Previous</button>
-  <button class="next">Next</button>
-  <div class="options">
-    <div class="autoadvance-group">
-      <h4>Auto-advance (in seconds)</h4>
-      <label><input type="radio" name="autoadvance" value="null" checked> No auto-advance</label>
-      <label><input type="radio" name="autoadvance" value="0"> 0</label>
-      <label><input type="radio" name="autoadvance" value="5"> 5</label>
-      <label><input type="radio" name="autoadvance" value="10"> 10</label>
-      <label><input type="radio" name="autoadvance" value="30"> 30</label>
-    </div>
-    <div class="repeat-group">
-      <h4>Repeat</h4>
-      <label><input class="repeat" type="checkbox" name="repeat" > Enable Repeat</label>
-    </div>
+  <!-- Video Player -->
+  <video id="videojs-playlist-player" class="video-js vjs-default-skin" controls width="640" height="360"></video>
+
+  <!-- Playlist Control Buttons -->
+  <div class="controls">
+    <button id="prevBtn">Previous</button>
+    <button id="nextBtn">Next</button>
+    <button id="firstBtn">First</button>
+    <button id="lastBtn">Last</button>
+    <button id="addBtn">Add</button>
+    <button id="removeBtn">Remove</button>
+    <button id="reverseBtn">Reverse</button>
+    <button id="sortBtn">Sort</button>
+    <button id="shuffleBtn">Shuffle</button>
   </div>
+
+  <div class="input-group">
+    <label for="removeIndexInput">Remove from index:</label>
+    <input id="removeIndexInput" type="number" value="0" min="0">
+
+    <label for="removeCountInput">Number of items to remove:</label>
+    <input id="removeCountInput" type="number" value="1" min="0">
+
+    <label for="addIndexInput">Index to add item:</label>
+    <input id="addIndexInput" type="number" value="0" min="0">
+  </div>
+
+  <!-- Playlist Information -->
+  <div id="playlistInfo" class="playlist-info">
+    Current Index: <span id="currentIndex">-</span><br>
+    Next Index: <span id="nextIndex">-</span><br>
+    Previous Index: <span id="prevIndex">-</span><br>
+    Last Index: <span id="lastIndex">-</span><br>
+    Repeat: <span id="repeat">-</span><br>
+    Autoadvance Delay: <span id="autoadvance">-</span>
+  </div>
+
+  <!-- Playlist Display -->
+  <div id="playlistDisplay" class="playlist-display">
+    <!-- Playlist items will be added here dynamically -->
+  </div>
+
   <ul>
-    <li><a href="/test/debug.html">Run unit tests in browser.</a></li>
+    <li><a href="/test/debug.html">Run unit tests in browser</a></li>
   </ul>
-  <script src="/node_modules/video.js/dist/video.js"></script>
-  <script src="/dist/videojs-playlist.js"></script>
+
+  <!-- JavaScript -->
+  <script src="node_modules/video.js/dist/video.js"></script>
+  <script src="dist/videojs-playlist.js"></script>
   <script>
-    var videoList = [{
-      sources: [{
-        src: 'http://media.w3.org/2010/05/sintel/trailer.mp4',
-        type: 'video/mp4'
-      }],
+    // Initialize Video.js Player
+    const player = videojs('videojs-playlist-player');
+
+    // Plugin event listeners. All are triggered on the player.
+    player.on([
+      'playlistchange', 'playlistsorted',
+      'beforeplaylistitem', 'playlistitem',
+      'playlistadd', 'playlistremove'
+    ], (e, data) => {
+      videojs.log('player saw "' + e.type + '"', e);
+      videojs.log('event data:', data);
+    });
+
+    // Initialize PlaylistPlugin
+    const playlistPlugin = player.playlistPlugin(player, {});
+    const PlaylistPluginClass = videojs.getPlugin('playlistPlugin');
+
+    const videoList = [{
+      sources: [{ src: 'http://media.w3.org/2010/05/sintel/trailer.mp4', type: 'video/mp4' }],
       poster: 'http://media.w3.org/2010/05/sintel/poster.png'
     }, {
-      sources: [{
-        src: 'http://vjs.zencdn.net/v/oceans.mp4',
-        type: 'video/mp4'
-      }],
-      poster: 'http://www.videojs.com/img/poster.jpg'
+      sources: [{ src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' }, { src: 'http://vjs.zencdn.net/v/oceans.mp4?duplicate=true', type: 'video/mp4' }],
+      poster: 'https://image.mux.com/5g1hMA6dKAe8DCgBB901DYB200U65ev2y00/thumbnail.jpg?time=43'
     }, {
-      sources: [{
-        src: 'http://media.w3.org/2010/05/video/movie_300.mp4',
-        type: 'video/mp4'
-      }],
+      sources: [{ src: 'http://media.w3.org/2010/05/video/movie_300.mp4', type: 'video/mp4' }],
       poster: 'http://media.w3.org/2010/05/video/poster.png'
     }];
 
-    var player = videojs(document.querySelector('video'), {
-      inactivityTimeout: 0
-    });
+    const playlist = PlaylistPluginClass.createPlaylistFrom(videoList);
 
-    try {
-      // try on ios
-      player.volume(0);
-    } catch (e) {}
+    // Playlist methods
+    playlist.shuffle();
+    playlist.enableRepeat();
 
-    player.on([
-      'duringplaylistchange',
-      'playlistchange',
-      'beforeplaylistitem',
-      'playlistitem',
-      'playlistsorted'
-    ], function(e) {
-      videojs.log('player saw "' + e.type + '"');
-    });
+    // Plugin methods
+    playlistPlugin.loadPlaylist(playlist);
+    playlistPlugin.loadFirstItem();
+    playlistPlugin.setAutoadvanceDelay(0);
 
-    player.playlist(videoList);
+    // Update Playlist Information
+    function updatePlaylistInfo() {
+      document.getElementById('currentIndex').textContent = playlist.getCurrentIndex();
+      document.getElementById('lastIndex').textContent = playlist.getLastIndex();
+      document.getElementById('nextIndex').textContent = playlist.getNextIndex();
+      document.getElementById('prevIndex').textContent = playlist.getPreviousIndex();
+      document.getElementById('repeat').textContent = playlist.isRepeatEnabled();
+      document.getElementById('autoadvance').textContent = playlistPlugin.getAutoadvanceDelay();
+    }
 
-    document.querySelector('.previous').addEventListener('click', function() {
-      player.playlist.previous();
-    });
+    // Update the Playlist Display UI
+    function updatePlaylistDisplay() {
+      const display = document.getElementById('playlistDisplay');
 
-    document.querySelector('.next').addEventListener('click', function() {
-      player.playlist.next();
-    });
+      display.innerHTML = '';
 
-    Array.prototype.forEach.call(document.querySelectorAll('[name=autoadvance]'), function(el) {
-      el.addEventListener('click', function() {
-        var value = document.querySelector('[name=autoadvance]:checked').value;
-        player.playlist.autoadvance(Number(value));
+      playlist.get().forEach(function (item, index) {
+        const itemDiv = document.createElement('div');
+
+        itemDiv.classList.add('playlist-item');
+
+        itemDiv.addEventListener('click', function () {
+          playlistPlugin.loadPlaylistItem(index);
+          updatePlaylistInfo();
+        });
+
+        const img = document.createElement('img');
+
+        img.src = item.poster || 'placeholder.jpg';
+        itemDiv.appendChild(img);
+
+        const title = document.createElement('p');
+
+        title.textContent = `Item ${index + 1}`;
+        itemDiv.appendChild(title);
+
+        display.appendChild(itemDiv);
       });
+    }
+
+    // Initial calls
+    updatePlaylistDisplay();
+    updatePlaylistInfo();
+
+    player.on(['playlistchange', 'playlistsorted', 'playlistadd', 'playlistremove', 'playlistitem'], () => {
+      updatePlaylistDisplay();
+      updatePlaylistInfo();
     });
 
-    document.querySelector('[name="autoadvance"][value="null"]').click();
+    // Control Button Event Listeners
+    const controls = document.querySelector('.controls');
 
-    var repeatCheckbox = document.querySelector('.repeat');
+    controls.addEventListener('click', function (event) {
+      const buttonId = event.target.id;
 
-    repeatCheckbox.addEventListener('click', function() {
-      player.playlist.repeat(this.checked);
+      switch (buttonId) {
+        case 'prevBtn':
+          playlistPlugin.loadPreviousItem();
+          break;
+        case 'nextBtn':
+          playlistPlugin.loadNextItem();
+          break;
+        case 'firstBtn':
+          playlistPlugin.loadFirstItem();
+          break;
+        case 'lastBtn':
+          playlistPlugin.loadLastItem();
+          break;
+        case 'addBtn':
+          const addIndex = parseInt(document.getElementById('addIndexInput').value, 10);
+
+          // Add the same source URL but with a different poster so it is possible to differentiate
+          const added = playlist.add({
+            sources: [{ src: 'http://vjs.zencdn.net/v/oceans.mp4', type: 'video/mp4' }],
+            poster: `https://image.mux.com/5g1hMA6dKAe8DCgBB901DYB200U65ev2y00/thumbnail.jpg?time=${Math.floor(Math.random() * 30) + 1}`
+          }, addIndex);
+          videojs.log('added items:', added);
+          break;
+        case 'removeBtn':
+          const removeIndex = parseInt(document.getElementById('removeIndexInput').value, 10);
+          const removeCount = parseInt(document.getElementById('removeCountInput').value, 10);
+          const removed = playlist.remove(removeIndex, removeCount);
+
+          videojs.log('removed items:', removed);
+          break;
+        case 'reverseBtn':
+          playlist.reverse();
+          break;
+        case 'sortBtn':
+          playlist.sort((a, b) => a.sources[0].src.localeCompare(b.sources[0].src));
+          break;
+        case 'shuffleBtn':
+          playlist.shuffle();
+          break;
+      }
     });
-
-    repeatCheckbox.checked = false;
   </script>
 </body>
+
 </html>

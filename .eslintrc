@@ -1,0 +1,15 @@
+{
+  "root": true,
+  "extends": [
+    "videojs"
+  ],
+  "ignorePatterns": [
+    "node_modules",
+    "dist",
+    "docs"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2022,
+    "sourceType": "module"
+  }
+}

@@ -1,26 +1,14 @@
 import videojs from 'video.js';
-import playlistMaker from './playlist-maker';
 import {version as VERSION} from '../package.json';
+import PlaylistPlugin from './playlist-plugin.js';
+import Playlist from './playlist.js';
+import AutoAdvance from './auto-advance.js';
 
-// Video.js 5/6 cross-compatible.
-const registerPlugin = videojs.registerPlugin || videojs.plugin;
+// Include the version number.
+PlaylistPlugin.VERSION = VERSION;
 
-/**
- * The video.js playlist plugin. Invokes the playlist-maker to create a
- * playlist function on the specific player.
- *
- * @param {Array} list
- *        a list of sources
- *
- * @param {number} item
- *        The index to start at
- */
-const plugin = function(list, item) {
-  playlistMaker(this, list, item);
-};
+// Register the plugin with video.js.
+videojs.registerPlugin('playlistPlugin', PlaylistPlugin);
 
-registerPlugin('playlist', plugin);
-
-plugin.VERSION = VERSION;
-
-export default plugin;
+export default PlaylistPlugin;
+export { Playlist, AutoAdvance };
