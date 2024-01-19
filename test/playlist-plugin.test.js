@@ -51,7 +51,7 @@ QUnit.test('createPlaylistFrom - handles input correctly', function(assert) {
   const playlist = PlaylistPlugin.createPlaylistFrom(this.testItems);
 
   assert.ok(playlist instanceof Playlist, 'Returns instance of Playlist');
-  assert.equal(playlist.get().length, this.testItems.length, 'Returns correct number of items in Playlist');
+  assert.equal(playlist.getItems().length, this.testItems.length, 'Returns correct number of items in Playlist');
 });
 
 QUnit.test('loadPlaylist - sets up playlist and logger correctly', function(assert) {
@@ -123,6 +123,14 @@ QUnit.test('unloadPlaylist - resets and removes event handling correctly', funct
   this.player.trigger('loadstart');
 
   assert.ok(this.playlistPlugin.handleSourceChange_.notCalled, 'handleSourceChange_ not called');
+});
+
+QUnit.test('getPlaylist - returns the current playlist', function(assert) {
+  this.playlistPlugin.loadPlaylist(this.mockPlaylist);
+
+  const retrievedPlaylist = this.playlistPlugin.getPlaylist();
+
+  assert.deepEqual(retrievedPlaylist, this.mockPlaylist, 'getPlaylist returns the current playlist');
 });
 
 QUnit.test('setAutoadvanceDelay - sets the delay correctly', function(assert) {

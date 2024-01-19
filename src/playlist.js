@@ -15,7 +15,7 @@ export default class Playlist extends videojs.EventTarget {
   static from(items, options) {
     const playlist = new Playlist(options);
 
-    playlist.set(items);
+    playlist.setItems(items);
 
     return playlist;
   }
@@ -23,7 +23,7 @@ export default class Playlist extends videojs.EventTarget {
   constructor(options = {}) {
     super();
 
-    this.list_ = [];
+    this.items_ = [];
     this.currentIndex_ = null;
     this.repeat_ = false;
     this.onError_ = options.onError || (() => {});
@@ -38,34 +38,34 @@ export default class Playlist extends videojs.EventTarget {
    * @fires playlistchange - Triggered after the contents of the playlist are changed.
    *                         This event indicates that the current playlist has been updated.
    */
-  set(items) {
+  setItems(items) {
     if (!Array.isArray(items)) {
       this.onError_('The playlist must be an array.');
-      return [...this.list_];
+      return [...this.items_];
     }
 
     const playlistItems = items.map(this.sanitizePlaylistItem_).filter(item => item !== null);
 
     if (playlistItems.length === 0) {
       this.onError_('Cannot set the playlist as none of the provided playlist items were valid.');
-      return [...this.list_];
+      return [...this.items_];
     }
 
     // If we have valid items, proceed to set the new playlist
-    this.list_ = playlistItems;
+    this.items_ = playlistItems;
 
     this.trigger('playlistchange');
 
-    return [...this.list_];
+    return [...this.items_];
   }
 
   /**
-   * Retrieves the current playlist.
+   * Retrieves the current list of playlist items.
    *
    * @return {Object[]} A shallow clone of the current list of playlist items.
    */
-  get() {
-    return [...this.list_];
+  getItems() {
+    return [...this.items_];
   }
 
   /**
@@ -73,7 +73,7 @@ export default class Playlist extends videojs.EventTarget {
    */
   reset() {
     this.currentIndex_ = null;
-    this.list_ = [];
+    this.items_ = [];
 
     this.trigger('playlistchange');
   }
@@ -107,7 +107,7 @@ export default class Playlist extends videojs.EventTarget {
    * @param {number} index - The index to be set as the current index.
    */
   setCurrentIndex(index) {
-    if (!isIndexInBounds(this.list_, index)) {
+    if (!isIndexInBounds(this.items_, index)) {
       this.onError_('Cannot set index that is out of bounds.');
       return;
     }
@@ -121,7 +121,7 @@ export default class Playlist extends videojs.EventTarget {
    * @return {Object|undefined} The current playlist item if available, or undefined if no current item.
    */
   getCurrentItem() {
-    return this.list_[this.currentIndex_];
+    return this.items_[this.currentIndex_];
   }
 
   /**
@@ -143,7 +143,7 @@ export default class Playlist extends videojs.EventTarget {
    * @return {number} The index of the last item in the playlist or -1 if there are no items.
    */
   getLastIndex() {
-    return this.list_.length ? this.list_.length - 1 : -1;
+    return this.items_.length ? this.items_.length - 1 : -1;
   }
 
   /**
@@ -157,7 +157,7 @@ export default class Playlist extends videojs.EventTarget {
       return -1;
     }
 
-    const nextIndex = (this.currentIndex_ + 1) % this.list_.length;
+    const nextIndex = (this.currentIndex_ + 1) % this.items_.length;
 
     return this.repeat_ || nextIndex !== 0 ? nextIndex : -1;
   }
@@ -173,9 +173,9 @@ export default class Playlist extends videojs.EventTarget {
       return -1;
     }
 
-    const previousIndex = (this.currentIndex_ - 1 + this.list_.length) % this.list_.length;
+    const previousIndex = (this.currentIndex_ - 1 + this.items_.length) % this.items_.length;
 
-    return this.repeat_ || previousIndex !== this.list_.length - 1 ? previousIndex : -1;
+    return this.repeat_ || previousIndex !== this.items_.length - 1 ? previousIndex : -1;
   }
 
   /**
@@ -210,9 +210,9 @@ export default class Playlist extends videojs.EventTarget {
       }
     }
 
-    const resolvedIndex = (typeof index !== 'number' || index < 0 || index > this.list_.length) ? this.list_.length : index;
-    const beforeItems = this.list_.slice(0, resolvedIndex);
-    const afterItems = this.list_.slice(resolvedIndex);
+    const resolvedIndex = (typeof index !== 'number' || index < 0 || index > this.items_.length) ? this.items_.length : index;
+    const beforeItems = this.items_.slice(0, resolvedIndex);
+    const afterItems = this.items_.slice(resolvedIndex);
     const newItems = items.map(this.sanitizePlaylistItem_).filter(item => item !== null);
 
     if (newItems.length === 0) {
@@ -220,7 +220,7 @@ export default class Playlist extends videojs.EventTarget {
       return [];
     }
 
-    this.list_ = [...beforeItems, ...newItems, ...afterItems];
+    this.items_ = [...beforeItems, ...newItems, ...afterItems];
 
     // Update currentIndex if inserting new elements earlier in the array than the current item
     if (resolvedIndex <= this.currentIndex_) {
@@ -261,7 +261,7 @@ export default class Playlist extends videojs.EventTarget {
    * @fires playlistremove - Triggered when items are successfully removed.
    */
   remove(index, count = 1) {
-    if (!isIndexInBounds(this.list_, index)) {
+    if (!isIndexInBounds(this.items_, index)) {
       this.onError_('Index is out of bounds.');
       return [];
     }
@@ -272,8 +272,8 @@ export default class Playlist extends videojs.EventTarget {
     }
 
     // Constrain the removal count to the number of items that are actually available to remove starting at that index
-    const actualCount = Math.min(count, this.list_.length - index);
-    const removedItems = this.list_.splice(index, actualCount);
+    const actualCount = Math.min(count, this.items_.length - index);
+    const removedItems = this.items_.splice(index, actualCount);
 
     this.adjustCurrentIndexAfterRemoval_(index, actualCount);
 
@@ -294,16 +294,16 @@ export default class Playlist extends videojs.EventTarget {
    * @fires playlistsorted - Triggered after the playlist is sorted internally.
    */
   sort(compare) {
-    if (!this.list_.length || typeof compare !== 'function') {
+    if (!this.items_.length || typeof compare !== 'function') {
       return;
     }
 
     const currentItem = this.getCurrentItem();
 
-    this.list_.sort(compare);
+    this.items_.sort(compare);
 
     // Update the current index after sorting
-    this.currentIndex_ = this.list_.indexOf(currentItem);
+    this.currentIndex_ = this.items_.indexOf(currentItem);
 
     this.trigger('playlistsorted');
   }
@@ -314,14 +314,14 @@ export default class Playlist extends videojs.EventTarget {
    * @fires playlistsorted - Triggered after the playlist is sorted internally.
    */
   reverse() {
-    if (!this.list_.length) {
+    if (!this.items_.length) {
       return;
     }
 
-    this.list_.reverse();
+    this.items_.reverse();
 
     // Invert the current index
-    this.currentIndex_ = this.list_.length - 1 - this.currentIndex_;
+    this.currentIndex_ = this.items_.length - 1 - this.currentIndex_;
 
     this.trigger('playlistsorted');
   }
@@ -335,7 +335,7 @@ export default class Playlist extends videojs.EventTarget {
    */
   shuffle({ rest = true } = {}) {
     const startIndex = rest ? this.currentIndex_ + 1 : 0;
-    const itemsToShuffle = this.list_.slice(startIndex);
+    const itemsToShuffle = this.items_.slice(startIndex);
 
     if (itemsToShuffle.length <= 1) {
       return;
@@ -346,13 +346,13 @@ export default class Playlist extends videojs.EventTarget {
     randomize(itemsToShuffle);
 
     if (rest) {
-      this.list_.splice(startIndex, itemsToShuffle.length, ...itemsToShuffle);
+      this.items_.splice(startIndex, itemsToShuffle.length, ...itemsToShuffle);
     } else {
-      this.list_ = itemsToShuffle;
+      this.items_ = itemsToShuffle;
     }
 
     // Set the new index of the current item
-    this.currentIndex_ = this.list_.indexOf(currentItem);
+    this.currentIndex_ = this.items_.indexOf(currentItem);
 
     this.trigger('playlistsorted');
   }

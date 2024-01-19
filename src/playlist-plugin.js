@@ -68,6 +68,15 @@ export default class PlaylistPlugin extends Plugin {
   }
 
   /**
+   * Retrieves the currently loaded playlist object
+   *
+   * @return {Playlist|null} The current Playlist instance, or null if one is not loaded.
+   */
+  getPlaylist() {
+    return this.playlist_;
+  }
+
+  /**
    * Sets the auto-advance delay.
    *
    * @param {number} delayInSeconds - The delay in seconds.
