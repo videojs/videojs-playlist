@@ -25,11 +25,13 @@ const clearTracks = (player) => {
  *
  * @param  {Object} item
  *         A source from the playlist.
+ * @param {boolean} [suppressPoster]
+ *         Should the native poster be suppressed? Defaults to false.
  *
  * @return {Player}
  *         The player that is now playing the item
  */
-const playItem = (player, item) => {
+const playItem = (player, item, suppressPoster = false) => {
   const replay = !player.paused() || player.ended();
 
   player.trigger('beforeplaylistitem', item.originalValue || item);
