@@ -179,7 +179,7 @@ QUnit.test('playlist.currentItem() will hide the poster if suppressPoster param 
   const player = playerProxyMaker();
   const playlist = playlistMaker(player, videoList);
 
-  playlist.currentItem(0, true);
+  playlist.currentItem(1, true);
   assert.equal(player.poster(), '', 'poster is suppressed');
 });
 

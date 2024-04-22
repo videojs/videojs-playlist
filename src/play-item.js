@@ -40,7 +40,7 @@ const playItem = (player, item, suppressPoster = false) => {
     player.playlist.currentPlaylistItemId_ = item.playlistItemId_;
   }
 
-  player.poster(item.poster || '');
+  player.poster(suppressPoster ? '' : item.poster || '');
   player.src(item.sources);
   clearTracks(player);
 
