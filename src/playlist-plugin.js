@@ -225,7 +225,8 @@ export default class PlaylistPlugin extends Plugin {
    * @private
    */
   playNext_ = () => {
-    const loadedNext = this.loadNextItem({ loadPoster: false });
+    const shouldLoadPoster = this.player.options_.audioPosterMode ? true : false;
+    const loadedNext = this.loadNextItem({ loadPoster: shouldLoadPoster });
 
     if (loadedNext) {
       this.player.play();
