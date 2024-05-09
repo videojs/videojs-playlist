@@ -41,6 +41,11 @@ const playItem = (player, item, suppressPoster = false) => {
   }
 
   player.poster(suppressPoster ? '' : item.poster || '');
+  player.one('audiopostermodechange', () => {
+    if (player.audioPosterMode()) {
+      player.poster(item.poster);
+    }
+  });
   player.src(item.sources);
   clearTracks(player);
 
