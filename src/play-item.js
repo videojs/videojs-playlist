@@ -49,7 +49,7 @@ const playItem = (player, item, suppressPoster = false) => {
 
   player.off('audiopostermodechange', displayPoster);
   player.one('audiopostermodechange', displayPoster);
-  
+
   player.src(item.sources);
   clearTracks(player);
 
