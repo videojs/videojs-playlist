@@ -8,6 +8,9 @@ const Plugin = videojs.getPlugin('plugin');
 // Exported for testing purposes
 export const log = videojs.log.createLogger('videojs-playlist');
 
+/**
+ * Playlist Plugin class
+ */
 export default class PlaylistPlugin extends Plugin {
   /**
    * Creates a new Playlist instance from an array of items.
@@ -110,7 +113,7 @@ export default class PlaylistPlugin extends Plugin {
    * @return {boolean} True if the item was loaded successfully, false otherwise.
    */
   loadPlaylistItem(index, { loadPoster = true } = {}) {
-    const items = this.playlist_.get();
+    const items = this.playlist_.getItems();
 
     if (!isIndexInBounds(items, index)) {
       log.error('Index is out of bounds.');
@@ -280,7 +283,7 @@ export default class PlaylistPlugin extends Plugin {
    * @private
    */
   isSourceInPlaylist_(src) {
-    const itemList = this.playlist_.get();
+    const itemList = this.playlist_.getItems();
 
     return itemList.some(item => item.sources.some(source => source.src === src));
   }
