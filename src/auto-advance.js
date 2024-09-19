@@ -73,10 +73,16 @@ const setup = (player, delay) => {
       reset(player);
       player.off('play', cancelOnPlay);
       player.playlist.next();
+      player.one('loadstart', function() {
+        player.playlist.isAutoadvancing = true;
+      });
     }, delay * 1000);
   };
 
   player.one('ended', player.playlist.autoadvance_.trigger);
+  player.one(['abort', 'error'], function() {
+    player.playlist.isAutoadvancing = false;
+  });
 };
 
 /**
