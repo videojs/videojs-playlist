@@ -25,12 +25,19 @@ const clearTracks = (player) => {
  *
  * @param  {Object} item
  *         A source from the playlist.
+ * @param {boolean} [suppressPoster]
+ *         Should the native poster be suppressed? Defaults to false.
  *
  * @return {Player}
  *         The player that is now playing the item
  */
-const playItem = (player, item) => {
+const playItem = (player, item, suppressPoster = false) => {
   const replay = !player.paused() || player.ended();
+  const displayPoster = () => {
+    if (player.audioPosterMode()) {
+      player.poster(item.poster || '');
+    }
+  };
 
   player.trigger('beforeplaylistitem', item.originalValue || item);
 
@@ -38,7 +45,11 @@ const playItem = (player, item) => {
     player.playlist.currentPlaylistItemId_ = item.playlistItemId_;
   }
 
-  player.poster(item.poster || '');
+  player.poster(suppressPoster ? '' : item.poster || '');
+
+  player.off('audiopostermodechange', displayPoster);
+  player.one('audiopostermodechange', displayPoster);
+
   player.src(item.sources);
   clearTracks(player);
 
