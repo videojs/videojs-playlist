@@ -72,12 +72,18 @@ const setup = (player, delay) => {
     player.playlist.autoadvance_.timeout = player.setTimeout(() => {
       reset(player);
       player.off('play', cancelOnPlay);
+      player.one('loadstart', function() {
+        player.playlist.isAutoadvancing = true;
+      });
       // Poster should be suppressed when auto-advancing
       player.playlist.next(true);
     }, delay * 1000);
   };
 
   player.one('ended', player.playlist.autoadvance_.trigger);
+  player.one(['abort', 'error'], function() {
+    player.playlist.isAutoadvancing = false;
+  });
 };
 
 /**
