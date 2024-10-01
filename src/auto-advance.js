@@ -29,8 +29,13 @@ let reset = (player) => {
     player.off('ended', aa.trigger);
   }
 
+  if (aa.abortOrErrorHandler) {
+    player.off(['abort', 'error'], aa.abortOrErrorHandler);
+  }
+
   aa.timeout = null;
   aa.trigger = null;
+  aa.abortOrErrorHandler = null;
 };
 
 /**
@@ -80,10 +85,12 @@ const setup = (player, delay) => {
     }, delay * 1000);
   };
 
-  player.one('ended', player.playlist.autoadvance_.trigger);
-  player.one(['abort', 'error'], function() {
+  player.playlist.autoadvance_.abortOrErrorHandler = function() {
     player.playlist.isAutoadvancing = false;
-  });
+  };
+
+  player.one('ended', player.playlist.autoadvance_.trigger);
+  player.one(['abort', 'error'], player.playlist.autoadvance_.abortOrErrorHandler);
 };
 
 /**
