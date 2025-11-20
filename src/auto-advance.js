@@ -57,10 +57,18 @@ const setup = (player, delay) => {
   // called with a valid value.
   if (!validSeconds(delay)) {
     player.playlist.autoadvance_.delay = null;
+    // Emit event for delay change to null
+    if (typeof player.trigger === "function") {
+      player.trigger("autoadvance-delaychange", { delay: null });
+    }
     return;
   }
 
   player.playlist.autoadvance_.delay = delay;
+  // Emit event for delay change
+  if (typeof player.trigger === "function") {
+    player.trigger("autoadvance-delaychange", { delay });
+  }
 
   player.playlist.autoadvance_.trigger = function() {
 

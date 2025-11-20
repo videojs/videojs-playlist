@@ -6,6 +6,32 @@ import playerProxyMaker from './player-proxy-maker.js';
 
 QUnit.module('auto-advance');
 
+QUnit.test('autoadvance-delaychange event is triggered with correct value', function(assert) {
+  const player = playerProxyMaker();
+  let eventCount = 0;
+  let lastDelay;
+
+  // Simulate video.js event system
+  player.trigger = function(event, data) {
+    if (event === 'autoadvance-delaychange') {
+      eventCount++;
+      lastDelay = data.delay;
+    }
+  };
+
+  autoadvance.setup(player, 5);
+  assert.equal(eventCount, 1, 'event triggered once for valid delay');
+  assert.equal(lastDelay, 5, 'delay is correct for valid delay');
+
+  autoadvance.setup(player, null);
+  assert.equal(eventCount, 2, 'event triggered again for null delay');
+  assert.strictEqual(lastDelay, null, 'delay is null when disabled');
+
+  autoadvance.setup(player, 10);
+  assert.equal(eventCount, 3, 'event triggered again for another valid delay');
+  assert.equal(lastDelay, 10, 'delay is correct for new valid delay');
+});
+
 QUnit.test('set up ended listener if one does not exist yet', function(assert) {
   const player = playerProxyMaker();
   const ones = [];
