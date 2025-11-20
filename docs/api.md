@@ -497,6 +497,19 @@ Shuffles/randomizes the order of playlist items in a manner identical to [`lodas
 Fires the `playlistsorted` event after shuffling.
 
 ## Events
+### `autoadvance-delaychange`
+
+This event is fired whenever the auto-advance delay value changes (including when it is set to `null` to disable auto-advance). The event is triggered on the player and provides the new delay value in the event object.
+
+#### Example
+
+```js
+player.on('autoadvance-delaychange', function(event, data) {
+  // data.delay will be the new delay value (number or null)
+  console.log('Auto-advance delay changed to:', data.delay);
+});
+```
+
 
 ### `duringplaylistchange`
 
